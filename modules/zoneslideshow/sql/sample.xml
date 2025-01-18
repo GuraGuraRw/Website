@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<slideshow>
+  <row>
+    <active><![CDATA[1]]></active>
+    <active_mobile><![CDATA[0]]></active_mobile>
+    <position><![CDATA[1]]></position>
+    <image><![CDATA[slide1.jpg]]></image>
+    <related_products><![CDATA[]]></related_products>
+    <lang_fields>
+      <en>
+        <title><![CDATA[Slide 1]]></title>
+        <image_name><![CDATA[slide1.jpg]]></image_name>
+        <slide_link><![CDATA[]]></slide_link>
+        <caption><![CDATA[<h2>Gaming Headset</h2>
+<h2>Brilliant Lighting Effect</h2>
+<p class="text">Wireless Connection With TV, Computer, Laptop...</p>
+<p><a class="btn" href="#">Discover Now</a></p>]]></caption>
+      </en>
+    </lang_fields>
+  </row>
+  <row>
+    <active><![CDATA[1]]></active>
+    <active_mobile><![CDATA[0]]></active_mobile>
+    <position><![CDATA[2]]></position>
+    <image><![CDATA[slide2.jpg]]></image>
+    <related_products><![CDATA[]]></related_products>
+    <lang_fields>
+      <en>
+        <title><![CDATA[Slide 2]]></title>
+        <image_name><![CDATA[slide2.jpg]]></image_name>
+        <slide_link><![CDATA[]]></slide_link>
+        <caption><![CDATA[<h2>Sport Edition</h2>
+<h2>Red Special Edition</h2>
+<p class="text">Wireless Connection With TV, Computer, Laptop...</p>
+<p><a class="btn" href="#">Discover Now</a></p>]]></caption>
+      </en>
+    </lang_fields>
+  </row>
+  <row>
+    <active><![CDATA[1]]></active>
+    <active_mobile><![CDATA[0]]></active_mobile>
+    <position><![CDATA[3]]></position>
+    <image><![CDATA[slide3.jpg]]></image>
+    <related_products><![CDATA[]]></related_products>
+    <lang_fields>
+      <en>
+        <title><![CDATA[Slide 3]]></title>
+        <image_name><![CDATA[slide3.jpg]]></image_name>
+        <slide_link><![CDATA[]]></slide_link>
+        <caption><![CDATA[<h2>Sport Edition</h2>
+<h2>Best Choice Of Your</h2>
+<p class="text">Wireless Connection With TV, Computer, Laptop...</p>
+<p><a class="btn" href="#">Discover Now</a></p>]]></caption>
+      </en>
+    </lang_fields>
+  </row>
+  <row>
+    <active><![CDATA[0]]></active>
+    <active_mobile><![CDATA[1]]></active_mobile>
+    <position><![CDATA[4]]></position>
+    <image><![CDATA[slide4.jpg]]></image>
+    <related_products><![CDATA[]]></related_products>
+    <lang_fields>
+      <en>
+        <title><![CDATA[Slide 4]]></title>
+        <image_name><![CDATA[slide4.jpg]]></image_name>
+        <slide_link><![CDATA[]]></slide_link>
+        <caption><![CDATA[<h2>Gaming Headset</h2>
+<h2>Brilliant Lighting Effect</h2>
+<p class="text">Wireless Connection With TV, Computer, Laptop...</p>
+<p><a class="btn" href="#">Discover Now</a></p>]]></caption>
+      </en>
+    </lang_fields>
+  </row>
+  <row>
+    <active><![CDATA[0]]></active>
+    <active_mobile><![CDATA[1]]></active_mobile>
+    <position><![CDATA[2]]></position>
+    <image><![CDATA[slide5.jpg]]></image>
+    <related_products><![CDATA[]]></related_products>
+    <lang_fields>
+      <en>
+        <title><![CDATA[Slide 5]]></title>
+        <image_name><![CDATA[slide5.jpg]]></image_name>
+        <slide_link><![CDATA[]]></slide_link>
+        <caption><![CDATA[<h2>Sport Edition</h2>
+<h2>Red Special Edition</h2>
+<p class="text">Wireless Connection With TV, Computer, Laptop...</p>
+<p><a class="btn" href="#">Discover Now</a></p>]]></caption>
+      </en>
+    </lang_fields>
+  </row>
+</slideshow>

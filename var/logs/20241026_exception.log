@@ -1,0 +1,2 @@
+*ERROR* 	v1.7.8.7	2024/10/26 - 22:08:16: Property Address-&gt;id_country is empty. at line 1046 in file classes/ObjectModel.php
+*ERROR* 	v1.7.8.7	2024/10/26 - 22:08:23: Property Address-&gt;id_country is empty. at line 1046 in file classes/ObjectModel.php

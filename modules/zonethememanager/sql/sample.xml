@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<thememanager>
+  <row>
+    <general_settings><![CDATA[a:22:{s:6:"layout";s:4:"wide";s:14:"boxed_bg_color";s:7:"#bdbdbd";s:12:"boxed_bg_img";s:17:"zone-boxed-bg.jpg";s:18:"boxed_bg_img_style";s:7:"stretch";s:8:"svg_logo";b:0;s:9:"svg_width";i:150;s:12:"lazy_loading";i:1;s:11:"sticky_menu";i:1;s:13:"sticky_mobile";i:1;s:10:"scroll_top";i:1;s:12:"progress_bar";i:0;s:12:"sidebar_cart";i:1;s:18:"sidebar_navigation";i:1;s:18:"sidebar_categories";s:3:"ALL";s:11:"mobile_menu";s:12:"categorytree";s:17:"product_quickview";i:1;s:23:"product_button_new_line";i:0;s:19:"product_description";s:0:"";s:20:"product_availability";i:0;s:14:"product_colors";i:0;s:9:"quickview";i:1;s:15:"buy_in_new_line";i:1;}]]></general_settings>
+    <category_settings><![CDATA[a:14:{s:10:"show_image";i:1;s:16:"show_description";i:1;s:18:"expand_description";i:1;s:18:"show_subcategories";i:1;s:20:"product_grid_columns";i:4;s:20:"default_product_view";s:4:"grid";s:16:"addtocart_button";i:1;s:14:"details_button";i:1;s:17:"product_quickview";i:1;s:23:"product_button_new_line";i:0;s:19:"product_description";s:0:"";s:20:"product_availability";i:0;s:14:"product_colors";i:0;s:15:"buy_in_new_line";i:1;}]]></category_settings>
+    <product_settings><![CDATA[a:9:{s:19:"product_info_layout";s:4:"tabs";s:26:"product_add_to_cart_layout";s:6:"inline";s:24:"product_actions_position";b:0;s:18:"product_image_zoom";i:1;s:17:"product_countdown";i:1;s:25:"product_attributes_layout";s:8:"combinations";s:17:"combination_price";i:1;s:20:"combination_quantity";b:0;s:21:"combination_separator";s:2:", ";}]]></product_settings>
+    <checkout_settings><![CDATA[a:1:{s:11:"login_first";i:1;}]]></checkout_settings>
+    <header_top_bg_color><![CDATA[]]></header_top_bg_color>
+    <footer_cms_links><![CDATA[stores,prices-drop,new-products,best-sales,contact,sitemap]]></footer_cms_links>
+    <lang_fields>
+      <en>
+        <header_top><![CDATA[]]></header_top>
+        <header_phone><![CDATA[<ul>
+<li><a href="#">My Account</a></li>
+<li><a href="#"> About Us</a></li>
+<li><a href="#">Contact Us</a></li>
+<li><a href="#"> FAQs</a></li>
+</ul>]]></header_phone>
+        <footer_about_us><![CDATA[<p class="sm-bottom"><a href="#"><img src="BASE_URLimg/logo.png" alt="logo" width="195" /></a></p>
+<p>Aenean dignissim ante eu purus dictum, feugiat element erat luctus. Integer scelerisque, diam nec condimentum facilisis. <a title="See more" href="#">[...]</a></p>
+<p><span class="fa fa-phone"></span>Tel: <strong>+12 0987654321</strong></p>
+<p><span class="fa fa-envelope"></span>Email: example@demo.com</p>
+<p><span class="fa fa-map-marker"></span>Address: 6 Bis Rue Meyerbeer</p>]]></footer_about_us>
+        <footer_cms_title><![CDATA[Information]]></footer_cms_title>
+        <footer_static_links><![CDATA[<div class="row">
+<div class="col-12 col-lg-6">
+<p class="h4">Why Choose</p>
+<ul>
+<li><a href="#">Theme Features</a></li>
+<li><a href="#">Typography</a></li>
+<li><a href="#">Banner Effect</a></li>
+<li><a href="#">Documentation</a></li>
+<li><a href="#">Support</a></li>
+<li><a href="#">Rating</a></li>
+</ul>
+</div>
+<div class="col-12 col-lg-6">
+<p class="h4">Sample Menu</p>
+<ul>
+<li><a href="#">Iris Josiah Cross</a></li>
+<li><a href="#">Wild Beam</a></li>
+<li><a href="#">Wooden Crystal</a></li>
+<li><a href="#">Trey Mccarthy</a></li>
+<li><a href="#">Square Scorpion</a></li>
+<li><a href="#">Vince Mcknight</a></li>
+</ul>
+</div>
+</div>]]></footer_static_links>
+        <footer_bottom><![CDATA[<p class="m-0"> Copyright © 2021 <strong>Supermarket Store</strong>  |  Powered by <a href="#" target="_blank" rel="noreferrer noopener">PrestaShop</a></p>]]></footer_bottom>
+        <cookie_message><![CDATA[<p>This site uses cookies. By continuing to browse the site you are agreeing to our use of cookies. <a href="#" title="EU Cookie Laws" target="_blank" rel="noreferrer noopener">Find out more here</a>.</p>]]></cookie_message>
+        <checkout_header><![CDATA[]]></checkout_header>
+        <checkout_footer><![CDATA[]]></checkout_footer>
+      </en>
+    </lang_fields>
+  </row>
+</thememanager>

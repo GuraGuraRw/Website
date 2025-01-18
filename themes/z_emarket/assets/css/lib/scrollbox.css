@@ -1,0 +1,38 @@
+/* line 1, ../../xampp/htdocs/home_work/z_emarket/themes/z_emarket/_dev/css/lib/scrollbox.scss */
+.flex-scrollbox-wrapper {
+  overflow: hidden;
+}
+
+/* line 3, ../../xampp/htdocs/home_work/z_emarket/themes/z_emarket/_dev/css/lib/scrollbox.scss */
+.flex-scrollbox-wrapper > div:first-child, .flex-scrollbox-wrapper > ul:first-child {
+  flex-wrap: nowrap;
+}
+
+/* line 7, ../../xampp/htdocs/home_work/z_emarket/themes/z_emarket/_dev/css/lib/scrollbox.scss */
+.scroll-box-arrows {
+  display: none;
+  transition: all 0.3s;
+}
+
+/* line 10, ../../xampp/htdocs/home_work/z_emarket/themes/z_emarket/_dev/css/lib/scrollbox.scss */
+.scroll-box-arrows.scroll {
+  display: block;
+}
+
+/* line 13, ../../xampp/htdocs/home_work/z_emarket/themes/z_emarket/_dev/css/lib/scrollbox.scss */
+.scroll-box-arrows .left, .scroll-box-arrows .right {
+  cursor: pointer;
+  user-select: none;
+}
+
+/* line 18, ../../xampp/htdocs/home_work/z_emarket/themes/z_emarket/_dev/css/lib/scrollbox.scss */
+[data-autoscroll="true"] + .scroll-box-arrows {
+  opacity: 0;
+}
+
+/* line 21, ../../xampp/htdocs/home_work/z_emarket/themes/z_emarket/_dev/css/lib/scrollbox.scss */
+.flex-scrollbox-wrapper:hover + .scroll-box-arrows, .scroll-box-arrows:hover {
+  opacity: 1;
+}
+
+/*# sourceMappingURL=scrollbox.css.map */

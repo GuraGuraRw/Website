@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<columnblocks>
+  <row>
+    <active><![CDATA[1]]></active>
+    <active_mobile><![CDATA[0]]></active_mobile>
+    <position><![CDATA[1]]></position>
+    <block_type><![CDATA[blocktype_product]]></block_type>
+    <custom_class><![CDATA[]]></custom_class>
+    <product_filter><![CDATA[products_selected]]></product_filter>
+    <product_options><![CDATA[a:8:{s:5:"limit";s:1:"5";s:12:"mobile_limit";s:1:"3";s:13:"enable_slider";s:0:"";s:20:"mobile_enable_slider";s:0:"";s:11:"auto_scroll";s:0:"";s:13:"product_thumb";s:4:"left";s:17:"selected_products";a:5:{i:0;s:1:"1";i:1;s:1:"2";i:2;s:1:"3";i:3;s:1:"4";i:4;s:1:"5";}s:17:"selected_category";b:0;}]]></product_options>
+    <lang_fields>
+      <en>
+        <title><![CDATA[Trending]]></title>
+        <static_html><![CDATA[]]></static_html>
+      </en>
+    </lang_fields>
+  </row>
+  <row>
+    <active><![CDATA[1]]></active>
+    <active_mobile><![CDATA[0]]></active_mobile>
+    <position><![CDATA[2]]></position>
+    <block_type><![CDATA[blocktype_html]]></block_type>
+    <custom_class><![CDATA[no-box]]></custom_class>
+    <product_filter><![CDATA[products_featured]]></product_filter>
+    <product_options><![CDATA[a:8:{s:5:"limit";s:1:"3";s:12:"mobile_limit";s:1:"3";s:13:"enable_slider";s:0:"";s:20:"mobile_enable_slider";s:0:"";s:11:"auto_scroll";s:0:"";s:13:"product_thumb";s:3:"top";s:17:"selected_products";b:0;s:17:"selected_category";b:0;}]]></product_options>
+    <lang_fields>
+      <en>
+        <title><![CDATA[Banner]]></title>
+        <static_html><![CDATA[<div class="banner"><a href="#"><img src="BASE_URLimg/cms/b7.jpg" alt="b7.jpg" width="280" height="350" /></a></div>]]></static_html>
+      </en>
+    </lang_fields>
+  </row>
+  <row>
+    <active><![CDATA[1]]></active>
+    <active_mobile><![CDATA[0]]></active_mobile>
+    <position><![CDATA[3]]></position>
+    <block_type><![CDATA[blocktype_product]]></block_type>
+    <custom_class><![CDATA[]]></custom_class>
+    <product_filter><![CDATA[products_special]]></product_filter>
+    <product_options><![CDATA[a:8:{s:5:"limit";s:1:"3";s:12:"mobile_limit";s:1:"3";s:13:"enable_slider";s:1:"1";s:20:"mobile_enable_slider";s:1:"1";s:11:"auto_scroll";s:0:"";s:13:"product_thumb";s:3:"top";s:17:"selected_products";b:0;s:17:"selected_category";b:0;}]]></product_options>
+    <lang_fields>
+      <en>
+        <title><![CDATA[Special Products]]></title>
+        <static_html><![CDATA[]]></static_html>
+      </en>
+    </lang_fields>
+  </row>
+  <row>
+    <active><![CDATA[1]]></active>
+    <active_mobile><![CDATA[0]]></active_mobile>
+    <position><![CDATA[4]]></position>
+    <block_type><![CDATA[blocktype_html]]></block_type>
+    <custom_class><![CDATA[shown-index]]></custom_class>
+    <product_filter><![CDATA[products_featured]]></product_filter>
+    <product_options><![CDATA[a:8:{s:5:"limit";s:1:"3";s:12:"mobile_limit";s:1:"3";s:13:"enable_slider";s:0:"";s:20:"mobile_enable_slider";s:0:"";s:11:"auto_scroll";s:0:"";s:13:"product_thumb";s:3:"top";s:17:"selected_products";b:0;s:17:"selected_category";b:0;}]]></product_options>
+    <lang_fields>
+      <en>
+        <title><![CDATA[Our Stores]]></title>
+        <static_html><![CDATA[<p class="column-title">Our Stores</p>
+<div class="content">
+<p><img src="BASE_URLimg/cms/store.jpg" alt="store.jpg" width="250" height="140" /></p>
+<p class="mb-0"><a class="btn btn-primary" href="#">Discover Our Store <i class="material-icons">trending_flat</i></a></p>
+</div>]]></static_html>
+      </en>
+    </lang_fields>
+  </row>
+</columnblocks>

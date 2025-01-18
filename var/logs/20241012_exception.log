@@ -1,0 +1,1 @@
+*ERROR* 	v1.7.8.7	2024/10/12 - 00:40:21: Link to database cannot be established: SQLSTATE[HY000] [2002] Connection timed out at line 136 in file classes/db/DbPDO.php

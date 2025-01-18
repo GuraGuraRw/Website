@@ -1,0 +1,6 @@
+[2024-11-10 22:32:18] === Step getChannelInfo
+[2024-11-10 22:32:18] === Step checkFilesVersion
+[2024-11-10 22:32:18] === Step compareReleases
+[2024-11-10 22:34:05] === Step getChannelInfo
+[2024-11-10 22:34:05] === Step checkFilesVersion
+[2024-11-10 22:34:05] === Step compareReleases

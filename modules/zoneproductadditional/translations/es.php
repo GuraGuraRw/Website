@@ -1,0 +1,37 @@
+<?php
+
+global $_MODULE;
+$_MODULE = array();
+$_MODULE['<{zoneproductadditional}prestashop>zoneproductadditional_0736b3a96fbc78246753b6fb25b0daca'] = 'Z.One - Productos de Campos Adicionales';
+$_MODULE['<{zoneproductadditional}prestashop>zoneproductadditional_9924203cda0f842673b44183b04af7f7'] = 'Producto de campos adicionales en Página de producto';
+$_MODULE['<{zoneproductadditional}prestashop>zoneproductadditional_070e16b4f77b90e802f789b5be583cfa'] = 'Error en la subida de archivo';
+$_MODULE['<{zoneproductadditional}prestashop>zoneproductadditional_ef0f12d88b89c14fac93f72b7f80e700'] = 'Archivo ha sido actualizado';
+$_MODULE['<{zoneproductadditional}prestashop>zoneproductadditional_d0705487f5115d10290e3a795d40823b'] = 'Archivo ha sido creado con éxito';
+$_MODULE['<{zoneproductadditional}prestashop>zoneproductadditional_d52eaeff31af37a4a7e0550008aff5df'] = 'Se produjo un error al intentar guardar';
+$_MODULE['<{zoneproductadditional}prestashop>zoneproductadditional_42aa94c0e0e2bb38cacca52539a86089'] = 'Archivo ID';
+$_MODULE['<{zoneproductadditional}prestashop>zoneproductadditional_b78a3223503896721cca1303f776159b'] = 'Título ';
+$_MODULE['<{zoneproductadditional}prestashop>zoneproductadditional_b9b371458ab7c314f88b81c553f6ce51'] = 'Hook';
+$_MODULE['<{zoneproductadditional}prestashop>zoneproductadditional_5c53673569ab8702b0fa932aedeacf97'] = 'Mostrado en';
+$_MODULE['<{zoneproductadditional}prestashop>zoneproductadditional_53ce68379f26977db33af3657ea466fb'] = 'Productos de campos adicionales';
+$_MODULE['<{zoneproductadditional}prestashop>zoneproductadditional_28258e7a927711d405af65fbb6d13614'] = 'Selecciona Categorías';
+$_MODULE['<{zoneproductadditional}prestashop>zoneproductadditional_1ddc6e2c4e45295f29bdef7ff302ebb1'] = 'Marque la casilla de las categorías a las que se aplica este campo';
+$_MODULE['<{zoneproductadditional}prestashop>zoneproductadditional_92cef2a8a5cb15957866e64df2dd52bf'] = 'Añado nuevos archivos';
+$_MODULE['<{zoneproductadditional}prestashop>zoneproductadditional_f5d901a4a2bf5c4c7b6eadc4d3161d02'] = 'Edita archivos';
+$_MODULE['<{zoneproductadditional}prestashop>zoneproductadditional_a40de094ebb292b72fa2a4f3a1cf1209'] = 'Todos los productos';
+$_MODULE['<{zoneproductadditional}prestashop>zoneproductadditional_c9a1e0278a5853e2dc29557fc063f794'] = 'Categorías específicas';
+$_MODULE['<{zoneproductadditional}prestashop>zoneproductadditional_33e8b11d85e60e1a790984c97921393a'] = 'Fabricantes específicos';
+$_MODULE['<{zoneproductadditional}prestashop>zoneproductadditional_d507113e8a6025425cf23814ea5fae3c'] = 'Proveedores específicos';
+$_MODULE['<{zoneproductadditional}prestashop>zoneproductadditional_643374b1dbc98095e7dfbdb65b0e2281'] = 'Características específicas';
+$_MODULE['<{zoneproductadditional}prestashop>zoneproductadditional_422f6afdde3cff329cea46f0f61d6c96'] = 'Productos específicos';
+$_MODULE['<{zoneproductadditional}prestashop>zoneproductadditional_e343caea245194cec546b3940293ce77'] = 'Títutlo de imágen';
+$_MODULE['<{zoneproductadditional}prestashop>zoneproductadditional_52f5e0bc3859bc5f5e25130b6c7e8881'] = 'Posición';
+$_MODULE['<{zoneproductadditional}prestashop>zoneproductadditional_0fb8cc91b73589a73e6ae029bc2dd517'] = 'Ancho de ventana emergente ';
+$_MODULE['<{zoneproductadditional}prestashop>zoneproductadditional_f15c1cae7882448b3fb0404682e17e61'] = 'Contenido';
+$_MODULE['<{zoneproductadditional}prestashop>zoneproductadditional_f5da4056cde17b2e8f9e986972e7a6a4'] = 'Clase CSS Personalizada';
+$_MODULE['<{zoneproductadditional}prestashop>zoneproductadditional_b2a1196d2f4b07f2e14a4c86b908989f'] = 'Usándolo para una hoja de estilo personalizada';
+$_MODULE['<{zoneproductadditional}prestashop>zoneproductadditional_7e6f47cd5ce010126b8114e9fd8de480'] = 'Seleccionar Fabricantes';
+$_MODULE['<{zoneproductadditional}prestashop>zoneproductadditional_b6d84dc1886a92b663ef8d417d3bbc29'] = 'Seleccionar Proveedores';
+$_MODULE['<{zoneproductadditional}prestashop>zoneproductadditional_f9a892f520338e96b374e9bdfd121492'] = 'Seleccionar Características';
+$_MODULE['<{zoneproductadditional}prestashop>zoneproductadditional_f18d700c58f38e40c913a965f0cae794'] = 'Productos seleccionados';
+$_MODULE['<{zoneproductadditional}prestashop>zoneproductadditional_938fa639043095a0bccdb71a05ea1e2d'] = 'Comienza a escribir las primeras letras del Nombre de Producto, después selecciona el Producto desde la lista desplegable. ';
+$_MODULE['<{zoneproductadditional}prestashop>zoneproductadditional_630f6dc397fe74e52d5189e2c80f282b'] = 'Vuelta a la lista';

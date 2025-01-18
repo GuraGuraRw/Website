@@ -1,0 +1,1 @@
+*ERROR* 	v1.7.8.7	2024/06/05 - 08:39:10: Link to database cannot be established: SQLSTATE[HY000] [2006] MySQL server has gone away at line 136 in file classes/db/DbPDO.php

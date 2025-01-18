@@ -1,0 +1,1 @@
+prestashop.on("updateProductList",(function(){$(".faceted-overlay").remove(),k()})),k(),prestashop.on("updateFacets",(function(){1!==$(".faceted-overlay").length&&$("body").append('<div class="faceted-overlay">\n<div class="overlay__inner">\n<div class="overlay__content"><span class="spinner"></span></div>\n</div>\n</div>')}))

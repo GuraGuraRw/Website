@@ -1,0 +1,108 @@
+/**
+* 2007-2020 PrestaShop SA and Contributors
+*
+* NOTICE OF LICENSE
+*
+* This source file is subject to the Academic Free License 3.0 (AFL-3.0)
+* that is bundled with this package in the file LICENSE.txt.
+* It is also available through the world-wide-web at this URL:
+* https://opensource.org/licenses/AFL-3.0
+* If you did not receive a copy of the license and are unable to
+* obtain it through the world-wide-web, please send an email
+* to license@prestashop.com so we can send you a copy immediately.
+*
+* DISCLAIMER
+*
+* Do not edit or add to this file if you wish to upgrade PrestaShop to newer
+* versions in the future. If you wish to customize PrestaShop for your
+* needs please refer to https://www.prestashop.com for more information.
+*
+*  @author    PrestaShop SA <contact@prestashop.com>
+*  @copyright 2007-2020 PrestaShop SA and Contributors
+*  @license   https://opensource.org/licenses/AFL-3.0 Academic Free License 3.0 (AFL-3.0)
+*  International Registered Trademark & Property of PrestaShop SA
+*
+* Don't forget to prefix your containers with your own identifier
+* to avoid any conflicts with others containers.
+*/
+.zmenu sup {
+  padding: 0px 2px;
+  background-color: #e62237;
+  color: #fff;
+}
+.bootstrap .table tbody>tr>td {
+  padding: 7px;
+}
+
+.bootstrap .zonedropdown .tooltip-inner,.bootstrap .zonemenu .tooltip-inner {
+  max-width: 500px;
+}
+.bootstrap.panel {
+  clear: both;
+}
+#dropdownList #advice-16 {
+  display: none;
+}
+.bootstrap .table td.dragHandle .dragGroup {
+  width: 54px;
+  margin: auto;
+  padding: 4px 0px 4px 18px;
+}
+.bootstrap .table td.dragHandle .dragGroup:before {
+  left: 0;
+}
+.bootstrap .table td.dragHandle .dragGroup .positions {
+  width: 30px;
+}
+.bootstrap .form-group {
+  margin-bottom: 20px;
+}
+.bootstrap .form-group .form-group {
+  margin-bottom: 0;
+}
+.bootstrap .col-lg-8 .col-sm-6 .dummyfile {
+  width: 150%;
+}
+.bootstrap .categories_tree .panel {
+  width: max-content;
+  min-width: 60%;
+}
+.bootstrap .form-group #manufacturers {
+  border: 1px solid #dfdfdf;
+  padding: 10px 20px 15px;
+  border-radius: 5px;
+  max-height: 500px;
+  overflow: auto;
+}
+.bootstrap .form-horizontal .form-wrapper {
+  max-width: 100%;
+}
+.bootstrap .input-group input.color {
+  min-width: 100px;
+}
+.bootstrap .form-group.sub-title {
+  margin-bottom: 10px;
+}
+@media (min-width: 1200px) {
+  .bootstrap .form-group.translatable-field {
+    display: flex;
+  }
+  .bootstrap .form-group.translatable-field .col-lg-9 {
+    flex: 1;
+  }
+  .bootstrap .form-group.translatable-field .col-lg-2 {
+    width: auto;
+  }
+  .bootstrap .form-group.translatable-field .col-lg-2 .dropdown-menu {
+    top: 40px;
+    right: 0;
+    left: auto;
+  }
+  .bootstrap .sub-title .col-lg-offset-3 {
+    margin-left: 1%;
+    width: 98%;
+  }
+}
+.bootstrap input.ac_input {
+  max-width: 500px;
+}

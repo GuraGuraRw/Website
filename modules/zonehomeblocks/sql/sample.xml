@@ -1,0 +1,237 @@
+<?xml version="1.0" encoding="utf-8"?>
+<homeblock>
+    <row>
+        <active><![CDATA[1]]></active>
+        <active_mobile><![CDATA[1]]></active_mobile>
+        <position><![CDATA[2]]></position>
+        <hook><![CDATA[home_top]]></hook>
+        <block_type><![CDATA[blocktype_html]]></block_type>
+        <custom_class><![CDATA[mb-4]]></custom_class>
+        <product_filter><![CDATA[products_featured]]></product_filter>
+        <product_options><![CDATA[a:9:{s:5:"limit";s:2:"10";s:12:"mobile_limit";s:2:"10";s:13:"enable_slider";s:0:"";s:20:"mobile_enable_slider";s:0:"";s:11:"auto_scroll";s:0:"";s:13:"number_column";s:1:"5";s:10:"sort_order";s:20:"product.position.asc";s:17:"selected_products";b:0;s:17:"selected_category";b:0;}]]></product_options>
+        <lang_fields>
+            <en>
+                <title><![CDATA[4 Banners]]></title>
+                <static_html><![CDATA[<div class="banner">
+    <div class="row">
+        <div class="col-md-6 d-flex align-items-center flex-direction-column">
+            <div class="col-banner">
+                <div class="banner-img"><img src="BASE_URLimg/cms/b6.jpg" alt="banner1" /></div>
+                <div class="content">
+                    <h3><a href="#"><span>Canyon</span><br /><span>Star Raider</span></a></h3>
+                    <p><span>Headphone & Audio</span></p>
+                </div>
+            </div>
+            <div class="col-banner">
+                <div class="banner-img"><img src="BASE_URLimg/cms/b6.jpg" alt="banner3" /></div>
+                <div class="content">
+                    <h3><a href="#"><span>Galaxy</span><br /><span>Buds Plus</span></a></h3>
+                    <p><span>Wireless Earbuds</span></p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 d-flex align-items-center flex-direction-column">
+            <div class="col-banner">
+                <div class="banner-img"><img src="BASE_URLimg/cms/b6.jpg" alt="banner2" /></div>
+                <div class="content">
+                    <h3><a href="#"><span>Phone</span><br /><span>Galaxy S20</span></a></h3>
+                    <p><span>Cellphone & Tablets</span></p>
+                </div>
+            </div>
+            <div class="col-banner">
+                <div class="banner-img"><img src="BASE_URLimg/cms/b6.jpg" alt="banner4" /></div>
+                <div class="content">
+                    <h3><a href="#"><span>Chair</span><br /><span>Swoon Lounge</span></a></h3>
+                    <p><span>Decor & Furniture</span></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>]]></static_html>
+            </en>
+        </lang_fields>
+        <zhometab/>
+    </row>
+    <row>
+        <active><![CDATA[1]]></active>
+        <active_mobile><![CDATA[1]]></active_mobile>
+        <position><![CDATA[2]]></position>
+        <hook><![CDATA[home_middle]]></hook>
+        <block_type><![CDATA[blocktype_product]]></block_type>
+        <custom_class><![CDATA[mb-4]]></custom_class>
+        <product_filter><![CDATA[products_category]]></product_filter>
+        <product_options><![CDATA[a:9:{s:5:"limit";s:1:"8";s:12:"mobile_limit";s:1:"6";s:13:"enable_slider";s:1:"1";s:20:"mobile_enable_slider";s:1:"1";s:11:"auto_scroll";s:0:"";s:13:"number_column";s:1:"6";s:10:"sort_order";s:20:"product.position.asc";s:17:"selected_products";b:0;s:17:"selected_category";s:2:"16";}]]></product_options>
+        <lang_fields>
+            <en>
+                <title><![CDATA[Hot Trending Products]]></title>
+                <static_html><![CDATA[]]></static_html>
+            </en>
+        </lang_fields>
+        <zhometab/>
+    </row>
+    <row>
+        <active><![CDATA[1]]></active>
+        <active_mobile><![CDATA[0]]></active_mobile>
+        <position><![CDATA[3]]></position>
+        <hook><![CDATA[home_middle]]></hook>
+        <block_type><![CDATA[blocktype_html]]></block_type>
+        <custom_class><![CDATA[mb-4]]></custom_class>
+        <product_filter><![CDATA[products_featured]]></product_filter>
+        <product_options><![CDATA[a:9:{s:5:"limit";s:2:"10";s:12:"mobile_limit";s:2:"10";s:13:"enable_slider";s:0:"";s:20:"mobile_enable_slider";s:0:"";s:11:"auto_scroll";s:0:"";s:13:"number_column";s:1:"5";s:10:"sort_order";s:20:"product.position.asc";s:17:"selected_products";b:0;s:17:"selected_category";b:0;}]]></product_options>
+        <lang_fields>
+            <en>
+                <title><![CDATA[3 Banners]]></title>
+                <static_html><![CDATA[<div class="banner">
+    <div class="row">
+        <div class="col-lg-4 col-12 d-flex justify-content-center">
+            <div class="col-banner">
+                <div class="banner-img"><img src="BASE_URLimg/cms/b4.jpg" alt="banner5" /></div>
+                <div class="content">
+                    <h3><a href="#"><span>Microsoft</span><br /><span>Surface Laptop 14”</span></a></h3>
+                    <p><span>Up To -30%</span></p>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4 col-12 d-flex justify-content-center">
+            <div class="col-banner">
+                <div class="banner-img"><img src="BASE_URLimg/cms/b4.jpg" alt="banner6" /></div>
+                <div class="content">
+                    <h3><a href="#"><span>Cameras</span><br /><span>Best Sport Edition</span></a></h3>
+                    <p><span>Up To -20%</span></p>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4 col-12 d-flex justify-content-center">
+            <div class="col-banner">
+                <div class="banner-img"><img src="BASE_URLimg/cms/b4.jpg" alt="banner7" /></div>
+                <div class="content">
+                    <h3><a href="#"><span>Sneaker</span><br /><span>Nike Air Max 90</span></a></h3>
+                    <p><span>Up To -60%</span></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>]]></static_html>
+            </en>
+        </lang_fields>
+        <zhometab/>
+    </row>
+    <row>
+        <active><![CDATA[1]]></active>
+        <active_mobile><![CDATA[1]]></active_mobile>
+        <position><![CDATA[4]]></position>
+        <hook><![CDATA[home_middle]]></hook>
+        <block_type><![CDATA[blocktype_product]]></block_type>
+        <custom_class><![CDATA[custom_deal mb-4]]></custom_class>
+        <product_filter><![CDATA[products_featured]]></product_filter>
+        <product_options><![CDATA[a:9:{s:5:"limit";s:1:"6";s:12:"mobile_limit";s:1:"6";s:13:"enable_slider";s:0:"";s:20:"mobile_enable_slider";s:1:"1";s:11:"auto_scroll";s:0:"";s:13:"number_column";s:1:"1";s:10:"sort_order";s:20:"product.position.asc";s:17:"selected_products";b:0;s:17:"selected_category";s:2:"16";}]]></product_options>
+        <lang_fields>
+            <en>
+                <title><![CDATA[Top Featured Products]]></title>
+                <static_html><![CDATA[]]></static_html>
+            </en>
+        </lang_fields>
+        <zhometab/>
+    </row>
+    <row>
+        <active><![CDATA[1]]></active>
+        <active_mobile><![CDATA[0]]></active_mobile>
+        <position><![CDATA[5]]></position>
+        <hook><![CDATA[home_middle]]></hook>
+        <block_type><![CDATA[blocktype_html]]></block_type>
+        <custom_class><![CDATA[mb-4]]></custom_class>
+        <product_filter><![CDATA[products_featured]]></product_filter>
+        <product_options><![CDATA[a:9:{s:5:"limit";s:2:"10";s:12:"mobile_limit";s:2:"10";s:13:"enable_slider";s:0:"";s:20:"mobile_enable_slider";s:0:"";s:11:"auto_scroll";s:0:"";s:13:"number_column";s:1:"5";s:10:"sort_order";s:20:"product.position.asc";s:17:"selected_products";b:0;s:17:"selected_category";b:0;}]]></product_options>
+        <lang_fields>
+            <en>
+                <title><![CDATA[6 Banner]]></title>
+                <static_html><![CDATA[<div class="banner  banner-middle">
+    <div class="row">
+        <div class="col-md-8 col-lg-6">
+            <div class="row">
+                <div class="col-sm-6">
+                    <div class="col-banner">
+                        <div class="banner-img"><img
+                                src="BASE_URLimg/cms/b8.jpg" alt="b8.jpg" />
+                        </div>
+                        <div class="content">
+                            <div class="button-wrap"><a class="btn auto_padding light small" title="shop now" href="shop">Cameras</a></div>
+                        </div>
+                    </div>
+                    <div class="col-banner ">
+                        <div class="banner-img"><img
+                                src="BASE_URLimg/cms/b8.jpg" alt="b8.jpg" />
+                        </div>
+                        <div class="content">
+                            <div class="button-wrap"><a class="btn auto_padding light small" title="shop now" href="shop">Accessories</a></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="col-banner">
+                        <div class="banner-img"><img
+                                src="BASE_URLimg/cms/b9.jpg" alt="b9.jpg" />
+                        </div>
+                        <div class="content">
+                            <div class="button-wrap"><a class="btn auto_padding light small" title="shop now" href="shop">Keyboard & accessories</a></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 col-lg-6">
+            <div class="row">
+                <div class="col-12 col-lg-6">
+                    <div class="col-banner">
+                        <div class="banner-img"><img
+                                src="BASE_URLimg/cms/b8.jpg" alt="b8.jpg" />
+                        </div>
+                        <div class="content">
+                            <div class="button-wrap"><a class="btn auto_padding  light small" title="shop now" href="shop">Smartphone</a></div>
+                        </div>
+                    </div>
+                    <div class="col-banner">
+                        <div class="banner-img"><img
+                                src="BASE_URLimg/cms/b8.jpg" alt="b8.jpg" />
+                        </div>
+                        <div class="content">
+                            <div class="button-wrap"><a class="btn auto_padding light small" title="shop now" href="shop">Speaker & audio</a></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="col-banner">
+                        <div class="banner-img"><img
+                                src="BASE_URLimg/cms/b9.jpg" alt="b9.jpg" />
+                        </div>
+                        <div class="content">
+                            <div class="button-wrap"><a class="btn auto_padding light small" title="shop now" href="shop">Gamepad and controller</a></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>]]></static_html>
+            </en>
+        </lang_fields>
+        <zhometab/>
+    </row>
+    <row>
+        <active><![CDATA[1]]></active>
+        <active_mobile><![CDATA[1]]></active_mobile>
+        <position><![CDATA[6]]></position>
+        <hook><![CDATA[home_middle]]></hook>
+        <block_type><![CDATA[blocktype_product]]></block_type>
+        <custom_class><![CDATA[mb-4]]></custom_class>
+        <product_filter><![CDATA[products_category]]></product_filter>
+        <product_options><![CDATA[a:9:{s:5:"limit";s:1:"8";s:12:"mobile_limit";s:1:"6";s:13:"enable_slider";s:1:"1";s:20:"mobile_enable_slider";s:1:"1";s:11:"auto_scroll";s:0:"";s:13:"number_column";s:1:"6";s:10:"sort_order";s:20:"product.position.asc";s:17:"selected_products";b:0;s:17:"selected_category";s:2:"16";}]]></product_options>
+        <lang_fields>
+            <en>
+                <title><![CDATA[Special products]]></title>
+                <static_html><![CDATA[]]></static_html>
+            </en>
+        </lang_fields>
+        <zhometab/>
+    </row>
+</homeblock>

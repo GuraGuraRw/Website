@@ -1,0 +1,37 @@
+<?php
+
+global $_MODULE;
+$_MODULE = array();
+$_MODULE['<{zoneproductadditional}prestashop>zoneproductadditional_0736b3a96fbc78246753b6fb25b0daca'] = 'Z.One - Champs Supplémentaires de Produits';
+$_MODULE['<{zoneproductadditional}prestashop>zoneproductadditional_9924203cda0f842673b44183b04af7f7'] = 'Champs Supplémentaires de Produits sur la Page Produits';
+$_MODULE['<{zoneproductadditional}prestashop>zoneproductadditional_070e16b4f77b90e802f789b5be583cfa'] = 'Erreur lors de l\'ajout du fichier';
+$_MODULE['<{zoneproductadditional}prestashop>zoneproductadditional_ef0f12d88b89c14fac93f72b7f80e700'] = 'Le champs a été mis à jour avec succès.';
+$_MODULE['<{zoneproductadditional}prestashop>zoneproductadditional_d0705487f5115d10290e3a795d40823b'] = 'Les champs ont été créés avec succès.';
+$_MODULE['<{zoneproductadditional}prestashop>zoneproductadditional_d52eaeff31af37a4a7e0550008aff5df'] = 'Une erreur est survenue lors de l\'enregistrement.';
+$_MODULE['<{zoneproductadditional}prestashop>zoneproductadditional_42aa94c0e0e2bb38cacca52539a86089'] = 'ID du Champs';
+$_MODULE['<{zoneproductadditional}prestashop>zoneproductadditional_b78a3223503896721cca1303f776159b'] = 'Titre';
+$_MODULE['<{zoneproductadditional}prestashop>zoneproductadditional_b9b371458ab7c314f88b81c553f6ce51'] = 'Hook';
+$_MODULE['<{zoneproductadditional}prestashop>zoneproductadditional_5c53673569ab8702b0fa932aedeacf97'] = 'Affiché dans';
+$_MODULE['<{zoneproductadditional}prestashop>zoneproductadditional_53ce68379f26977db33af3657ea466fb'] = 'Champs supplémentaires du Produits';
+$_MODULE['<{zoneproductadditional}prestashop>zoneproductadditional_28258e7a927711d405af65fbb6d13614'] = 'Choisissez les Catégories';
+$_MODULE['<{zoneproductadditional}prestashop>zoneproductadditional_1ddc6e2c4e45295f29bdef7ff302ebb1'] = 'Cochez les cases des catégories auxquelles le champs s\'applique';
+$_MODULE['<{zoneproductadditional}prestashop>zoneproductadditional_92cef2a8a5cb15957866e64df2dd52bf'] = 'Ajouter un Nouveau Champs';
+$_MODULE['<{zoneproductadditional}prestashop>zoneproductadditional_f5d901a4a2bf5c4c7b6eadc4d3161d02'] = 'Editer le Champs';
+$_MODULE['<{zoneproductadditional}prestashop>zoneproductadditional_a40de094ebb292b72fa2a4f3a1cf1209'] = 'Tous les Produits';
+$_MODULE['<{zoneproductadditional}prestashop>zoneproductadditional_c9a1e0278a5853e2dc29557fc063f794'] = 'Catégories Spécifiques';
+$_MODULE['<{zoneproductadditional}prestashop>zoneproductadditional_33e8b11d85e60e1a790984c97921393a'] = 'Fabricants Spécifiques';
+$_MODULE['<{zoneproductadditional}prestashop>zoneproductadditional_d507113e8a6025425cf23814ea5fae3c'] = 'Fournisseurs Spécifiques';
+$_MODULE['<{zoneproductadditional}prestashop>zoneproductadditional_643374b1dbc98095e7dfbdb65b0e2281'] = 'Caractéristiques des Produits Spécifiques';
+$_MODULE['<{zoneproductadditional}prestashop>zoneproductadditional_422f6afdde3cff329cea46f0f61d6c96'] = 'Produits Spécifiques';
+$_MODULE['<{zoneproductadditional}prestashop>zoneproductadditional_e343caea245194cec546b3940293ce77'] = 'Titre de l\'Image';
+$_MODULE['<{zoneproductadditional}prestashop>zoneproductadditional_52f5e0bc3859bc5f5e25130b6c7e8881'] = 'Position';
+$_MODULE['<{zoneproductadditional}prestashop>zoneproductadditional_0fb8cc91b73589a73e6ae029bc2dd517'] = 'Largeur de Popup';
+$_MODULE['<{zoneproductadditional}prestashop>zoneproductadditional_f15c1cae7882448b3fb0404682e17e61'] = 'Contenu';
+$_MODULE['<{zoneproductadditional}prestashop>zoneproductadditional_f5da4056cde17b2e8f9e986972e7a6a4'] = 'Classe CSS personnalisée';
+$_MODULE['<{zoneproductadditional}prestashop>zoneproductadditional_b2a1196d2f4b07f2e14a4c86b908989f'] = 'Utiliser pour feuilles de style spéciales';
+$_MODULE['<{zoneproductadditional}prestashop>zoneproductadditional_7e6f47cd5ce010126b8114e9fd8de480'] = 'Choisir les Fabricants';
+$_MODULE['<{zoneproductadditional}prestashop>zoneproductadditional_b6d84dc1886a92b663ef8d417d3bbc29'] = 'Choisir les Fournisseur';
+$_MODULE['<{zoneproductadditional}prestashop>zoneproductadditional_f9a892f520338e96b374e9bdfd121492'] = 'Choisir les Caractéristiques';
+$_MODULE['<{zoneproductadditional}prestashop>zoneproductadditional_f18d700c58f38e40c913a965f0cae794'] = 'Choisir les Produits';
+$_MODULE['<{zoneproductadditional}prestashop>zoneproductadditional_938fa639043095a0bccdb71a05ea1e2d'] = 'Tapez les premières lettres du Nom du Produit, puis sélectionnez le Produit dans la liste déroulante.';
+$_MODULE['<{zoneproductadditional}prestashop>zoneproductadditional_630f6dc397fe74e52d5189e2c80f282b'] = 'Retour à la liste';

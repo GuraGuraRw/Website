@@ -1,0 +1,8 @@
+modules/psaddonsconnect/vendor/doctrine/cache
+modules/psaddonsconnect/vendor/guzzlehttp/cache-subscriber
+modules/psaddonsconnect/vendor/guzzlehttp/guzzle
+modules/psaddonsconnect/vendor/guzzlehttp/ringphp
+modules/psaddonsconnect/vendor/guzzlehttp/streams
+modules/psaddonsconnect/vendor/prestashop/circuit-breaker
+modules/psaddonsconnect/vendor/react/promise
+

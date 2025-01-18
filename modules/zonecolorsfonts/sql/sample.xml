@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<colorsfonts>
+  <row>
+    <general><![CDATA[]]></general>
+    <header><![CDATA[]]></header>
+    <footer><![CDATA[]]></footer>
+    <content><![CDATA[]]></content>
+    <product><![CDATA[]]></product>
+    <fonts_import><![CDATA[]]></fonts_import>
+    <fonts><![CDATA[]]></fonts>
+    <custom_css><![CDATA[#header .header-logo .logo {
+  max-width: 195px;
+}
+.product-list .grid .product-miniature .product-container {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+.product-list .grid .product-miniature .first-block {
+  flex: none;
+}
+.product-list .grid .product-miniature .second-third-block {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+.product-list .grid .product-miniature .second-third-block .third-block {
+  flex: none;
+}
+.product-list .grid .product-miniature .second-third-block .second-block {
+  flex: 1;
+}]]></custom_css>
+  </row>
+</colorsfonts>

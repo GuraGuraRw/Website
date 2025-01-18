@@ -1,0 +1,17 @@
+ 
+
+{shop_url}
+
+Dobrý deň {firstname} {lastname},
+
+Ďakujeme za Vašu dôveru.
+
+S potešením vám môžeme poskytnúť zľavu {amount}% z vašej ďalšej objednávky! Táto ponuka je platná {days} dní, takže už nie je na čo čakať!
+
+Tu je váš ZĽAVOVÝ KUPÓN: {voucher_num}
+
+Ak chcete získať zľavu, zadajte tento kód v košíku.
+
+[{shop_name}]({shop_url})
+
+Powered by [PrestaShop](https://www.prestashop.com/?utm_source=marchandprestashop&utm_medium=e-mail&utm_campaign=footer_1-7)

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<popupnewsletter>
+  <row>
+    <active><![CDATA[1]]></active>
+    <width><![CDATA[670]]></width>
+    <height><![CDATA[500]]></height>
+    <bg_color><![CDATA[#b3dad3]]></bg_color>
+    <bg_image><![CDATA[zonepopupnewsletter-default-background.jpg]]></bg_image>
+    <cookie_time><![CDATA[0]]></cookie_time>
+    <subscribe_form><![CDATA[1]]></subscribe_form>
+    <save_time><![CDATA[1634054757]]></save_time>
+    <lang_fields>
+      <en>
+        <content><![CDATA[<div style="font-size: 25px; line-height: 25px; margin-top: 20px;">
+<p>SIGN UP FOR</p>
+<p>OUR NEWSLETTER</p>
+<p>&amp; PROMOTIONS !</p>
+</div>
+<p style="font-size: 40px; height: 40px; line-height: 40px;">GET</p>
+<p style="font-size: 60px; color: #e52e04; height: 60px; line-height: 60px;">25%<span style="padding-left: 15px; font-size: 60%;">OFF</span></p>
+<p><strong>ON YOUR NEXT PURCHASE</strong></p>]]></content>
+      </en>
+    </lang_fields>
+  </row>
+</popupnewsletter>

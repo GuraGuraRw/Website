@@ -1,0 +1,38 @@
+<?php
+
+global $_MODULE;
+$_MODULE = array();
+$_MODULE['<{zonecolumnblocks}prestashop>zonecolumnblocks_70cf48b0d71f8330e4467891cb0e8bf3'] = 'Bloques de columnas';
+$_MODULE['<{zonecolumnblocks}prestashop>zonecolumnblocks_198fdfcbe9ca1e3b686f63aa264525f2'] = 'Productos flexibles y banners en las columnas';
+$_MODULE['<{zonecolumnblocks}prestashop>zonecolumnblocks_cc4113bd5f67631611b54a93e57933b2'] = 'Los bloques de contenido han sido actualizados';
+$_MODULE['<{zonecolumnblocks}prestashop>zonecolumnblocks_0dff1490338df25a5177d51edee48f67'] = 'Los bloques de contenidos han sido creados con éxito. ';
+$_MODULE['<{zonecolumnblocks}prestashop>zonecolumnblocks_587a5270db55c9cc91402cea44362368'] = 'Un error ha ocurrido mientras se intentaba guardar el bloque de contenido.';
+$_MODULE['<{zonecolumnblocks}prestashop>zonecolumnblocks_f1d9ae7a9812fbcaf0fd27e1a9891961'] = 'Bloques de columnas';
+$_MODULE['<{zonecolumnblocks}prestashop>zonecolumnblocks_cf8156f1f57a8603cd6b3a28c9c2c61b'] = 'Productos destacados';
+$_MODULE['<{zonecolumnblocks}prestashop>zonecolumnblocks_1529636c2dd134b028a08f7b131115b5'] = 'Nuevos productos';
+$_MODULE['<{zonecolumnblocks}prestashop>zonecolumnblocks_1276c482cb32edf4fce51761a9792716'] = 'Productos speciales';
+$_MODULE['<{zonecolumnblocks}prestashop>zonecolumnblocks_65549118784e63808ee0b1326177d703'] = 'Productos más vendidos';
+$_MODULE['<{zonecolumnblocks}prestashop>zonecolumnblocks_fd348325445a2cd50aa03e6bc888ec2e'] = 'Productos seleccionados';
+$_MODULE['<{zonecolumnblocks}prestashop>zonecolumnblocks_c0b828e52e81ea2673b3bb1e8b27db82'] = 'Productos de categorías';
+$_MODULE['<{zonecolumnblocks}prestashop>zonecolumnblocks_3e7f1b4decfa830577e35cc18d0b2de6'] = 'HTML estático';
+$_MODULE['<{zonecolumnblocks}prestashop>zonecolumnblocks_6fcdef6ca2bb47a0cf61cd41ccf274f4'] = 'Bloque ID';
+$_MODULE['<{zonecolumnblocks}prestashop>zonecolumnblocks_b78a3223503896721cca1303f776159b'] = 'Títutlo';
+$_MODULE['<{zonecolumnblocks}prestashop>zonecolumnblocks_2effa58f13159d138a634233e246713d'] = 'Tipo de contenido';
+$_MODULE['<{zonecolumnblocks}prestashop>zonecolumnblocks_fd76e9a6b15c6f09663c8544a7c53bf7'] = 'Añadir un nuevo bloque';
+$_MODULE['<{zonecolumnblocks}prestashop>zonecolumnblocks_225ac1a5b3a2afa8f996d92f55940b79'] = 'Editar bloque';
+$_MODULE['<{zonecolumnblocks}prestashop>zonecolumnblocks_1d845dde77864747f09c10275b281f1a'] = 'Bloque de producto';
+$_MODULE['<{zonecolumnblocks}prestashop>zonecolumnblocks_a4ffdcf0dc1f31b9acaf295d75b51d00'] = 'Arriba';
+$_MODULE['<{zonecolumnblocks}prestashop>zonecolumnblocks_945d5e233cf7d6240f6b783b36a374ff'] = 'Izquierda';
+$_MODULE['<{zonecolumnblocks}prestashop>zonecolumnblocks_f5da4056cde17b2e8f9e986972e7a6a4'] = 'Clase de CSS Personalizado';
+$_MODULE['<{zonecolumnblocks}prestashop>zonecolumnblocks_9c7e0ba07cbb9b62b5cc47ecea3d897a'] = 'Tipo de bloque';
+$_MODULE['<{zonecolumnblocks}prestashop>zonecolumnblocks_20dddb7f0d19f7f9a74d90175aef6da0'] = 'Número de productos';
+$_MODULE['<{zonecolumnblocks}prestashop>zonecolumnblocks_856ab040059a4efba79b981926905d7b'] = 'Número de productos en versió n móvil ';
+$_MODULE['<{zonecolumnblocks}prestashop>zonecolumnblocks_2b492a907cdaba51ee76f6f6a1058291'] = 'Habilitar control deslizante';
+$_MODULE['<{zonecolumnblocks}prestashop>zonecolumnblocks_d607e9294aa8e2126d973db8b5a18d4b'] = 'Habilitar control deslizante en versión móvil';
+$_MODULE['<{zonecolumnblocks}prestashop>zonecolumnblocks_8316800d3cdec385e5e894ffac90ef4c'] = 'Control deslizante Autoplay';
+$_MODULE['<{zonecolumnblocks}prestashop>zonecolumnblocks_1f5ea29172e24fdc46aedd791c798a3f'] = 'Posición de producto Thumbnail';
+$_MODULE['<{zonecolumnblocks}prestashop>zonecolumnblocks_42da7a0dbded1de8725499605b5442a9'] = 'Coger productos de';
+$_MODULE['<{zonecolumnblocks}prestashop>zonecolumnblocks_b17de9319177d204bc04e876d5518490'] = 'Selección los productos';
+$_MODULE['<{zonecolumnblocks}prestashop>zonecolumnblocks_938fa639043095a0bccdb71a05ea1e2d'] = 'Comenzar a escribir las primeras palabras del Nombre del Producto, después selecciona el producto de la lista desplegable. ';
+$_MODULE['<{zonecolumnblocks}prestashop>zonecolumnblocks_8814cfd26b98a16d7de09471755403c3'] = 'Selecciona una categoría';
+$_MODULE['<{zonecolumnblocks}prestashop>zonecolumnblocks_f15c1cae7882448b3fb0404682e17e61'] = 'Contenido';

@@ -1,0 +1,25 @@
+<?php return array (
+  'parameters' => 
+  array (
+    'database_host' => 'xbxgxbqgura1.mysql.db',
+    'database_port' => '3306',
+    'database_name' => 'xbxgxbqgura1',
+    'database_user' => 'xbxgxbqgura1',
+    'database_password' => 'M3vR8kL5qZ1pT6dW9yXn',
+    'database_prefix' => 'pre9068_',
+    'database_engine' => 'InnoDB',
+    'mailer_transport' => 'smtp',
+    'mailer_host' => '127.0.0.1',
+    'mailer_user' => NULL,
+    'mailer_password' => NULL,
+    'secret' => '0TyapqTp0AncpcSyyIOYb6m0woTx6XyvVqBNgezDCH1cowPZasccXkKawmfvqwU8',
+    'ps_caching' => 'CacheMemcache',
+    'ps_cache_enable' => false,
+    'ps_creation_date' => '2024-05-28',
+    'locale' => 'en-US',
+    'use_debug_toolbar' => true,
+    'cookie_key' => 'u2p5TvySUPm4YxrLGyThdHH0SWJnRNKi8S2nVCGQ50AZQsorjKLtem6EGNLH5jkT',
+    'cookie_iv' => 'fpBdbeKFpmOgt04JfGiuBeL069HtTbZy',
+    'new_cookie_key' => 'def00000cc4c378c397e58ecbdc200ff50b81fc24f59e5ebc0ec38a1392dcdeaf0ec28f465a6f62b1cbbc32dc3d9a99ef75b732af386f991c7b9ebcc0e50882c2c37cdda',
+  ),
+);

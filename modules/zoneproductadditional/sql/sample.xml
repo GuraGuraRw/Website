@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="utf-8"?>
+<productadditional>
+  <row>
+    <popup_width><![CDATA[560]]></popup_width>
+    <title_image><![CDATA[]]></title_image>
+    <hook><![CDATA[ProductExtraContent]]></hook>
+    <popup><![CDATA[0]]></popup>
+    <scope><![CDATA[All Products]]></scope>
+    <categories><![CDATA[108]]></categories>
+    <products><![CDATA[]]></products>
+    <manufacturers><![CDATA[]]></manufacturers>
+    <features><![CDATA[]]></features>
+    <suppliers><![CDATA[]]></suppliers>
+    <position><![CDATA[1]]></position>
+    <custom_class><![CDATA[]]></custom_class>
+    <active><![CDATA[1]]></active>
+    <lang_fields>
+      <en>
+        <title><![CDATA[Shipping & Returns]]></title>
+        <content><![CDATA[<p class="h5">Returns Policy</p>
+<p>You may return most new, unopened items within 30 days of delivery for a full refund. We'll also pay the return shipping costs if the return is a result of our error (you received an incorrect or defective item, etc.).</p>
+<p>You should expect to receive your refund within four weeks of giving your package to the return shipper, however, in many cases you will receive a refund more quickly. This time period includes the transit time for us to receive your return from the shipper (5 to 10 business days), the time it takes us to process your return once we receive it (3 to 5 business days), and the time it takes your bank to process our refund request (5 to 10 business days).</p>
+<p>If you need to return an item, simply login to your account, view the order using the 'Complete Orders' link under the My Account menu and click the Return Item(s) button. We'll notify you via e-mail of your refund once we've received and processed the returned item.</p>
+<p class="h5">Shipping</p>
+<p>We can ship to virtually any address in the world. Note that there are restrictions on some products, and some products cannot be shipped to international destinations.</p>
+<p>When you place an order, we will estimate shipping and delivery dates for you based on the availability of your items and the shipping options you choose. Depending on the shipping provider you choose, shipping date estimates may appear on the shipping quotes page.</p>
+<p class="mb-0">Please also note that the shipping rates for many items we sell are weight-based. The weight of any such item can be found on its detail page. To reflect the policies of the shipping companies we use, all weights will be rounded up to the next full pound.</p>]]></content>
+      </en>
+    </lang_fields>
+  </row>
+  <row>
+    <popup_width><![CDATA[560]]></popup_width>
+    <title_image><![CDATA[]]></title_image>
+    <hook><![CDATA[ProductExtraContent]]></hook>
+    <popup><![CDATA[0]]></popup>
+    <scope><![CDATA[All Products]]></scope>
+    <categories><![CDATA[]]></categories>
+    <products><![CDATA[]]></products>
+    <manufacturers><![CDATA[]]></manufacturers>
+    <features><![CDATA[]]></features>
+    <suppliers><![CDATA[]]></suppliers>
+    <position><![CDATA[2]]></position>
+    <custom_class><![CDATA[]]></custom_class>
+    <active><![CDATA[1]]></active>
+    <lang_fields>
+      <en>
+        <title><![CDATA[Customers Love Us]]></title>
+        <content><![CDATA[<ul class="mb-0">
+<li>"Excellent products and excellent service." - <strong>Josephine</strong></li>
+<li>"Excellent value. High quality products at reasonable prices." - <strong>Warren</strong></li>
+<li>"Outstanding customer service." - <strong>Jack</strong></li>
+<li>"You're the best! Thank you!" - <strong>Tatiana</strong></li>
+</ul>]]></content>
+      </en>
+    </lang_fields>
+  </row>
+  <row>
+    <popup_width><![CDATA[560]]></popup_width>
+    <title_image><![CDATA[energy-guide-icon.jpg]]></title_image>
+    <hook><![CDATA[Product3rdColumn]]></hook>
+    <popup><![CDATA[1]]></popup>
+    <scope><![CDATA[All Products]]></scope>
+    <categories><![CDATA[]]></categories>
+    <products><![CDATA[]]></products>
+    <manufacturers><![CDATA[]]></manufacturers>
+    <features><![CDATA[]]></features>
+    <suppliers><![CDATA[]]></suppliers>
+    <position><![CDATA[3]]></position>
+    <custom_class><![CDATA[]]></custom_class>
+    <active><![CDATA[1]]></active>
+    <lang_fields>
+      <en>
+        <title><![CDATA[PRODUCT ENERGY GUIDE]]></title>
+        <content><![CDATA[<p><img src="BASE_URLimg/cms/size_guide.jpg" alt="size_guide.jpg" width="879" height="581" /></p>]]></content>
+      </en>
+    </lang_fields>
+  </row>
+  <row>
+    <popup_width><![CDATA[560]]></popup_width>
+    <title_image><![CDATA[video-icon.jpg]]></title_image>
+    <hook><![CDATA[Product3rdColumn]]></hook>
+    <popup><![CDATA[1]]></popup>
+    <scope><![CDATA[All Products]]></scope>
+    <categories><![CDATA[]]></categories>
+    <products><![CDATA[]]></products>
+    <manufacturers><![CDATA[]]></manufacturers>
+    <features><![CDATA[]]></features>
+    <suppliers><![CDATA[]]></suppliers>
+    <position><![CDATA[4]]></position>
+    <custom_class><![CDATA[]]></custom_class>
+    <active><![CDATA[1]]></active>
+    <lang_fields>
+      <en>
+        <title><![CDATA[PRODUCT VIDEO]]></title>
+        <content><![CDATA[<p><iframe width="560" height="315" src="https://www.youtube.com/embed/Omwy-DJKp0o?rel=0&controls=0&showinfo=0"></iframe></p>
+<p style="font-weight: bold; text-align: center; margin-bottom: 0; text-transform: uppercase;">PrestaShop • Supermarket Theme • Installation</p>]]></content>
+      </en>
+    </lang_fields>
+  </row>
+  <row>
+    <popup_width><![CDATA[560]]></popup_width>
+    <title_image><![CDATA[]]></title_image>
+    <hook><![CDATA[Product3rdColumn]]></hook>
+    <popup><![CDATA[0]]></popup>
+    <scope><![CDATA[All Products]]></scope>
+    <categories><![CDATA[]]></categories>
+    <products><![CDATA[]]></products>
+    <manufacturers><![CDATA[]]></manufacturers>
+    <features><![CDATA[]]></features>
+    <suppliers><![CDATA[]]></suppliers>
+    <position><![CDATA[5]]></position>
+    <custom_class><![CDATA[]]></custom_class>
+    <active><![CDATA[1]]></active>
+    <lang_fields>
+      <en>
+        <title><![CDATA[Free Shipping]]></title>
+        <content><![CDATA[<p><i class="material-icons">local_shipping</i> FREE shipping on orders over <span style="color: #d0121a;">$25.00</span> shipped by Amazon. <a href="#">Details</a></p>]]></content>
+      </en>
+    </lang_fields>
+  </row>
+  <row>
+    <popup_width><![CDATA[560]]></popup_width>
+    <title_image><![CDATA[]]></title_image>
+    <hook><![CDATA[Product3rdColumn]]></hook>
+    <popup><![CDATA[0]]></popup>
+    <scope><![CDATA[All Products]]></scope>
+    <categories><![CDATA[]]></categories>
+    <products><![CDATA[]]></products>
+    <manufacturers><![CDATA[]]></manufacturers>
+    <features><![CDATA[]]></features>
+    <suppliers><![CDATA[]]></suppliers>
+    <position><![CDATA[6]]></position>
+    <custom_class><![CDATA[]]></custom_class>
+    <active><![CDATA[1]]></active>
+    <lang_fields>
+      <en>
+        <title><![CDATA[Advertising 1]]></title>
+        <content><![CDATA[<p style="text-align: center;"><img src="BASE_URLimg/cms/ad.jpg" alt="ad.jpg" width="364" height="450" /></p>
+<p style="text-align: right; font-style: italic; font-size: 80%; margin-top: -6px; color: #aeaeae;">Advertising [Product3rdColumn]</p>]]></content>
+      </en>
+    </lang_fields>
+  </row>
+  <row>
+    <popup_width><![CDATA[560]]></popup_width>
+    <title_image><![CDATA[]]></title_image>
+    <hook><![CDATA[AfterProductThumbs]]></hook>
+    <popup><![CDATA[0]]></popup>
+    <scope><![CDATA[All Products]]></scope>
+    <categories><![CDATA[]]></categories>
+    <products><![CDATA[]]></products>
+    <manufacturers><![CDATA[]]></manufacturers>
+    <features><![CDATA[]]></features>
+    <suppliers><![CDATA[]]></suppliers>
+    <position><![CDATA[7]]></position>
+    <custom_class><![CDATA[]]></custom_class>
+    <active><![CDATA[1]]></active>
+    <lang_fields>
+      <en>
+        <title><![CDATA[Advertising 2]]></title>
+        <content><![CDATA[]]></content>
+      </en>
+    </lang_fields>
+  </row>
+  <row>
+    <popup_width><![CDATA[560]]></popup_width>
+    <title_image><![CDATA[]]></title_image>
+    <hook><![CDATA[ProductAdditionalInfo]]></hook>
+    <popup><![CDATA[0]]></popup>
+    <scope><![CDATA[All Products]]></scope>
+    <categories><![CDATA[]]></categories>
+    <products><![CDATA[]]></products>
+    <manufacturers><![CDATA[2,3,4,5,1]]></manufacturers>
+    <features><![CDATA[]]></features>
+    <suppliers><![CDATA[]]></suppliers>
+    <position><![CDATA[8]]></position>
+    <custom_class><![CDATA[]]></custom_class>
+    <active><![CDATA[1]]></active>
+    <lang_fields>
+      <en>
+        <title><![CDATA[Advertising 3]]></title>
+        <content><![CDATA[]]></content>
+      </en>
+    </lang_fields>
+  </row>
+</productadditional>

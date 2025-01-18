@@ -1,0 +1,78 @@
+.radio-inline-block .radio {
+	display: inline-block;
+	margin-right: 10px;
+}
+.defaultForm {
+	clear: both;
+}
+.bootstrap.panel {
+    clear: both;
+}
+.img-thumbnail {
+	max-width: 100%;
+}
+#tabList #advice-16 {
+	display: none;
+}
+.fixed-width-30 {
+	width: 30%;
+}
+.fixed-width-20 {
+	width: 20%;
+}
+.bootstrap .form-group {
+	margin-bottom: 20px;
+}
+.bootstrap .form-group .form-group {
+	margin-bottom: 0;
+}
+.bootstrap .block_type_tabs {
+	margin-bottom: 5px;
+}
+
+#content.bootstrap .block_type_tabs h3 {
+	margin: 0 !important;
+	border: none !important;
+	background: none;
+}
+.bootstrap .categories_tree .panel {
+	width: max-content;
+	min-width: 60%;
+}
+.bootstrap .form-horizontal .form-wrapper {
+  max-width: 100%;
+}
+.bootstrap .input-group input.color {
+  min-width: 100px;
+}
+@media (min-width: 1200px) {
+  .bootstrap .form-group.translatable-field {
+    display: flex;
+  }
+  .bootstrap .form-group.translatable-field .col-lg-9 {
+    flex: 1;
+  }
+  .bootstrap .form-group.translatable-field .col-lg-2 {
+    width: auto;
+  }
+  .bootstrap .form-group.translatable-field .col-lg-2 .dropdown-menu {
+    top: 40px;
+    right: 0;
+    left: auto;
+  }
+  .bootstrap .sub-title .col-lg-offset-3 {
+		margin-left: 33.33333%;
+	}
+	.bootstrap .block_type_tabs .col-lg-offset-3 {
+		margin-left: 10%;
+	}
+	.bootstrap .block_type_tabs .col-lg-8 {
+		width: 80%;
+	}
+}
+.bootstrap input.ac_input {
+  max-width: 500px;
+}
+.bootstrap .sub-title h4 {
+	font-weight: 600;
+}

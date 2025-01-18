@@ -1,0 +1,17 @@
+ 
+
+{shop_url}
+
+Pozdravljen-a {firstname} {lastname},
+
+Hvala za vaše naročilo.
+
+Z veseljem vam lahko ponudimo popust v višini {amount}% pri naslednjem naročilu. In ta ponudba velja za {days} dni, zato ne čakajte predolgo!
+
+Tukaj je vaša KODA BONA: {voucher_num}
+
+Vnesite to kodo v nakupovalno košarico, da dobite popust.
+
+[{shop_name}]({shop_url})
+
+Powered by [PrestaShop](https://www.prestashop.com/?utm_source=marchandprestashop&utm_medium=e-mail&utm_campaign=footer_1-7)
