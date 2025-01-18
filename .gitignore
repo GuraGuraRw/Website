@@ -6,3 +6,4 @@ modules/psaddonsconnect/vendor/guzzlehttp/streams
 modules/psaddonsconnect/vendor/prestashop/circuit-breaker
 modules/psaddonsconnect/vendor/react/promise
 
+var/cache/
