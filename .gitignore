@@ -16,3 +16,8 @@ config.php
 .DS_Store
 /cache/
 /tmp/
+# Exclude large backup and download files
+
+admin1157/autoupgrade/backup/*.zip
+admin1157/ets_upgrade/backup/*.zip
+admin1157/ets_upgrade/download/*.zip
