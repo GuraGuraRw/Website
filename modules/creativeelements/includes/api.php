@@ -117,6 +117,13 @@ class Api
                 unset($info_data['feed']);
             }
 
+            // Update latest version
+            if (isset($info_data['latest_version'])) {
+                \Configuration::updateGlobalValue('CE_LATEST_VERSION', $info_data['latest_version']);
+
+                unset($info_data['latest_version']);
+            }
+
             set_transient($cache_key, $info_data, 12 * HOUR_IN_SECONDS);
         }
 
@@ -274,7 +281,7 @@ class Api
      */
     public static function ajaxResetApiData()
     {
-        check_ajax_referer('elementor_reset_library', '_nonce');
+        // check_ajax_referer('elementor_reset_library', '_nonce');
 
         self::getInfoData(true);
 

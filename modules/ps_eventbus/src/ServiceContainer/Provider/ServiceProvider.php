@@ -26,8 +26,7 @@
 
 namespace PrestaShop\Module\PsEventbus\ServiceContainer\Provider;
 
-use PrestaShop\Module\PsEventbus\Api\LiveSyncApiClient;
-use PrestaShop\Module\PsEventbus\Api\SyncApiClient;
+use PrestaShop\Module\PsEventbus\Api\CloudSyncClient;
 use PrestaShop\Module\PsEventbus\Formatter\ArrayFormatter;
 use PrestaShop\Module\PsEventbus\Handler\ErrorHandler\ErrorHandler;
 use PrestaShop\Module\PsEventbus\Repository\BundleRepository;
@@ -71,7 +70,6 @@ use PrestaShop\Module\PsEventbus\Service\ApiAuthorizationService;
 use PrestaShop\Module\PsEventbus\Service\ApiHealthCheckService;
 use PrestaShop\Module\PsEventbus\Service\ApiShopContentService;
 use PrestaShop\Module\PsEventbus\Service\PresenterService;
-use PrestaShop\Module\PsEventbus\Service\ProxyService;
 use PrestaShop\Module\PsEventbus\Service\PsAccountsAdapterService;
 use PrestaShop\Module\PsEventbus\Service\ShopContent\BundlesService;
 use PrestaShop\Module\PsEventbus\Service\ShopContent\CarrierDetailsService;
@@ -124,7 +122,7 @@ class ServiceProvider implements IServiceProvider
         $container->registerProvider(ApiAuthorizationService::class, static function () use ($container) {
             return new ApiAuthorizationService(
                 $container->get(SyncRepository::class),
-                $container->get(SyncApiClient::class),
+                $container->get(CloudSyncClient::class),
                 $container->get(PsAccountsAdapterService::class),
                 $container->get(ErrorHandler::class)
             );
@@ -287,12 +285,11 @@ class ServiceProvider implements IServiceProvider
         });
         $container->registerProvider(SynchronizationService::class, static function () use ($container) {
             return new SynchronizationService(
-                $container->get(LiveSyncApiClient::class),
+                $container->get(CloudSyncClient::class),
                 $container->get(SyncRepository::class),
                 $container->get(IncrementalSyncRepository::class),
                 $container->get(LiveSyncRepository::class),
                 $container->get(LanguagesService::class),
-                $container->get(ProxyService::class),
                 $container->get(ErrorHandler::class)
             );
         });

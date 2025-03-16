@@ -10,18 +10,20 @@ if (!defined('_PS_VERSION_')) {
     exit;
 }
 
+use PrestaShop\PrestaShop\Adapter\Image\ImageRetriever;
+
 class CreativeElementsAjaxModuleFrontController extends ModuleFrontController
 {
     protected $content_only = true;
 
     public function postProcess()
     {
-        $this->action = Tools::getValue('action');
+        $action = Tools::getValue('action');
 
         Tools::getValue('submitMessage') && $this->ajaxProcessSubmitMessage();
         Tools::getValue('submitNewsletter') && $this->ajaxProcessSubmitNewsletter();
 
-        method_exists($this, "ajaxProcess{$this->action}") && $this->{"ajaxProcess{$this->action}"}();
+        method_exists($this, "ajaxProcess$action") && $this->{"ajaxProcess$action"}();
     }
 
     public function ajaxProcessSubmitMessage()
@@ -62,25 +64,25 @@ class CreativeElementsAjaxModuleFrontController extends ModuleFrontController
     public function ajaxProcessAddToCartModal()
     {
         $cart = $this->cart_presenter->present($this->context->cart, true);
-        $product = null;
+        $i = count($cart['products']);
         $id_product = (int) Tools::getValue('id_product');
         $id_product_attribute = (int) Tools::getValue('id_product_attribute');
         $id_customization = (int) Tools::getValue('id_customization');
 
-        foreach ($cart['products'] as &$p) {
+        while ($i && $p = $cart['products'][--$i]) {
             if ($id_product === (int) $p['id_product'] && $id_product_attribute === (int) $p['id_product_attribute'] && $id_customization === (int) $p['id_customization']) {
-                $product = $p;
                 break;
             }
         }
 
         $this->context->smarty->assign([
             'configuration' => $this->getTemplateVarConfiguration(),
-            'product' => $product,
-            'cart' => $cart,
-            'cart_url' => $this->context->link->getPageLink('cart', null, $this->context->language->id, [
-                'action' => 'show',
-            ], false, null, true),
+            'product' => $p,
+            'cart' => &$cart,
+            'cart_url' => $this->context->link->getPageLink('cart', null, $this->context->language->id, ['action' => 'show'], false, null, true),
+            'urls' => [
+                'no_picture_image' => (new ImageRetriever($this->context->link))->getNoPictureImage($this->context->language),
+            ],
         ]);
 
         $this->ajaxDie([

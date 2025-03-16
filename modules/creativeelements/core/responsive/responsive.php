@@ -171,14 +171,15 @@ class CoreXResponsiveXResponsive
         ];
 
         $templates = [];
-        $id_shop = (int) \Context::getContext()->shop->id;
+        $id_shop = (int) $GLOBALS['context']->shop->id;
 
         foreach ($templates_paths as $template_path) {
             $file_name = "$id_shop-" . basename($template_path);
 
             $templates[$file_name] = $template_path;
         }
+        // return apply_filters('elementor/core/responsive/get_stylesheet_templates', $templates);
 
-        return apply_filters('elementor/core/responsive/get_stylesheet_templates', $templates);
+        return $templates;
     }
 }

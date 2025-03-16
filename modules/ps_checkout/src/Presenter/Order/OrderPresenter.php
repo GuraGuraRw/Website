@@ -20,9 +20,14 @@
 
 namespace PrestaShop\Module\PrestashopCheckout\Presenter\Order;
 
+use PrestaShop\Module\PrestashopCheckout\Exception\PsCheckoutException;
 use PrestaShop\Module\PrestashopCheckout\FundingSource\FundingSourceTranslationProvider;
 use PrestaShop\Module\PrestashopCheckout\PayPal\Card3DSecure;
+use PrestaShop\Module\PrestashopCheckout\PayPal\Order\Entity\PayPalOrder;
+use PrestaShop\Module\PrestashopCheckout\PayPal\Order\ValueObject\PayPalOrderId;
 use PrestaShop\Module\PrestashopCheckout\Presenter\Date\DatePresenter;
+use PrestaShop\Module\PrestashopCheckout\Provider\PaymentMethodLogoProvider;
+use PrestaShop\Module\PrestashopCheckout\Repository\PayPalOrderRepository;
 use Ps_checkout;
 use PsCheckoutCart;
 
@@ -41,6 +46,10 @@ class OrderPresenter
      * @var FundingSourceTranslationProvider
      */
     private $fundingSourceTranslationProvider;
+    /**
+     * @var PayPalOrderRepository
+     */
+    private $payPalOrderRepository;
 
     /**
      * @param Ps_checkout $module
@@ -51,8 +60,9 @@ class OrderPresenter
         $this->module = $module;
         $this->orderPayPal = $orderPayPal;
         /** @var FundingSourceTranslationProvider $fundingSourceTranslationProvider */
-        $fundingSourceTranslationProvider = $this->module->getService('ps_checkout.funding_source.translation');
+        $fundingSourceTranslationProvider = $this->module->getService(FundingSourceTranslationProvider::class);
         $this->fundingSourceTranslationProvider = $fundingSourceTranslationProvider;
+        $this->payPalOrderRepository = $this->module->getService(PayPalOrderRepository::class);
     }
 
     /**
@@ -64,6 +74,15 @@ class OrderPresenter
             return [];
         }
 
+        $threeDSNotRequired = false;
+
+        try {
+            $payPalOrderId = new PayPalOrderId($this->orderPayPal['id']);
+            $payPalOrder = $this->payPalOrderRepository->getPayPalOrderById($payPalOrderId);
+            $threeDSNotRequired = in_array(PayPalOrder::THREE_D_SECURE_NOT_REQUIRED, $payPalOrder->getTags());
+        } catch (PsCheckoutException $e) {
+        }
+
         $card3DSecure = new Card3DSecure();
 
         return array_merge(
@@ -72,6 +91,7 @@ class OrderPresenter
                 'intent' => $this->orderPayPal['intent'],
                 'status' => $this->getOrderStatus(),
                 'transactions' => $this->getTransactions(),
+                'is3DSNotRequired' => $threeDSNotRequired,
                 'is3DSecureAvailable' => $card3DSecure->is3DSecureAvailable($this->orderPayPal),
                 'isLiabilityShifted' => $card3DSecure->isLiabilityShifted($this->orderPayPal),
                 'paymentSource' => $this->getPaymentSourceName($this->orderPayPal),
@@ -381,32 +401,7 @@ class OrderPresenter
     private function getPaymentSourceLogo(array $orderPayPal)
     {
         if (isset($orderPayPal['payment_source'])) {
-            $paymentSourceName = key($orderPayPal['payment_source']);
-
-            if ($paymentSourceName === 'card' && isset($orderPayPal['payment_source']['card']['brand'])) {
-                switch ($orderPayPal['payment_source']['card']['brand']) {
-                    case 'CB_NATIONALE':
-                        return $this->module->getPathUri() . 'views/img/cb.svg';
-                    case 'VISA':
-                        return $this->module->getPathUri() . 'views/img/visa.svg';
-                    case 'MASTERCARD':
-                        return $this->module->getPathUri() . 'views/img/mastercard.svg';
-                    case 'AMEX':
-                        return $this->module->getPathUri() . 'views/img/amex.svg';
-                    case 'DISCOVER':
-                        return $this->module->getPathUri() . 'views/img/discover.svg';
-                    case 'JCB':
-                        return $this->module->getPathUri() . 'views/img/jcb.svg';
-                    case 'DINERS':
-                        return $this->module->getPathUri() . 'views/img/diners.svg';
-                    case 'UNIONPAY':
-                        return $this->module->getPathUri() . 'views/img/unionpay.svg';
-                    case 'MAESTRO':
-                        return $this->module->getPathUri() . 'views/img/maestro.svg';
-                }
-            }
-
-            return $this->module->getPathUri() . 'views/img/' . $paymentSourceName . '.svg';
+            return (new PaymentMethodLogoProvider($this->module))->getLogoByPaymentSource($orderPayPal['payment_source']);
         }
 
         return '';

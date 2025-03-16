@@ -21,6 +21,8 @@ if (!defined('_PS_VERSION_')) {
  */
 class WidgetIconList extends WidgetBase
 {
+    const HELP_URL = 'http://docs.webshopworks.com/creative-elements/86-widgets/general-widgets/305-icon-list-widget';
+
     /**
      * Get widget name.
      *
@@ -75,6 +77,11 @@ class WidgetIconList extends WidgetBase
     public function getKeywords()
     {
         return ['icon list', 'icon', 'list'];
+    }
+
+    protected function isDynamicContent()
+    {
+        return false;
     }
 
     /**
@@ -152,6 +159,7 @@ class WidgetIconList extends WidgetBase
                 'type' => ControlsManager::URL,
                 'dynamic' => [
                     'active' => true,
+                    'property' => 'url', // Tmp fix for contentTemplate
                 ],
                 'placeholder' => __('https://your-link.com'),
             ]
@@ -212,12 +220,11 @@ class WidgetIconList extends WidgetBase
                     ],
                 ],
                 'selectors' => [
-                    '{{WRAPPER}} .elementor-icon-list-items:not(.elementor-inline-items) .elementor-icon-list-item:not(:last-child)' => 'padding-bottom: calc({{SIZE}}{{UNIT}}/2)',
                     '{{WRAPPER}} .elementor-icon-list-items:not(.elementor-inline-items) .elementor-icon-list-item:not(:first-child)' => 'margin-top: calc({{SIZE}}{{UNIT}}/2)',
-                    '{{WRAPPER}} .elementor-icon-list-items.elementor-inline-items .elementor-icon-list-item' => 'margin: 0 calc({{SIZE}}{{UNIT}}/2)',
+                    '{{WRAPPER}} .elementor-icon-list-items:not(.elementor-inline-items) .elementor-icon-list-item:not(:last-child)' => 'padding-bottom: calc({{SIZE}}{{UNIT}}/2)',
                     '{{WRAPPER}} .elementor-icon-list-items.elementor-inline-items' => 'margin: 0 calc(-{{SIZE}}{{UNIT}}/2)',
-                    'body.lang-rtl {{WRAPPER}} .elementor-icon-list-items.elementor-inline-items .elementor-icon-list-item:after' => 'left: calc(-{{SIZE}}{{UNIT}}/2)',
-                    'body:not(.lang-rtl) {{WRAPPER}} .elementor-icon-list-items.elementor-inline-items .elementor-icon-list-item:after' => 'right: calc(-{{SIZE}}{{UNIT}}/2)',
+                    '{{WRAPPER}} .elementor-icon-list-items.elementor-inline-items .elementor-icon-list-item' => 'margin: 0 calc({{SIZE}}{{UNIT}}/2)',
+                    '{{WRAPPER}} .elementor-icon-list-items.elementor-inline-items .elementor-icon-list-item:after' => 'inset-inline-end: calc(-{{SIZE}}{{UNIT}}/2)',
                 ],
             ]
         );
@@ -495,6 +502,9 @@ class WidgetIconList extends WidgetBase
                 'selectors' => [
                     '{{WRAPPER}} .elementor-icon-list-icon' => 'text-align: {{VALUE}};',
                 ],
+                'condition' => [
+                    'view' => 'traditional',
+                ],
             ]
         );
 
@@ -545,7 +555,7 @@ class WidgetIconList extends WidgetBase
                     ],
                 ],
                 'selectors' => [
-                    '{{WRAPPER}} .elementor-icon-list-text' => is_rtl() ? 'padding-right: {{SIZE}}{{UNIT}};' : 'padding-left: {{SIZE}}{{UNIT}};',
+                    '{{WRAPPER}} .elementor-icon-list-text' => 'padding-inline-start: {{SIZE}}{{UNIT}};',
                 ],
             ]
         );
@@ -554,7 +564,7 @@ class WidgetIconList extends WidgetBase
             GroupControlTypography::getType(),
             [
                 'name' => 'icon_typography',
-                'selector' => '{{WRAPPER}} .elementor-icon-list-item',
+                'selector' => '{{WRAPPER}} .elementor-icon-list-item > *',
                 'scheme' => SchemeTypography::TYPOGRAPHY_3,
             ]
         );
@@ -563,7 +573,7 @@ class WidgetIconList extends WidgetBase
             GroupControlTextShadow::getType(),
             [
                 'name' => 'text_shadow',
-                'selector' => '{{WRAPPER}} .elementor-icon-list-item',
+                'selector' => '{{WRAPPER}} .elementor-icon-list-text',
             ]
         );
 
@@ -639,7 +649,7 @@ class WidgetIconList extends WidgetBase
                 <# if ( item.link && item.link.url ) { #>
                     <a href="{{ item.link.url }}">
                 <# } #>
-                <# if ( icon = elementor.helpers.getBcIcon(view, item, 'icon', {'aria-hidden': true}) ) { #>
+                <# if ( icon = elementor.helpers.getBcIcon( view, item, 'icon' ) ) { #>
                     <span class="elementor-icon-list-icon">{{{ icon }}}</span>
                 <# } #>
                     <span {{{ view.getRenderAttributeString( iconTextKey ) }}}>{{{ item.text }}}</span>

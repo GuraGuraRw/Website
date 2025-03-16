@@ -1,0 +1,11 @@
+{#---Block steps---#}
+<ul class="ets_autoup_steps">
+    {% if not certificate is defined %}
+        <li class="step1 begin" data-id="{% if versionCompare == 0 %}noUpgrade{% else %}upgradeBegin{% endif %}"></li>
+        <li class="step2{% if isOkForUpgrade and isIgnoreUpgrade %} disabled{% endif %}" data-id="blockCheckList"></li>
+        <li class="step3" data-id="blockSetting"></li>
+    {% endif %}
+    <li class="step4" data-id="blockProcess"></li>
+    <li class="step5 end" data-id="blockResult"></li>
+</ul>
+{#---End block steps---#}

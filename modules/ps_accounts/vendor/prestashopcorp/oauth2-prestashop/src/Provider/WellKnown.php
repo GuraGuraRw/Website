@@ -1,6 +1,6 @@
 <?php
 
-namespace PrestaShop\OAuth2\Client\Provider;
+namespace PrestaShop\Module\PsAccounts\Vendor\PrestaShop\OAuth2\Client\Provider;
 
 /**
  * {
@@ -93,18 +93,11 @@ class WellKnown
     /** @var array */
     public $code_challenge_methods_supported;
     /**
-     * @param array|string $infos Url or Properties
-     * @param bool $secure
-     *
-     * @throws \Exception
+     * @param array $infos WellKnown data
      */
-    public function __construct($infos = [], $secure = \true)
+    public function __construct(array $infos = [])
     {
-        if (\is_array($infos)) {
-            $this->init($infos);
-        } else {
-            $this->init($this->fetch($infos, $secure));
-        }
+        $this->init($infos);
     }
     /**
      * @param array $infos
@@ -118,21 +111,5 @@ class WellKnown
                 $this->{$key} = $value;
             }
         }
-    }
-    /**
-     * @param string $url
-     * @param bool $secure
-     *
-     * @return array
-     *
-     * @throws \Exception
-     */
-    public function fetch($url, $secure = \true)
-    {
-        $wellKnownUrl = $url;
-        if (\strpos($wellKnownUrl, '/.well-known') === \false) {
-            $wellKnownUrl = \preg_replace('/\\/?$/', '/.well-known/openid-configuration', $wellKnownUrl);
-        }
-        return \json_decode(\file_get_contents($wellKnownUrl, \false, \stream_context_create(['ssl' => ['verify_peer' => $secure, 'verify_peer_name' => $secure], 'http' => ['ignore_errors' => '1']])), \true) ?: [];
     }
 }

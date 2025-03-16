@@ -24,10 +24,8 @@ class CreativeElementsPreviewModuleFrontController extends ModuleFrontController
     public function init()
     {
         if (Tools::getIsset('redirect') && CreativeElements::hasAdminToken('AdminCEEditor')) {
-            $cookie = CE\get_post_meta(0, 'cookie', true);
-            CE\delete_post_meta(0, 'cookie');
-
-            if (!empty($cookie)) {
+            if ($cookie = CE\get_post_meta(0, 'cookie', true)) {
+                CE\delete_post_meta(0, 'cookie');
                 $lifetime = max(1, (int) Configuration::get('PS_COOKIE_LIFETIME_BO')) * 3600 + time();
                 $admin = new Cookie('psAdmin', '', $lifetime);
 

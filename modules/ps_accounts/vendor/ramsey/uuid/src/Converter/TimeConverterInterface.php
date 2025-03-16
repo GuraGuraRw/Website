@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of the ramsey/uuid library
  *
@@ -11,11 +12,9 @@
  * @link https://packagist.org/packages/ramsey/uuid Packagist
  * @link https://github.com/ramsey/uuid GitHub
  */
+namespace PrestaShop\Module\PsAccounts\Vendor\Ramsey\Uuid\Converter;
 
-namespace Ramsey\Uuid\Converter;
-
-use Ramsey\Uuid\Exception\UnsatisfiedDependencyException;
-
+use PrestaShop\Module\PsAccounts\Vendor\Ramsey\Uuid\Exception\UnsatisfiedDependencyException;
 /**
  * TimeConverterInterface provides facilities for converting parts of time into
  * representations that may be used in UUIDs

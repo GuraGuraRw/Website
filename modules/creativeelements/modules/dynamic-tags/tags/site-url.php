@@ -39,7 +39,7 @@ class ModulesXDynamicTagsXTagsXSiteUrl extends DataTag
 
     public function getValue(array $options = [])
     {
-        $url = \Context::getContext()->link->getPageLink('index');
+        $url = Helper::$link->getPageLink('index');
 
         \Configuration::get('PS_REWRITING_SETTINGS') && $url = substr($url, 0, strrpos($url, '/') + 1);
 

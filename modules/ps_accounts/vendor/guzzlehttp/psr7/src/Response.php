@@ -2,8 +2,8 @@
 
 namespace PrestaShop\Module\PsAccounts\Vendor\GuzzleHttp\Psr7;
 
-use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\StreamInterface;
+use PrestaShop\Module\PsAccounts\Vendor\Psr\Http\Message\ResponseInterface;
+use PrestaShop\Module\PsAccounts\Vendor\Psr\Http\Message\StreamInterface;
 /**
  * PSR-7 response implementation.
  */

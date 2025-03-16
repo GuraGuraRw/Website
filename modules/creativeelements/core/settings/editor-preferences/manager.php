@@ -57,10 +57,10 @@ class CoreXSettingsXEditorPreferencesXManager extends BaseManager
      */
     protected function getSavedSettings($id)
     {
-        $settings = get_user_meta(get_current_user_id(), self::META_KEY, true);
+        $settings = [];
 
-        if (!$settings) {
-            $settings = [];
+        if ($user_id = get_current_user_id()) {
+            $settings = get_user_meta($user_id, self::META_KEY, true) ?: [];
         }
 
         return $settings;

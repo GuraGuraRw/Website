@@ -57,7 +57,7 @@ class AdminCESettingsController extends ModuleAdminController
                         ['value' => 3, 'name' => 3],
                         ['value' => 4, 'name' => 4],
                         ['value' => 5, 'name' => 5],
-                        ['value' => 10, 'name' => 10],
+                        ['value' => 10, 'name' => "10 ({$this->trans('Default', [], 'Admin.Global')})"],
                         ['value' => 15, 'name' => 15],
                         ['value' => 20, 'name' => 20],
                         ['value' => 25, 'name' => 25],
@@ -85,7 +85,7 @@ class AdminCESettingsController extends ModuleAdminController
                 ],
             ],
             'submit' => [
-                'title' => $this->l('Save'),
+                'title' => $this->trans('Save', [], 'Admin.Actions'),
             ],
         ];
 
@@ -160,18 +160,37 @@ class AdminCESettingsController extends ModuleAdminController
                 ],
             ],
             'submit' => [
-                'title' => $this->l('Save'),
+                'title' => $this->trans('Save', [], 'Admin.Actions'),
             ],
         ];
 
         $this->fields_options['advanced'] = [
-            'tab' => $this->l('Advanced'),
+            'tab' => $this->trans('Advanced', [], 'Admin.Global'),
             'icon' => 'icon-cogs',
             'title' => $this->l('Advanced Settings'),
             'info' => CESmarty::sprintf(_CE_TEMPLATES_ . 'admin/admin.tpl', 'ce_alert', 'warning', $this->l(
                 'Do not change these options without experience, incorrect settings might break your site.'
             )),
             'fields' => [
+                'elementor_element_cache_ttl' => [
+                    'title' => $this->l('Element Cache'),
+                    'desc' => $this->l('Specify the duration for which data is stored in the cache. Elements caching speeds up loading by serving pre-rendered copies of elements, rather than rendering them fresh each time. This control ensures efficient performance and up-to-date content.'),
+                    'type' => 'select',
+                    'identifier' => 'value',
+                    'list' => [
+                        ['value' => 0, 'name' => $this->l('Disable')],
+                        ['value' => 1, 'name' => sprintf($this->l('%s hour'), 1)],
+                        ['value' => 6, 'name' => sprintf($this->l('%s hours'), 6)],
+                        ['value' => 12, 'name' => sprintf($this->l('%s hours'), 12)],
+                        ['value' => 24, 'name' => sprintf($this->l('%s day'), 1) . " ({$this->trans('Default', [], 'Admin.Global')})"],
+                        ['value' => 72, 'name' => sprintf($this->l('%s days'), 3)],
+                        ['value' => 168, 'name' => sprintf($this->l('%s week'), 1)],
+                        ['value' => 336, 'name' => sprintf($this->l('%s weeks'), 2)],
+                        ['value' => 720, 'name' => sprintf($this->l('%s month'), 1)],
+                        ['value' => 8760, 'name' => sprintf($this->l('%s year'), 1)],
+                    ],
+                    'cast' => 'intval',
+                ],
                 'elementor_css_print_method' => [
                     'title' => $this->l('CSS Print Method'),
                     'desc' => $this->l('Use external CSS files for all generated stylesheets. Choose this setting for better performance (recommended).'),
@@ -253,6 +272,14 @@ class AdminCESettingsController extends ModuleAdminController
                     'validation' => 'isBool',
                     'cast' => 'intval',
                 ],
+                'elementor_load_sticky' => [
+                    'title' => $this->l('Load jQuery Sticky Plugin'),
+                    'desc' => $this->l('A jQuery plugin to easily add functionality to fix elements to the top of the page on scroll.'),
+                    'type' => 'bool',
+                    'defaultValue' => self::zeroSafeDefault('elementor_load_sticky', 1),
+                    'validation' => 'isBool',
+                    'cast' => 'intval',
+                ],
                 'elementor_load_swiper' => [
                     'title' => $this->l('Load Swiper Library'),
                     'desc' => $this->l('Swiper is the most modern mobile touch slider with hardware accelerated transitions and amazing native behavior.'),
@@ -261,17 +288,9 @@ class AdminCESettingsController extends ModuleAdminController
                     'validation' => 'isBool',
                     'cast' => 'intval',
                 ],
-                'elementor_load_waypoints' => [
-                    'title' => $this->l('Load Waypoints Library'),
-                    'desc' => $this->l('Waypoints library is the easiest way to trigger a function when you scroll to an element.'),
-                    'type' => 'bool',
-                    'defaultValue' => self::zeroSafeDefault('elementor_load_waypoints', 1),
-                    'validation' => 'isBool',
-                    'cast' => 'intval',
-                ],
             ],
             'submit' => [
-                'title' => $this->l('Save'),
+                'title' => $this->trans('Save', [], 'Admin.Actions'),
             ],
         ];
 
@@ -285,14 +304,14 @@ class AdminCESettingsController extends ModuleAdminController
             'fields' => [
                 'elementor_remove_hidden' => [
                     'title' => $this->l('Remove Hidden Elements'),
-                    'desc' => $this->l('When you hide elements on "Advanced tab / Responsive section" their markup will be removed from DOM.'),
+                    'desc' => $this->l('When you hide elements on "Advanced tab / Visibility section" their markup will be removed from DOM.'),
                     'type' => 'bool',
                     'validation' => 'isBool',
                     'cast' => 'intval',
                 ],
                 'elementor_visibility' => [
-                    'title' => $this->l('Visibility Section'),
-                    'desc' => $this->l('If you would like to schedule elements or filter them by selected customer groups, then this feature will be handy. It will appear under Advanced tab.'),
+                    'title' => $this->l('Extended Visibility Section'),
+                    'desc' => $this->l('If you would like to schedule elements or filter them by selected customer groups, then this feature will be handy.'),
                     'type' => 'bool',
                     'validation' => 'isBool',
                     'cast' => 'intval',
@@ -307,9 +326,12 @@ class AdminCESettingsController extends ModuleAdminController
                 ],
             ],
             'submit' => [
-                'title' => $this->l('Save'),
+                'title' => $this->trans('Save', [], 'Admin.Actions'),
             ],
         ];
+        if (Tools::getValue('elementor_element_cache_ttl', Configuration::get('elementor_element_cache_ttl'))) {
+            unset($this->fields_options['experiments']['fields']['elementor_remove_hidden']);
+        }
     }
 
     public function initPageHeaderToolbar()
@@ -505,15 +527,12 @@ class AdminCESettingsController extends ModuleAdminController
         }
 
         $db = Db::getInstance();
-        $table = _DB_PREFIX_ . 'ce_meta';
-        $id = sprintf('%02d', $this->context->shop->id);
-        $old = str_replace('/', '\\\/', $from);
-        $new = str_replace('/', '\\\/', $to);
+        ($id = $this->context->shop->id) < 10 && $id = '0' . $id;
 
-        $result = $db->execute("
-            UPDATE $table SET `value` = REPLACE(`value`, '$old', '$new')
-            WHERE `name` = '_elementor_data' AND `id` LIKE '%$id' AND `value` <> '[]'
-        ");
+        $result = $db->execute(
+            'UPDATE ' . _DB_PREFIX_ . 'ce_meta SET `value` = REPLACE(`value`, "' . pSQL($from) . '", "' . pSQL($to) . '") ' .
+            'WHERE `name` = "_elementor_data" AND `id` LIKE "%' . pSQL($id) . '" AND `value` LIKE "%' . pSQL($from) . '%"'
+        );
 
         if (false === $result) {
             CE\wp_send_json_error(CE\__('An error occurred'));
@@ -522,12 +541,9 @@ class AdminCESettingsController extends ModuleAdminController
         }
     }
 
-    protected function l($string, $module = 'creativeelements', $addslashes = false, $htmlentities = true)
+    protected function l($string, $ctx = '', $addslashes = false, $htmlentities = true)
     {
-        $js = $addslashes || !$htmlentities;
-        $str = Translate::getModuleTranslation($module, $string, '', null, $js, _CE_LOCALE_);
-
-        return $htmlentities ? $str : stripslashes($str);
+        return Translate::getModuleTranslation($this->module, $string, $ctx, null, $addslashes, _CE_LOCALE_, false, $htmlentities);
     }
 
     public static function zeroSafeDefault($key, $default)

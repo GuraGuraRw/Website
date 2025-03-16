@@ -45,10 +45,10 @@
 	<section id="content" style="max-width: none">
 		<form id="add-to-cart-or-refresh" action="{$urls.pages.cart}" method="post" style="display:none">
 			<input type="hidden" name="token" value="{$static_token}">
-			<input type="hidden" name="id_product" value="{$product.id}" id="product_page_product_id">
-			<input type="hidden" name="id_customization" value="{$product.id_customization}" id="product_customization_id">
-			<input type="hidden" name="qty" value="{$product.quantity_wanted}" id="quantity_wanted"
-				{if $product['show_quantities']}data-stock="{$product.quantity}" data-allow-oosp="{$product.allow_oosp}"{/if}>
+			<input type="hidden" name="id_product" value="{$product.id|intval}" id="product_page_product_id">
+			<input type="hidden" name="id_customization" value="{$product.id_customization|intval}" id="product_customization_id">
+			<input type="hidden" name="qty" value="{max($product.quantity_wanted|intval, 1)}" id="quantity_wanted"
+				{if $product.show_quantities}data-stock="{$product.quantity}" data-allow-oosp="{$product.allow_oosp}"{/if}>
 			<input type="submit" class="ce-add-to-cart" data-button-action="add-to-cart">
 		</form>
 		{$CE_PRODUCT|cefilter}

@@ -1,4 +1,291 @@
-/*
- * Custom code goes here.
- * A template should always ship with an empty custom.css
- */
+/* GENERAL PAGE STYLING */
+body {
+  background-color: #f5f5f5;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* LOGIN PAGE */
+
+/* Centered Login Container */
+.login-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+
+/* Logo Styling */
+.logo-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-top: 20px;
+}
+
+.gura-logo {
+  max-width: 180px;
+  height: auto;
+  display: block;
+}
+
+/* White Login Box */
+.sign-in-form {
+  width: 100%;
+  max-width: 440px;
+  padding: 44px;
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 7px 17px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+/* Form Label Styling */
+.sign-in-form label {
+  display: block;
+  text-align: right;
+  font-size: 15.4px;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 9px;
+}
+
+/* Input Fields */
+.sign-in-form input {
+  width: 100%;
+  padding: 13px 17px;
+  margin-bottom: 22px;
+  border: 1px solid #ccc;
+  border-radius: 7px;
+  font-size: 15.4px;
+  background-color: #f9f9f9;
+}
+
+.sign-in-form input:focus {
+  border-color: #0056b3;
+  box-shadow: 0 0 6px rgba(0, 86, 179, 0.2);
+}
+
+/* No Account Link */
+.no-account {
+  margin-top: 15px;
+}
+
+.no-account a {
+  font-size: 15.4px;
+  color: #000;
+  text-decoration: none;
+}
+
+.no-account a strong {
+  color: #0056b3; /* Blue for "Sign up" */
+}
+
+/* Continue Button */
+.continue-btn {
+  width: 100%;
+  padding: 13px;
+  font-size: 17.6px;
+  font-weight: bold;
+  color: #fff;
+  background-color: #87cfd8; /* Gura Logo Color */
+  border: none;
+  border-radius: 7px;
+  cursor: pointer;
+}
+
+.continue-btn:hover {
+  background-color: #6fb8c1; /* Slightly darker Gura Logo Color on hover */
+}
+
+/* FORGOT PASSWORD PAGE */
+/* Forgot Password Link */
+.forgot-password a {
+  font-size: 15px;
+  color: #0056b3;
+  text-decoration: none;
+}
+
+.forgot-password a:hover {
+  text-decoration: underline;
+}
+
+/* Hide Header and Footer for Password Infos Page */
+body.password-infos header,
+body.password-infos footer,
+body.page-password header,
+body.page-password footer {
+  display: none !important;
+}
+
+/* Center the Password Recovery Content */
+body.password-infos {
+  display: flex; /* Enable Flexbox on the body */
+  justify-content: center; /* Center horizontally */
+  align-items: center; /* Center vertically */
+  min-height: 100vh; /* Full viewport height */
+  margin: 0; /* Remove default margin */
+  padding: 0; /* Remove default padding */
+  background-color: #f5f5f5; /* Background color */
+  box-sizing: border-box; /* Include padding and border in element's total width and height */
+}
+
+/* Reset Password Box */
+body.password-infos .shadow-box {
+  width: 100%;
+  max-width: 600px; /* Wider box to accommodate title and content */
+  padding: 30px;
+  margin: 0 auto;
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 7px 17px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+/* Title Styling */
+body.password-infos .shadow-box h1 {
+  font-size: 24px;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+/* Explanatory Text */
+body.password-infos .shadow-box p {
+  font-size: 14px;
+  color: #555;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+/* Input Fields and Button */
+body.password-infos .shadow-box input {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 20px;
+  border: 1px solid #ccc;
+  border-radius: 7px;
+  font-size: 15.4px;
+  background-color: #f9f9f9;
+}
+
+body.password-infos .shadow-box input:focus {
+  border-color: #0056b3;
+  box-shadow: 0 0 6px rgba(0, 86, 179, 0.2);
+}
+
+body.password-infos .shadow-box button {
+  width: 100%;
+  padding: 12px;
+  background-color: #87cfd8; /* Gura branding color */
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-top: 20px;
+}
+
+body.password-infos .shadow-box button:hover {
+  background-color: #6fb8c1; /* Slightly darker on hover */
+}
+
+/* Back to Login Link */
+body.password-infos .box-bg a.account-link {
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+  font-size: 16px;
+  font-weight: bold;
+  color: #0056b3;
+}
+
+body.password-infos .box-bg a.account-link i {
+  margin-left: 8px;
+}
+
+/* Styling for Success Messages */
+body.password-infos .ps-alert-success {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 20px;
+}
+
+body.password-infos .ps-alert-success .item {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  background-color: #d4edda; /* Success green */
+  color: #155724; /* Success text green */
+  border: 1px solid #c3e6cb;
+  border-radius: 6px;
+  margin-bottom: 10px;
+}
+
+body.password-infos .ps-alert-success .item svg {
+  margin-left: 10px;
+}
+
+/* ACCOUNT REGISTRATION */
+
+/* Styling for "Create an Account" title inside the box */
+.shadow-box .form-title {
+  font-size: 24px;
+  font-weight: bold;
+  color: #333;
+  text-align: right;
+  margin-bottom: 15px; /* Space below the title */
+}
+
+/* Center Wrapper Styling */
+.center-wrapper {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh; /* Full height to center vertically */
+  text-align: center; /* Center align text */
+}
+
+/* Logo Container Styling */
+.logo-container {
+  margin-bottom: 20px; /* Spacing between the logo and the box */
+}
+
+.logo-container img {
+  max-width: 180px; /* Adjust logo size */
+  height: auto;
+}
+
+/* Shadow Box Styling (Form Container) */
+.shadow-box {
+  width: 100%;
+  max-width: 600px;
+  padding: 30px;
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 7px 17px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+/* Title Styling */
+.shadow-box .form-title {
+  font-size: 24px;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 20px; /* Add spacing below the title */
+}
+
+.logo-container {
+  margin-bottom: 20px;
+}
+
+.gura-logo {
+  max-width: 180px;
+  height: auto;
+}

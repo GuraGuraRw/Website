@@ -93,14 +93,14 @@ class ModulesXCatalogXWidgetsXListingXSortOrder extends WidgetBase
             ]
         );
 
-        $this->addControl(
+        _CE_ADMIN_ && $this->addControl(
             'configure',
             [
                 'label' => __('Additional Options'),
                 'type' => ControlsManager::BUTTON,
                 'text' => '<i class="eicon-external-link-square"></i>' . __('Configure'),
                 'link' => [
-                    'url' => \Context::getContext()->link->getAdminLink('AdminPPreferences') . '#pagination_default_order_by',
+                    'url' => Helper::$link->getAdminLink('AdminPPreferences') . '#pagination_default_order_by',
                     'is_external' => true,
                 ],
                 'separator' => 'before',
@@ -181,7 +181,7 @@ class ModulesXCatalogXWidgetsXListingXSortOrder extends WidgetBase
             GroupControlTypography::getType(),
             [
                 'name' => 'field_typography',
-                'selector' => '{{WRAPPER}} .elementor-field-group .elementor-field',
+                'selector' => '{{WRAPPER}} .elementor-field',
                 'scheme' => SchemeTypography::TYPOGRAPHY_3,
             ]
         );
@@ -192,7 +192,8 @@ class ModulesXCatalogXWidgetsXListingXSortOrder extends WidgetBase
                 'label' => __('Text Color'),
                 'type' => ControlsManager::COLOR,
                 'selectors' => [
-                    '{{WRAPPER}} .elementor-field-group .elementor-field' => 'color: {{VALUE}};',
+                    '{{WRAPPER}} .elementor-field' => 'color: {{VALUE}};',
+                    '{{WRAPPER}} .elementor-field-group' => '--ce-field-color: {{VALUE}};',
                 ],
                 'scheme' => [
                     'type' => SchemeColor::getType(),
@@ -207,7 +208,7 @@ class ModulesXCatalogXWidgetsXListingXSortOrder extends WidgetBase
                 'label' => __('Background Color'),
                 'type' => ControlsManager::COLOR,
                 'selectors' => [
-                    '{{WRAPPER}} .elementor-field-group .elementor-field-textual' => 'background-color: {{VALUE}};',
+                    '{{WRAPPER}} .elementor-field-textual' => 'background-color: {{VALUE}};',
                 ],
             ]
         );
@@ -218,7 +219,7 @@ class ModulesXCatalogXWidgetsXListingXSortOrder extends WidgetBase
                 'label' => __('Border Color'),
                 'type' => ControlsManager::COLOR,
                 'selectors' => [
-                    '{{WRAPPER}} .elementor-field-group .elementor-field-textual' => 'border-color: {{VALUE}};',
+                    '{{WRAPPER}} .elementor-field-textual' => 'border-color: {{VALUE}};',
                 ],
             ]
         );
@@ -229,7 +230,7 @@ class ModulesXCatalogXWidgetsXListingXSortOrder extends WidgetBase
                 'label' => __('Border Width'),
                 'type' => ControlsManager::DIMENSIONS,
                 'selectors' => [
-                    '{{WRAPPER}} .elementor-field-group .elementor-field-textual' => 'border-width: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+                    '{{WRAPPER}} .elementor-field-textual' => 'border-width: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
                 ],
             ]
         );
@@ -241,7 +242,7 @@ class ModulesXCatalogXWidgetsXListingXSortOrder extends WidgetBase
                 'type' => ControlsManager::DIMENSIONS,
                 'size_units' => ['px', '%'],
                 'selectors' => [
-                    '{{WRAPPER}} .elementor-field-group .elementor-field-textual' => 'border-radius: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+                    '{{WRAPPER}} .elementor-field-textual' => 'border-radius: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
                 ],
             ]
         );
@@ -251,14 +252,13 @@ class ModulesXCatalogXWidgetsXListingXSortOrder extends WidgetBase
 
     protected function render()
     {
-        $context = \Context::getContext();
-        $listing = &$context->smarty->tpl_vars['listing']->value;
+        $listing = &$GLOBALS['smarty']->tpl_vars['listing']->value;
 
         if (!$listing['products'] && empty(${'_GET'}['q'])) {
             return;
         }
         $settings = $this->getSettingsForDisplay();
-        $label = $settings['label'] ? trim($settings['label']) : $context->getTranslator()->trans('Sort by:', [], 'Shop.Theme.Global');
+        $label = $settings['label'] ? trim($settings['label']) : __('Sort by:', 'Shop.Theme.Global');
         ?>
         <div class="ce-sort-order elementor-field-group">
             <label class="elementor-field-label" for="order-<?php echo $id = $this->getId(); ?>"><?php echo $label; ?></label>

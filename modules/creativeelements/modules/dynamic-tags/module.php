@@ -33,11 +33,11 @@ class ModulesXDynamicTagsXModule extends BaseModule
 
     const ACTION_GROUP = 'action';
 
-    const POST_GROUP = 'post';
+    // const POST_GROUP = 'post';
 
-    const AUTHOR_GROUP = 'author';
+    // const AUTHOR_GROUP = 'author';
 
-    const COMMENTS_GROUP = 'comments';
+    // const COMMENTS_GROUP = 'comments';
 
     /**
      * Dynamic tags text category.
@@ -152,6 +152,7 @@ class ModulesXDynamicTagsXModule extends BaseModule
             self::ACTION_GROUP => [
                 'title' => __('Actions'),
             ],
+            /*
             self::POST_GROUP => [
                 'title' => __('Post'),
             ],
@@ -161,6 +162,7 @@ class ModulesXDynamicTagsXModule extends BaseModule
             self::COMMENTS_GROUP => [
                 'title' => __('Comments'),
             ],
+            */
         ];
     }
 

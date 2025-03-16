@@ -21,6 +21,8 @@ if (!defined('_PS_VERSION_')) {
  */
 class WidgetTestimonial extends WidgetBase
 {
+    const HELP_URL = 'http://docs.webshopworks.com/creative-elements/86-widgets/general-widgets/309-testimonial-widget';
+
     /**
      * Get widget name.
      *
@@ -75,6 +77,11 @@ class WidgetTestimonial extends WidgetBase
     public function getKeywords()
     {
         return ['testimonial', 'blockquote'];
+    }
+
+    protected function isDynamicContent()
+    {
+        return false;
     }
 
     /**

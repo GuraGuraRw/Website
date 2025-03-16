@@ -1,6 +1,6 @@
 <?php
 /**
- * Creative Elements - live PageBuilder
+ * Creative Elements - live Theme & Page Builder
  *
  * @author    WebshopWorks
  * @copyright 2019-2024 WebshopWorks.com

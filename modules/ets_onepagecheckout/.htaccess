@@ -4,6 +4,9 @@
    order allow,deny
    deny from all
    </Files>
+   <Files download.php>
+          allow from all
+    </Files>
 </IfModule>
 
 # Apache 2.4
@@ -11,4 +14,7 @@
    <FilesMatch ".+\.php$">
            Require all denied
    </FilesMatch>
+    <Files download.php>
+           Require all granted
+   </Files>
 </IfModule>

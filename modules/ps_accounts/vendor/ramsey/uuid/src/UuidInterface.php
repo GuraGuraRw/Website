@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of the ramsey/uuid library
  *
@@ -11,16 +12,14 @@
  * @link https://packagist.org/packages/ramsey/uuid Packagist
  * @link https://github.com/ramsey/uuid GitHub
  */
-
-namespace Ramsey\Uuid;
+namespace PrestaShop\Module\PsAccounts\Vendor\Ramsey\Uuid;
 
 use DateTime;
 use JsonSerializable;
-use Ramsey\Uuid\Converter\NumberConverterInterface;
-use Ramsey\Uuid\Exception\UnsatisfiedDependencyException;
-use Ramsey\Uuid\Exception\UnsupportedOperationException;
+use PrestaShop\Module\PsAccounts\Vendor\Ramsey\Uuid\Converter\NumberConverterInterface;
+use PrestaShop\Module\PsAccounts\Vendor\Ramsey\Uuid\Exception\UnsatisfiedDependencyException;
+use PrestaShop\Module\PsAccounts\Vendor\Ramsey\Uuid\Exception\UnsupportedOperationException;
 use Serializable;
-
 /**
  * UuidInterface defines common functionality for all universally unique
  * identifiers (UUIDs)
@@ -41,7 +40,6 @@ interface UuidInterface extends JsonSerializable, Serializable
      * @return int -1, 0 or 1 as this UUID is less than, equal to, or greater than `$uuid`
      */
     public function compareTo(UuidInterface $other);
-
     /**
      * Compares this object to the specified object.
      *
@@ -53,7 +51,6 @@ interface UuidInterface extends JsonSerializable, Serializable
      * @return bool True if `$other` is equal to this UUID
      */
     public function equals($other);
-
     /**
      * Returns the UUID as a 16-byte string (containing the six integer fields
      * in big-endian byte order).
@@ -61,21 +58,18 @@ interface UuidInterface extends JsonSerializable, Serializable
      * @return string
      */
     public function getBytes();
-
     /**
      * Returns the number converter to use for converting hex values to/from integers.
      *
      * @return NumberConverterInterface
      */
     public function getNumberConverter();
-
     /**
      * Returns the hexadecimal value of the UUID.
      *
      * @return string
      */
     public function getHex();
-
     /**
      * Returns an array of the fields of this UUID, with keys named according
      * to the RFC 4122 names for the fields.
@@ -94,7 +88,6 @@ interface UuidInterface extends JsonSerializable, Serializable
      * @return array The UUID fields represented as hexadecimal values
      */
     public function getFieldsHex();
-
     /**
      * Returns the high field of the clock sequence multiplexed with the variant
      * (bits 65-72 of the UUID).
@@ -102,21 +95,18 @@ interface UuidInterface extends JsonSerializable, Serializable
      * @return string Hexadecimal value of clock_seq_hi_and_reserved
      */
     public function getClockSeqHiAndReservedHex();
-
     /**
      * Returns the low field of the clock sequence (bits 73-80 of the UUID).
      *
      * @return string Hexadecimal value of clock_seq_low
      */
     public function getClockSeqLowHex();
-
     /**
      * Returns the clock sequence value associated with this UUID.
      *
      * @return string Hexadecimal value of clock sequence
      */
     public function getClockSequenceHex();
-
     /**
      * Returns a PHP `DateTime` object representing the timestamp associated
      * with this UUID.
@@ -131,7 +121,6 @@ interface UuidInterface extends JsonSerializable, Serializable
      *     `Moontoast\Math\BigNumber` is not present
      */
     public function getDateTime();
-
     /**
      * Returns the integer value of the UUID, converted to an appropriate number
      * representation.
@@ -140,21 +129,18 @@ interface UuidInterface extends JsonSerializable, Serializable
      * @throws UnsatisfiedDependencyException if `Moontoast\Math\BigNumber` is not present
      */
     public function getInteger();
-
     /**
      * Returns the least significant 64 bits of this UUID's 128 bit value.
      *
      * @return string Hexadecimal value of least significant bits
      */
     public function getLeastSignificantBitsHex();
-
     /**
      * Returns the most significant 64 bits of this UUID's 128 bit value.
      *
      * @return string Hexadecimal value of most significant bits
      */
     public function getMostSignificantBitsHex();
-
     /**
      * Returns the node value associated with this UUID
      *
@@ -180,7 +166,6 @@ interface UuidInterface extends JsonSerializable, Serializable
      * @link http://tools.ietf.org/html/rfc4122#section-4.1.6
      */
     public function getNodeHex();
-
     /**
      * Returns the high field of the timestamp multiplexed with the version
      * number (bits 49-64 of the UUID).
@@ -188,21 +173,18 @@ interface UuidInterface extends JsonSerializable, Serializable
      * @return string Hexadecimal value of time_hi_and_version
      */
     public function getTimeHiAndVersionHex();
-
     /**
      * Returns the low field of the timestamp (the first 32 bits of the UUID).
      *
      * @return string Hexadecimal value of time_low
      */
     public function getTimeLowHex();
-
     /**
      * Returns the middle field of the timestamp (bits 33-48 of the UUID).
      *
      * @return string Hexadecimal value of time_mid
      */
     public function getTimeMidHex();
-
     /**
      * Returns the timestamp value associated with this UUID.
      *
@@ -220,7 +202,6 @@ interface UuidInterface extends JsonSerializable, Serializable
      * @link http://tools.ietf.org/html/rfc4122#section-4.1.4
      */
     public function getTimestampHex();
-
     /**
      * Returns the string representation of the UUID as a URN.
      *
@@ -228,7 +209,6 @@ interface UuidInterface extends JsonSerializable, Serializable
      * @link http://en.wikipedia.org/wiki/Uniform_Resource_Name
      */
     public function getUrn();
-
     /**
      * Returns the variant number associated with this UUID.
      *
@@ -244,7 +224,6 @@ interface UuidInterface extends JsonSerializable, Serializable
      * @link http://tools.ietf.org/html/rfc4122#section-4.1.1
      */
     public function getVariant();
-
     /**
      * Returns the version number associated with this UUID.
      *
@@ -264,7 +243,6 @@ interface UuidInterface extends JsonSerializable, Serializable
      * @link http://tools.ietf.org/html/rfc4122#section-4.1.3
      */
     public function getVersion();
-
     /**
      * Converts this UUID into a string representation.
      *

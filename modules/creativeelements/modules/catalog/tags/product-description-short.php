@@ -13,7 +13,7 @@ if (!defined('_PS_VERSION_')) {
 }
 
 use CE\CoreXDynamicTagsXTag as Tag;
-use CE\ModulesXDynamicTagsXModule as Module;
+use CE\ModulesXDynamicTagsXModule as TagsModule;
 
 class ModulesXCatalogXTagsXProductDescriptionShort extends Tag
 {
@@ -26,22 +26,22 @@ class ModulesXCatalogXTagsXProductDescriptionShort extends Tag
 
     public function getTitle()
     {
-        return __('Product') . ' ' . __('Short Description');
+        return __('Product', 'Shop.Theme.Catalog') . ' ' . __('Short Description');
     }
 
     public function getGroup()
     {
-        return Module::CATALOG_GROUP;
+        return TagsModule::CATALOG_GROUP;
     }
 
     public function getCategories()
     {
-        return [Module::TEXT_CATEGORY];
+        return [TagsModule::TEXT_CATEGORY];
     }
 
     public function render()
     {
-        echo strip_tags(\Context::getContext()->smarty->tpl_vars['product']->value['description_short']);
+        echo strip_tags($GLOBALS['smarty']->tpl_vars['product']->value['description_short']);
     }
 
     protected function renderSmarty()

@@ -2,7 +2,7 @@
 
 namespace PrestaShop\Module\PsAccounts\Vendor\GuzzleHttp\Psr7;
 
-use Psr\Http\Message\UriInterface;
+use PrestaShop\Module\PsAccounts\Vendor\Psr\Http\Message\UriInterface;
 /**
  * Resolves a URI reference in the context of a base URI and the opposite way.
  *

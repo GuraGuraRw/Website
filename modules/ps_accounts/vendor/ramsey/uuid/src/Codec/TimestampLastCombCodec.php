@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of the ramsey/uuid library
  *
@@ -11,7 +12,7 @@
  * @link https://packagist.org/packages/ramsey/uuid Packagist
  * @link https://github.com/ramsey/uuid GitHub
  */
-namespace Ramsey\Uuid\Codec;
+namespace PrestaShop\Module\PsAccounts\Vendor\Ramsey\Uuid\Codec;
 
 /**
  * TimestampLastCombCodec encodes and decodes COMB UUIDs which have the timestamp as the last 48 bits.

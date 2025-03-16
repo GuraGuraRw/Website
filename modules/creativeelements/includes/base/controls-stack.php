@@ -13,6 +13,7 @@ if (!defined('_PS_VERSION_')) {
 }
 
 use CE\CoreXBaseXBaseObject as BaseObject;
+use CE\CoreXSchemesXManager as SchemesManager;
 
 /**
  * Elementor controls stack.
@@ -721,7 +722,8 @@ abstract class ControlsStack extends BaseObject
                 $control['style_fields'] = $style_fields;
             }
 
-            if (!empty($control['selectors']) || !empty($control['dynamic']) || !empty($control['style_fields'])) {
+            // if (!empty($control['selectors']) || !empty($control['dynamic']) || !empty($control['style_fields'])) {
+            if (!empty($control['selectors']) || ControlsManager::ICONS === $control['type'] || !empty($control['style_fields'])) {
                 $style_controls[$control_name] = $control;
             }
         }
@@ -1282,18 +1284,7 @@ abstract class ControlsStack extends BaseObject
     {
         $section_name = $this->getName();
 
-        /*
-         * Before section start.
-         *
-         * Fires before Elementor section starts in the editor panel.
-         *
-         * @since 1.4.0
-         *
-         * @param ControlsStack $this       The control
-         * @param string         $section_id Section ID
-         * @param array          $args       Section arguments
-         */
-        do_action('elementor/element/before_section_start', $this, $section_id, $args);
+        // do_action('elementor/element/before_section_start', $this, $section_id, $args);
 
         /*
          * Before section start.
@@ -1323,18 +1314,7 @@ abstract class ControlsStack extends BaseObject
             $this->injection_point['section'] = $this->current_section;
         }
 
-        /*
-         * After section start.
-         *
-         * Fires after Elementor section starts in the editor panel.
-         *
-         * @since 1.4.0
-         *
-         * @param ControlsStack $this       The control
-         * @param string         $section_id Section ID
-         * @param array          $args       Section arguments
-         */
-        do_action('elementor/element/after_section_start', $this, $section_id, $args);
+        // do_action('elementor/element/after_section_start', $this, $section_id, $args);
 
         /*
          * After section start.
@@ -1372,18 +1352,7 @@ abstract class ControlsStack extends BaseObject
             'tab' => $current_section['tab'],
         ];
 
-        /*
-         * Before section end.
-         *
-         * Fires before Elementor section ends in the editor panel.
-         *
-         * @since 1.4.0
-         *
-         * @param ControlsStack $this       The control
-         * @param string         $section_id Section ID
-         * @param array          $args       Section arguments
-         */
-        do_action('elementor/element/before_section_end', $this, $section_id, $args);
+        // do_action('elementor/element/before_section_end', $this, $section_id, $args);
 
         /*
          * Before section end.
@@ -1401,18 +1370,7 @@ abstract class ControlsStack extends BaseObject
 
         $this->current_section = null;
 
-        /*
-         * After section end.
-         *
-         * Fires after Elementor section ends in the editor panel.
-         *
-         * @since 1.4.0
-         *
-         * @param ControlsStack $this       The control
-         * @param string         $section_id Section ID
-         * @param array          $args       Section arguments
-         */
-        do_action('elementor/element/after_section_end', $this, $section_id, $args);
+        // do_action('elementor/element/after_section_end', $this, $section_id, $args);
 
         /*
          * After section end.
@@ -1594,7 +1552,7 @@ abstract class ControlsStack extends BaseObject
 
         $template_content = ob_get_clean();
 
-        $element_type = $this->getType();
+        // $element_type = $this->getType();
 
         /*
          * Template content.
@@ -1608,9 +1566,9 @@ abstract class ControlsStack extends BaseObject
          * @param string         $content_template The controls stack template in the editor
          * @param ControlsStack $this             The controls stack
          */
-        $template_content = apply_filters("elementor/{$element_type}/print_template", $template_content, $this);
+        // $template_content = apply_filters("elementor/{$element_type}/print_template", $template_content, $this);
 
-        if (empty($template_content)) {
+        if (!$template_content) {
             return;
         } ?>
         <script type="text/html" id="tmpl-elementor-<?php echo esc_attr($this->getName()); ?>-content">

@@ -12,6 +12,8 @@ if (!defined('_PS_VERSION_')) {
     exit;
 }
 
+use CE\ModulesXCatalogXTagsXProductMeta as ProductMeta;
+
 class ModulesXCatalogXWidgetsXProductXMeta extends WidgetBase
 {
     const REMOTE_RENDER = true;
@@ -93,26 +95,7 @@ class ModulesXCatalogXWidgetsXProductXMeta extends WidgetBase
             [
                 'label' => __('Field'),
                 'type' => ControlsManager::SELECT,
-                'groups' => [
-                    'category' => __('Category'),
-                    'manufacturer' => __('Brand'),
-                    'supplier' => __('Supplier'),
-                    // 'tags' => __('Tags'),
-                    'delivery' => __('Delivery Time'),
-                    'quantity' => __('Quantity'),
-                    'availability_date' => __('Availability Date'),
-                    'condition' => __('Condition'),
-                    'references' => [
-                        'label' => __('References'),
-                        'options' => [
-                            'reference' => __('SKU'),
-                            'isbn' => __('ISBN'),
-                            'ean13' => __('EAN-13'),
-                            'upc' => __('UPC'),
-                            'mpn' => __('MPN'),
-                        ],
-                    ],
-                ],
+                'groups' => _CE_ADMIN_ ? ProductMeta::getOptions() : [],
                 'default' => 'reference',
             ]
         );
@@ -363,8 +346,7 @@ class ModulesXCatalogXWidgetsXProductXMeta extends WidgetBase
                     ],
                 ],
                 'selectors' => [
-                    'body:not(.lang-rtl) {{WRAPPER}}.ce-product-meta--layout-inline .ce-product-meta__detail:not(:last-child):after' => 'border-left-width: {{SIZE}}{{UNIT}}; margin-right: calc(-{{SIZE}}{{UNIT}} / 2)',
-                    'body.lang-rtl {{WRAPPER}}.ce-product-meta--layout-inline .ce-product-meta__detail:not(:last-child):after' => 'border-right-width: {{SIZE}}{{UNIT}}; margin-left: calc(-{{SIZE}}{{UNIT}} / 2)',
+                    '{{WRAPPER}}.ce-product-meta--layout-inline .ce-product-meta__detail:not(:last-child):after' => 'border-inline-start-width: {{SIZE}}{{UNIT}}; margin-inline-end: calc(-{{SIZE}}{{UNIT}} / 2)',
                     '{{WRAPPER}}:not(.ce-product-meta--layout-inline) .ce-product-meta__detail:not(:last-child):after' => 'border-top-width: {{SIZE}}{{UNIT}}; margin-bottom: calc(-{{SIZE}}{{UNIT}} / 2)',
                 ],
                 'condition' => [
@@ -431,10 +413,8 @@ class ModulesXCatalogXWidgetsXProductXMeta extends WidgetBase
 
     protected function render()
     {
-        $context = \Context::getContext();
-        $vars = &$context->smarty->tpl_vars;
-        $product = &$vars['product']->value;
-        $t = $context->getTranslator();
+        $vars = &$GLOBALS['smarty']->tpl_vars;
+        $product = $vars['product']->value;
 
         echo '<div class="ce-product-meta">';
 
@@ -444,41 +424,41 @@ class ModulesXCatalogXWidgetsXProductXMeta extends WidgetBase
 
             switch ($meta['type']) {
                 case 'category':
-                    if (!\Validate::isLoadedObject($category = new \Category($product['id_category_default'], $context->language->id))) {
+                    if (!\Validate::isLoadedObject($category = new \Category($product['id_category_default'], $vars['language']->value['id']))) {
                         continue 2;
                     }
-                    $label = $label ?: rtrim($t->trans('Category: %category_name%', ['%category_name%' => ''], 'Shop.Theme.Catalog'), ': ');
-                    $value = sprintf(
-                        '<a href="%s">%s</a>',
-                        esc_attr($context->link->getCategoryLink($category)),
-                        esc_html($product['category_name'])
-                    );
+                    $label = $label ?: rtrim(__('Category: %category_name%', 'Shop.Theme.Catalog', ['%category_name%' => '']), ': ');
+                    $value = sprintf('<a href="%s">%s</a>', esc_attr(Helper::$link->getCategoryLink($category)), esc_html($product['category_name']));
                     break;
                 case 'manufacturer':
-                    if (empty($vars['product_manufacturer']->value->name)) {
+                    if (!$product['id_manufacturer']) {
                         continue 2;
                     }
-                    $label = $label ?: $t->trans('Brand', [], 'Shop.Theme.Catalog');
-                    $value = sprintf(
-                        '<a href="%s">%s</a>',
-                        esc_attr($vars['product_brand_url']->value),
-                        esc_html($vars['product_manufacturer']->value->name)
-                    );
+                    $label = $label ?: __('Brand', 'Shop.Theme.Catalog');
+
+                    if (isset($vars['product_manufacturer'])) {
+                        $brand_name = $vars['product_manufacturer']->value->name;
+                        $brand_url = $vars['product_brand_url']->value;
+                    } else {
+                        $brand_name = (int) _PS_VERSION_ < 8 ? \Manufacturer::getNameById($product['id_manufacturer']) : $product['manufacturer_name'];
+                        $brand_url = Helper::$link->getManufacturerLink($product['id_manufacturer']);
+                    }
+                    $value = sprintf('<a href="%s">%s</a>', esc_attr($brand_url), esc_html($brand_name));
                     break;
                 case 'supplier':
                     if (!$product['id_supplier']) {
                         continue 2;
                     }
-                    $label = $label ?: $t->trans('Supplier', [], 'Shop.Theme.Catalog');
-                    $supplier = new \Supplier($product['id_supplier'], $context->language->id);
+                    $label = $label ?: __('Supplier', 'Shop.Theme.Catalog');
+                    $supplier = new \Supplier($product['id_supplier'], $vars['language']->value['id']);
                     $value = sprintf(
                         '<a href="%s">%s</a>',
-                        esc_attr($context->link->getSupplierLink($supplier)),
+                        esc_attr(Helper::$link->getSupplierLink($supplier)),
                         esc_html($supplier->name)
                     );
                     break;
                 case 'delivery':
-                    $label = $label ?: $t->trans('Delivery Time', [], 'Admin.Catalog.Feature');
+                    $label = $label ?: __('Delivery Time');
 
                     if (1 == $product['additional_delivery_times']) {
                         $value = $product['delivery_information'];
@@ -494,32 +474,34 @@ class ModulesXCatalogXWidgetsXProductXMeta extends WidgetBase
                     }
                     break;
                 case 'quantity':
+                    isset($product['show_quantities']) || $product['show_quantities'] = !empty($product['quantity']) && $product['available_for_order'] && !\Configuration::isCatalogMode();
                     if (!$product['show_quantities']) {
                         continue 2;
                     }
-                    $label = $label ?: $t->trans('In stock', [], 'Shop.Theme.Catalog');
+                    $label = $label ?: __('In stock', 'Shop.Theme.Catalog');
                     $quantity = max(0, $product['quantity']);
+                    isset($product['quantity_label']) || $product['quantity_label'] = __(1 === $quantity ? 'Item' : 'Items', 'Shop.Theme.Catalog');
                     $value = esc_html("$quantity {$product['quantity_label']}");
                     break;
                 case 'availability_date':
                     if (!$product['availability_date'] || $product['quantity'] >= $product['minimal_quantity'] || date('Y-m-d') >= $product['availability_date']) {
                         continue 2;
                     }
-                    $label = $label ?: rtrim($t->trans('Availability date:', [], 'Shop.Theme.Catalog'), ': ');
+                    $label = $label ?: rtrim(__('Availability date:', 'Shop.Theme.Catalog'), ': ');
                     $value = esc_html(\Tools::displayDate($product['availability_date']));
                     break;
                 case 'condition':
                     if (!$product['condition']) {
                         continue 2;
                     }
-                    $label = $label ?: $t->trans('Condition', [], 'Shop.Theme.Catalog');
+                    $label = $label ?: __('Condition', 'Shop.Theme.Catalog');
                     $value = esc_html($product['condition']['label']);
                     break;
                 case 'reference':
                     if (!$product['reference_to_display']) {
                         continue 2;
                     }
-                    $label = $label ?: $t->trans('Reference', [], 'Shop.Theme.Catalog');
+                    $label = $label ?: __('Reference', 'Shop.Theme.Catalog');
                     $value = esc_html($product['reference_to_display']);
                     break;
                 default:
@@ -558,7 +540,7 @@ class ModulesXCatalogXWidgetsXProductXMeta extends WidgetBase
                 {if $product.id_category_default}
                     <span class="ce-product-meta__detail ce-product-meta__category">
                         <span class="ce-product-meta__label">
-                            <?php echo $meta['label'] ?: "{Context::getContext()->getTranslator()->trans('Category: %category_name%', ['%category_name%' => ''], 'Shop.Theme.Catalog')|rtrim:': '}"; ?>
+                            <?php echo $meta['label'] ?: "{l|rtrim:' :' s='Category: %category_name%' sprintf=['%category_name%' => ''] d='Shop.Theme.Catalog'}"; ?>
                         </span>
                         <a class="ce-product-meta__value" href="{url entity='category' id=$product.id_category_default}">{$product.category_name}</a>
                     </span>
@@ -567,14 +549,16 @@ class ModulesXCatalogXWidgetsXProductXMeta extends WidgetBase
                 {if $product.id_manufacturer}
                     <span class="ce-product-meta__detail ce-product-meta__manufacturer">
                         <span class="ce-product-meta__label"><?php echo $meta['label'] ?: "{l s='Brand' d='Shop.Theme.Catalog'}"; ?></span>
-                        <a class="ce-product-meta__value" href="{Context::getContext()->link->getManufacturerLink($product.id_manufacturer)}">{Manufacturer::getNameById($product.id_manufacturer)}</a>
+                        <a class="ce-product-meta__value" href="{$link->getManufacturerLink($product.id_manufacturer)}">
+                            <?php echo (int) _PS_VERSION_ < 8 ? '{Manufacturer::getNameById($product.id_manufacturer)}' : '{$product.manufacturer_name}'; ?>
+                        </a>
                     </span>
                 {/if}
             <?php } elseif ('supplier' === $meta['type']) { ?>
                 {if $product.id_supplier}
                     <span class="ce-product-meta__detail ce-product-meta__supplier">
                         <span class="ce-product-meta__label"><?php echo $meta['label'] ?: "{l s='Brand' d='Shop.Theme.Catalog'}"; ?></span>
-                        <a class="ce-product-meta__value" href="{Context::getContext()->link->getSupplierLink($product.id_supplier)}">{Supplier::getNameById($product.id_supplier)}</a>
+                        <a class="ce-product-meta__value" href="{$link->getSupplierLink($product.id_supplier)}">{Supplier::getNameById($product.id_supplier)}</a>
                     </span>
                 {/if}
             <?php } elseif ('delivery' === $meta['type']) { ?>
@@ -590,21 +574,21 @@ class ModulesXCatalogXWidgetsXProductXMeta extends WidgetBase
                 {/if}
                 {if $delivery}
                     <span class="ce-product-meta__detail ce-product-meta__delivery">
-                        <span class="ce-product-meta__label"><?php echo $meta['label'] ?: "{l s='Delivery Time' d='Admin.Catalog.Feature'}"; ?></span>
+                        <span class="ce-product-meta__label"><?php echo $meta['label'] ?: "{ce__('Delivery Time')}"; ?></span>
                         <span class="ce-product-meta__value">{$delivery}</span>
                     </span>
                 {/if}
             <?php } elseif ('quantity' === $meta['type']) { ?>
-                {if !empty($product.show_quantities)}
+                {if !empty($product.quantity) && $product.available_for_order && !$configuration.is_catalog}
                     <span class="ce-product-meta__detail ce-product-meta__quantity">
                         <span class="ce-product-meta__label"><?php echo $meta['label'] ?: "{l s='In stock' d='Shop.Theme.Catalog'}"; ?></span>
-                        <span class="ce-product-meta__value">{max(0, $product.quantity)|cat:" {$product.quantity_label}"}</span>
+                        <span class="ce-product-meta__value">{$product.quantity} {l s='Items' d='Shop.Theme.Catalog'}</span>
                     </span>
                 {/if}
             <?php } elseif ('availability_date' === $meta['type']) { ?>
                 {if !empty($product.availability_date) && ($product.allow_oosp || 'unavailable' === $product.availability) && date('Y-m-d') < $product.availability_date}
                     <span class="ce-product-meta__detail ce-product-meta__availability_date">
-                        <span class="ce-product-meta__label"><?php echo $meta['label'] ?: "{Context::getContext()->getTranslator()->trans('Availability date:', [], 'Shop.Theme.Catalog')|rtrim:': '}"; ?></span>
+                        <span class="ce-product-meta__label"><?php echo $meta['label'] ?: "{l|rtrim:' :' s='Availability date:' d='Shop.Theme.Catalog'}"; ?></span>
                         <span class="ce-product-meta__value">{Tools::displayDate($product.availability_date)}</span>
                     </span>
                 {/if}

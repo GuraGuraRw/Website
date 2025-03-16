@@ -13,6 +13,7 @@ if (!defined('_PS_VERSION_')) {
 }
 
 use CE\CoreXFilesXCSSXBase as Base;
+use CE\CoreXSchemesXBase as SchemeBase;
 
 /**
  * Elementor global CSS file.

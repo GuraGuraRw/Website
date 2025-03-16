@@ -233,7 +233,7 @@ class ModulesXPageTemplatesXModule extends BaseModule
             $control_id . '_default_description',
             [
                 'type' => ControlsManager::RAW_HTML,
-                'raw' => __('Default Page Template from your theme'),
+                'raw' => __('Default Page Layout from your theme'),
                 'separator' => 'none',
                 'content_classes' => 'elementor-descriptor',
                 'condition' => [
@@ -259,7 +259,7 @@ class ModulesXPageTemplatesXModule extends BaseModule
             $control_id . '_header_footer_description',
             [
                 'type' => ControlsManager::RAW_HTML,
-                'raw' => __('This template includes the header, full-width content and footer'),
+                'raw' => __('This layout includes the header, full-width content and footer'),
                 'separator' => 'none',
                 'content_classes' => 'elementor-descriptor',
                 'condition' => [
@@ -279,7 +279,7 @@ class ModulesXPageTemplatesXModule extends BaseModule
                         'in the <a href="%s" target="_blank">Settings page</a>.'
                     ), Helper::getSettingsLink()),
                     'selectors' => [
-                        $selector => 'min-width: 100%; margin: 0; padding: 0;',
+                        $selector => 'min-width: 100%; margin: 0 !important; padding: 0 !important; background: inherit !important; color: inherit !important; font: inherit !important; box-shadow: none !important',
                     ],
                     'condition' => [
                         'template!' => self::TEMPLATE_CANVAS,
@@ -302,7 +302,8 @@ class ModulesXPageTemplatesXModule extends BaseModule
      */
     public function __construct()
     {
-        add_action('init', [$this, 'addTemplatesSupport']);
+        // add_action('init', [$this, 'addTemplatesSupport']);
+        add_action('elementor/init', [$this, 'addTemplatesSupport']);
 
         add_filter('template_include', [$this, 'templateInclude'], 11);
 

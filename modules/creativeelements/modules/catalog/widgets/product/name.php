@@ -14,6 +14,8 @@ if (!defined('_PS_VERSION_')) {
 
 class ModulesXCatalogXWidgetsXProductXName extends WidgetHeading
 {
+    const HELP_URL = '';
+
     public function getName()
     {
         return 'product-name';
@@ -39,6 +41,11 @@ class ModulesXCatalogXWidgetsXProductXName extends WidgetHeading
         return ['shop', 'store', 'title', 'name', 'heading', 'product'];
     }
 
+    protected function isDynamicContent()
+    {
+        return true;
+    }
+
     protected function _registerControls()
     {
         parent::_registerControls();
@@ -58,7 +65,7 @@ class ModulesXCatalogXWidgetsXProductXName extends WidgetHeading
                 'type' => ControlsManager::SELECT,
                 'options' => [
                     '' => __('None'),
-                    'custom' => __('Product'),
+                    'custom' => __('Product', 'Shop.Theme.Catalog'),
                 ],
                 'separator' => 'before',
             ],

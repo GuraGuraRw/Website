@@ -22,6 +22,8 @@ if (!defined('_PS_VERSION_')) {
  */
 class WidgetTabs extends WidgetBase
 {
+    const HELP_URL = 'http://docs.webshopworks.com/creative-elements/86-widgets/general-widgets/310-tabs-widget';
+
     /**
      * Get widget name.
      *
@@ -76,6 +78,11 @@ class WidgetTabs extends WidgetBase
     public function getKeywords()
     {
         return ['tabs', 'accordion', 'toggle'];
+    }
+
+    protected function isDynamicContent()
+    {
+        return false;
     }
 
     /**

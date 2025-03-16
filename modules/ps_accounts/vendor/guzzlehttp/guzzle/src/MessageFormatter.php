@@ -2,9 +2,9 @@
 
 namespace PrestaShop\Module\PsAccounts\Vendor\GuzzleHttp;
 
-use Psr\Http\Message\MessageInterface;
-use Psr\Http\Message\RequestInterface;
-use Psr\Http\Message\ResponseInterface;
+use PrestaShop\Module\PsAccounts\Vendor\Psr\Http\Message\MessageInterface;
+use PrestaShop\Module\PsAccounts\Vendor\Psr\Http\Message\RequestInterface;
+use PrestaShop\Module\PsAccounts\Vendor\Psr\Http\Message\ResponseInterface;
 /**
  * Formats log messages using variable substitutions for requests, responses,
  * and other transactional data.

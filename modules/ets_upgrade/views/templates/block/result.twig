@@ -1,0 +1,35 @@
+{#---Block resuilt---#}
+<div id="blockResult" class="ug_block_step">
+    <div class="ets_autoup_upgrade_process">
+        <img src="{{ pathImg }}pres17.png"><br>
+        <h3>{{ 'Congratulations!'|trans }}</h3>
+        <p class="up-to-date">{{ 'Upgrade is successfully completed! Your shop is now up-to-date'|trans }} ({{ 'version'|trans }} <span class="ets_autoup_latest_version"> {{ latestChannelVersion }}</span>)</p>
+        <p class="refresh_note">{{ 'Enjoy your new shop!'|trans }}</p>
+    </div>
+    <div class="ets_autoup_rollback_process" style="display:none;">
+        <img src="{{ pathImg }}rollback.png"><br>
+        <h3>{{ 'Rollback complete!'|trans }}</h3>
+    </div>
+    <div>
+        <div id="upgradeResultToDoList" style="display: none;" class="alert alert-info col-xs-12">
+            <strong>{{ 'ToDo list'|trans }}:</strong>
+            <ul>
+                <li>{{ 'Cookies have changed, you will need to log in again once you refreshed the page'|trans }}</li>
+                <li>{{ 'Javascript and CSS files have changed, please clear your browser cache with CTRL-F5'|trans }}</li>
+                <li>{{ 'Please check that your front-office theme is functional (try to create an account, place an order...)'|trans }}</li>
+                <li>{{ 'Product images do not appear in the front-office? Try'|trans }} <a href="{{ generalImageLink }}" target="_blank"> {{ 'regenerating the thumbnails'|trans }}</a> {{ 'in Preferences > Images'|trans|raw }}</li>
+            </ul>
+        </div>
+    </div><br>
+    <div class="ets_autoup_warning_php_version" style="display: none;">
+        <p class="ets_autoup_warning alert alert-warning">
+            <span>{{ 'Please downgrade your PHP version'|trans }}&nbsp;</span><span class="ets_autoup_downgrade_php_version"></span>
+        </p>
+    </div>
+    <a href="{{ linkBo|raw }}" target="_blank" class="btn_autoup_view_bo btn btn-default">{{ 'View BO'|trans }}</a>
+    <a href="{{ linkFo|raw }}" target="_blank" class="btn_autoup_view_fo btn btn-default">{{ 'View Store'|trans }}</a>
+    <div class="footer_back">
+        <button class="prevStep" name="prevStep" type="button">{{ 'Back'|trans }}</button>
+    </div>
+</div>
+{#---End Block resuilt---#}

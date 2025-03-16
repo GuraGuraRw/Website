@@ -17,19 +17,23 @@
  * @copyright Since 2007 PrestaShop SA and Contributors
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
+declare(strict_types=1);
 
 namespace PrestaShop\Module\Mbo\Distribution;
 
 use Doctrine\Common\Cache\CacheProvider;
 use GuzzleHttp\Client as HttpClient;
+use GuzzleHttp\Exception\GuzzleException;
 use PrestaShop\Module\Mbo\Helpers\Config;
+use ps_mbo;
+use Symfony\Component\Routing\Router;
 
 class BaseClient
 {
-    const HTTP_METHOD_GET = 'GET';
-    const HTTP_METHOD_POST = 'POST';
-    const HTTP_METHOD_PUT = 'PUT';
-    const HTTP_METHOD_DELETE = 'DELETE';
+    public const HTTP_METHOD_GET = 'GET';
+    public const HTTP_METHOD_POST = 'POST';
+    public const HTTP_METHOD_PUT = 'PUT';
+    public const HTTP_METHOD_DELETE = 'DELETE';
     /**
      * @var HttpClient
      */
@@ -56,8 +60,10 @@ class BaseClient
         'ps_version',
         'iso_lang',
         'iso_code',
+        'accounts_token',
         'addons_username',
         'addons_pwd',
+        'catalogUrl',
     ];
     /**
      * @var array<string, string>
@@ -77,7 +83,7 @@ class BaseClient
     /**
      * In case you reuse the Client, you may want to clean the previous parameters.
      */
-    public function reset()
+    public function reset(): void
     {
         $this->queryParameters = [];
         $this->headers = [];
@@ -88,7 +94,7 @@ class BaseClient
      *
      * @return $this
      */
-    public function setQueryParams(array $params)
+    public function setQueryParams(array $params): self
     {
         $filteredParams = array_intersect_key($params, array_flip($this->possibleQueryParameters));
         $this->queryParameters = array_merge($this->queryParameters, $filteredParams);
@@ -101,7 +107,7 @@ class BaseClient
      *
      * @return $this
      */
-    public function setHeaders(array $headers)
+    public function setHeaders(array $headers): self
     {
         $this->headers = array_merge($this->headers, $headers);
 
@@ -113,34 +119,19 @@ class BaseClient
      *
      * @return $this
      */
-    public function setBearer(string $jwt)
+    public function setBearer(string $jwt): self
     {
         return $this->setHeaders(['Authorization' => 'Bearer ' . $jwt]);
     }
 
-    /**
-     * @param array $params
-     *
-     * @return array
-     */
-    protected function mergeShopDataWithParams(array $params)
+    protected function mergeShopDataWithParams(array $params): array
     {
-        $psMbo = \Module::getInstanceByName('ps_mbo');
-
-        $psMboVersion = false;
-        if (\Validate::isLoadedObject($psMbo)) {
-            $psMboVersion = $psMbo->version;
-        }
-
-        $shopUuid = Config::getShopMboUuid();
-
         return array_merge([
-            'uuid' => $shopUuid,
+            'uuid' => Config::getShopMboUuid(),
             'shop_url' => Config::getShopUrl(),
             'admin_path' => sprintf('/%s/', trim(str_replace(_PS_ROOT_DIR_, '', _PS_ADMIN_DIR_), '/')),
-            'mbo_version' => $psMboVersion,
+            'mbo_version' => ps_mbo::VERSION,
             'ps_version' => _PS_VERSION_,
-            'mbo_api_user_token' => md5($shopUuid),
         ], $params);
     }
 
@@ -154,6 +145,8 @@ class BaseClient
      * @param mixed $default
      *
      * @return mixed
+     *
+     * @throws GuzzleException
      */
     protected function processRequestAndDecode(
         string $uri,
@@ -178,36 +171,21 @@ class BaseClient
      * @param array $options
      *
      * @return string
+     *
+     * @throws GuzzleException
      */
     protected function processRequest(
-        string $uri,
-        string $method,
-        array $options
-    ) {
+        string $uri = '',
+        string $method = self::HTTP_METHOD_GET,
+        array $options = []
+    ): string {
         $options = array_merge($options, [
             'query' => $this->queryParameters,
             'headers' => $this->headers,
         ]);
 
-        switch ($method) {
-            case self::HTTP_METHOD_GET:
-                return (string) $this->httpClient
-                    ->get('/api/' . ltrim($uri, '/'), $options)
-                    ->getBody();
-            case self::HTTP_METHOD_POST:
-                return (string) $this->httpClient
-                    ->post('/api/' . ltrim($uri, '/'), $options)
-                    ->getBody();
-            case self::HTTP_METHOD_PUT:
-                return (string) $this->httpClient
-                    ->put('/api/' . ltrim($uri, '/'), $options)
-                    ->getBody();
-            case self::HTTP_METHOD_DELETE:
-                return (string) $this->httpClient
-                    ->delete('/api/' . ltrim($uri, '/'), $options)
-                    ->getBody();
-            default:
-                throw new \Exception('Unhandled method in BaseClient::processRequest');
-        }
+        return (string) $this->httpClient
+            ->request($method, '/api/' . ltrim($uri, '/'), $options)
+            ->getBody();
     }
 }

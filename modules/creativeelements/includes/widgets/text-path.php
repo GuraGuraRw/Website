@@ -19,7 +19,7 @@ if (!defined('_PS_VERSION_')) {
  */
 class WidgetTextPath extends WidgetBase
 {
-    const DEFAULT_PATH_FILL = '#E8178A';
+    const HELP_URL = 'http://docs.webshopworks.com/creative-elements/86-widgets/general-widgets/354-text-path-widget';
 
     const SVG_PATHS = [
         'arc' => [
@@ -241,7 +241,7 @@ class WidgetTextPath extends WidgetBase
             [
                 'label' => __('Show Path'),
                 'type' => ControlsManager::SWITCHER,
-                'return_value' => self::DEFAULT_PATH_FILL,
+                'return_value' => '#E8178A',
                 'selectors' => [
                     '{{WRAPPER}}' => '--path-stroke: {{VALUE}}; --path-fill: transparent;',
                 ],
@@ -504,7 +504,7 @@ class WidgetTextPath extends WidgetBase
             [
                 'label' => __('Color'),
                 'type' => ControlsManager::COLOR,
-                'default' => self::DEFAULT_PATH_FILL,
+                'default' => '#E8178A',
                 'selectors' => [
                     '{{WRAPPER}}' => '--stroke-color: {{VALUE}}',
                 ],

@@ -53,13 +53,13 @@ class ModulesXDynamicTagsXTagsXUserInfo extends Tag
                 'type' => ControlsManager::SELECT,
                 'options' => [
                     '' => __('Select...'),
-                    'id' => __('ID'),
+                    'id' => 'ID',
                     'display_name' => __('Display Name'),
-                    'first_name' => __('First Name'),
-                    'last_name' => __('Last Name'),
-                    'birthday' => __('Birthday'),
-                    'company' => __('Company'),
-                    'email' => __('Email'),
+                    'first_name' => __('First Name', 'Shop.Forms.Labels'),
+                    'last_name' => __('Last Name', 'Shop.Forms.Labels'),
+                    'birthday' => __('Birthdate', 'Shop.Forms.Labels'),
+                    'company' => __('Company', 'Shop.Forms.Labels'),
+                    'email' => __('Email', 'Shop.Forms.Labels'),
                     'url' => __('Website'),
                 ],
             ]
@@ -68,11 +68,10 @@ class ModulesXDynamicTagsXTagsXUserInfo extends Tag
 
     public function render()
     {
-        $customer = \Context::getContext()->customer;
-
-        if (empty($customer->id)) {
+        if (empty($GLOBALS['customer']->id)) {
             return;
         }
+        $customer = $GLOBALS['customer'];
         $type = $this->getSettings('type');
 
         switch ($type) {

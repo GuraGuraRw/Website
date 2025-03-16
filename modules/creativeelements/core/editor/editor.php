@@ -127,13 +127,11 @@ class CoreXEditorXEditor
         // add_action('wp_footer', 'wp_auth_check_html', 30);
         add_action('wp_footer', [$this, 'wpFooter']);
 
-        /*
         // Handle `wp_enqueue_scripts`
-        remove_all_actions('wp_enqueue_scripts');
+        // remove_all_actions('wp_enqueue_scripts');
 
         // Also remove all scripts hooked into after_wp_tiny_mce.
-        remove_all_actions('after_wp_tiny_mce');
-         */
+        // remove_all_actions('after_wp_tiny_mce');
 
         add_action('wp_enqueue_scripts', [$this, 'enqueueScripts'], 999999);
         add_action('wp_enqueue_scripts', [$this, 'enqueueStyles'], 999999);
@@ -326,16 +324,6 @@ class CoreXEditorXEditor
                 'elementor-common-modules',
             ],
             _CE_VERSION_,
-            true
-        );
-        // Hack for waypoint with editor mode.
-        wp_register_script(
-            'elementor-waypoints',
-            _CE_ASSETS_URL_ . 'lib/waypoints/waypoints-for-editor.js',
-            [
-                'jquery',
-            ],
-            '4.0.2',
             true
         );
 
@@ -531,7 +519,7 @@ class CoreXEditorXEditor
             'icons' => [
                 'libraries' => IconsManager::getIconManagerTabsConfig(),
             ],
-            'customIconsURL' => \Context::getContext()->link->getAdminLink('AdminCEIconSets'),
+            'customIconsURL' => Helper::$link->getAdminLink('AdminCEIconSets'),
             'filesUpload' => [
                 'unfilteredFiles' => FilesUploadHandler::isEnabled(),
             ],
@@ -541,7 +529,7 @@ class CoreXEditorXEditor
             'system_schemes' => $plugin->schemes_manager->getSystemSchemes(),
             'wp_editor' => $this->getWpEditorConfig(),
             'settings_page_link' => Helper::getSettingsLink(),
-            'tools_page_link' => \Context::getContext()->link->getAdminLink('AdminCESettings'),
+            'tools_page_link' => Helper::$link->getAdminLink('AdminCESettings'),
             'is_active' => (bool) \Configuration::getGlobalValue('CE_LICENSE'),
             'elementor_site' => 'https://creativeelements.webshopworks.com/about',
             'docs_elementor_site' => __('http://docs.webshopworks.com/creative-elements'),
@@ -597,7 +585,6 @@ class CoreXEditorXEditor
                 // Menu.
                 'about_elementor' => __('About Creative Elements'),
                 'add_picked_color' => __('Add Picked Color'),
-                // 'saved_colors' => __('Saved Colors'),
                 'drag_to_delete' => __('Drag To Delete'),
                 'elementor_settings' => __('Module Settings'),
                 'global_colors' => __('Default Colors'),
@@ -739,11 +726,16 @@ class CoreXEditorXEditor
                 // Misc
                 'autosave' => __('Autosave'),
                 'elementor_docs' => __('Documentation'),
-                'reload_page' => __('Reload Page'),
                 'session_expired_header' => __('Timeout'),
                 'session_expired_message' => __('Your session has expired. Please reload the page to continue editing.'),
                 'unknown_value' => __('Unknown Value'),
                 'multistore_notification' => __('You are in a multistore context: any modification will impact all your shops, or each shop of the active group.'),
+
+                // Element Cache
+                'active' => __('Active'),
+                'inactive' => __('Inactive'),
+                'element_cache_status' => __('The default cache status for this element:'),
+                'element_cache_description' => __('Activating cache improves loading times by storing a static version of this element.'),
             ],
         ];
 
@@ -808,9 +800,7 @@ class CoreXEditorXEditor
 
         wp_register_style(
             'google-font-roboto',
-            'https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap',
-            [],
-            _CE_VERSION_
+            'https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap'
         );
 
         wp_register_style(

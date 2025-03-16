@@ -12,10 +12,10 @@ if (!defined('_PS_VERSION_')) {
     exit;
 }
 
+use CE\ModulesXPremiumXModule as Premium;
+
 class ModulesXPremiumXWidgetsXEmailSubscription extends WidgetBase
 {
-    protected $context;
-
     protected $gdpr;
 
     protected $gdpr_msg;
@@ -47,6 +47,11 @@ class ModulesXPremiumXWidgetsXEmailSubscription extends WidgetBase
         return ['email', 'subscribe', 'signup', 'newsletter', 'form'];
     }
 
+    protected function isDynamicContent()
+    {
+        return false;
+    }
+
     protected function _registerControls()
     {
         $this->startControlsSection(
@@ -69,6 +74,13 @@ class ModulesXPremiumXWidgetsXEmailSubscription extends WidgetBase
                 'tablet_default' => 'inline',
                 'mobile_default' => 'inline',
                 'prefix_class' => 'elementor%s-layout-',
+                'selectors_dictionary' => [
+                    'inline' => 'nowrap',
+                    'multiline' => 'wrap',
+                ],
+                'selectors' => [
+                    '{{WRAPPER}} .elementor-field-type-subscribe' => 'flex-wrap: {{VALUE}};',
+                ],
             ]
         );
 
@@ -92,47 +104,13 @@ class ModulesXPremiumXWidgetsXEmailSubscription extends WidgetBase
             ]
         );
 
-        if (is_admin() && !\Tools::file_exists_cache(_PS_MODULE_DIR_ . 'invrecaptcha/invrecaptcha.php')) {
-            $this->addControl(
-                'captcha',
-                [
-                    'type' => ControlsManager::RAW_HTML,
-                    'content_classes' => 'elementor-panel-alert elementor-panel-alert-info',
-                    'raw' => '
-                        <i class="eicon-close" style="position:absolute; top:8px; right:8px; cursor:pointer" onclick="$(`.elementor-control-show_captcha input`).prop(`checked`, false).change()"></i>
-                        Protect your site against spam and abuse, while letting your real customers pass through with ease.
-                        <a href="https://addons.prestashop.com/website-security-access/32222-spam-protection-invisible-recaptcha.html" target="_blank">
-                            <i class="eicon-link"></i>Invisible reCAPTCHA
-                        </a> does this all in the background without any user interaction.
-                        <style>.elementor-control-captcha:not(.elementor-hidden-control) ~ .elementor-control-show_captcha { display: none }</style>
-                    ',
-                    'condition' => [
-                        'show_captcha!' => '',
-                    ],
-                ]
-            );
-
-            $this->addControl(
-                'show_captcha',
-                [
-                    'label' => 'Spam Protection - Invisible reCaptcha',
-                    'type' => ControlsManager::CHOOSE,
-                    'options' => [
-                        'yes' => [
-                            'title' => __('Learn More'),
-                            'icon' => 'eicon-info-circle',
-                        ],
-                    ],
-                    'default' => 'yes',
-                ]
-            );
-        }
+        Premium::addCaptchaPromoControls($this);
 
         $this->addControl(
             'heading_email',
             [
                 'type' => ControlsManager::HEADING,
-                'label' => __('Email'),
+                'label' => __('Email', 'Shop.Forms.Labels'),
                 'separator' => 'before',
             ]
         );
@@ -142,7 +120,7 @@ class ModulesXPremiumXWidgetsXEmailSubscription extends WidgetBase
             [
                 'label' => __('Placeholder'),
                 'type' => ControlsManager::TEXT,
-                'placeholder' => $this->email_placeholder,
+                'placeholder' => Helper::$translator->trans('Your email address', [], 'Shop.Forms.Labels'),
             ]
         );
 
@@ -176,7 +154,6 @@ class ModulesXPremiumXWidgetsXEmailSubscription extends WidgetBase
             [
                 'type' => ControlsManager::HEADING,
                 'label' => __('Button'),
-                'separator' => 'before',
             ]
         );
 
@@ -201,7 +178,7 @@ class ModulesXPremiumXWidgetsXEmailSubscription extends WidgetBase
             [
                 'label' => __('Text'),
                 'type' => ControlsManager::TEXT,
-                'placeholder' => $this->button_placeholder,
+                'placeholder' => Helper::$translator->trans('Subscribe', [], 'Shop.Theme.Actions'),
             ]
         );
 
@@ -229,6 +206,12 @@ class ModulesXPremiumXWidgetsXEmailSubscription extends WidgetBase
                     ],
                 ],
                 'prefix_class' => 'elementor%s-align-',
+                'selectors_dictionary' => [
+                    'justify' => '',
+                ],
+                'selectors' => [
+                    '{{WRAPPER}} .elementor-field-type-subscribe' => 'justify-content: {{VALUE}};',
+                ],
                 'conditions' => [
                     'relation' => 'or',
                     'terms' => [
@@ -344,20 +327,18 @@ class ModulesXPremiumXWidgetsXEmailSubscription extends WidgetBase
             ]
         );
 
-        $this->addControl(
+        _CE_ADMIN_ && $this->addControl(
             'configure_module',
             [
                 'label' => __('Email Subscription'),
                 'type' => ControlsManager::BUTTON,
                 'text' => '<i class="eicon-external-link-square"></i>' . __('Configure'),
                 'link' => [
-                    'url' => $this->context->link->getAdminLink('AdminModules', true, [], ['configure' => 'ps_emailsubscription']),
+                    'url' => Helper::$link->getAdminLink('AdminModules', true, [], ['configure' => 'ps_emailsubscription']),
                     'is_external' => true,
                 ],
             ]
-        );
-
-        $this->gdpr && $this->addControl(
+        ) && $this->gdpr && $this->addControl(
             'configure_gdpr',
             [
                 'label' => __('GDPR'),
@@ -377,6 +358,45 @@ class ModulesXPremiumXWidgetsXEmailSubscription extends WidgetBase
             [
                 'label' => __('Form'),
                 'tab' => ControlsManager::TAB_STYLE,
+            ]
+        );
+
+        $this->addControl(
+            'row_gap',
+            [
+                'label' => __('Rows Gap'),
+                'type' => ControlsManager::SLIDER,
+                'default' => [
+                    'size' => 10,
+                ],
+                'range' => [
+                    'px' => [
+                        'max' => 60,
+                    ],
+                ],
+                'selectors' => [
+                    '{{WRAPPER}} .elementor-form-fields-wrapper' => 'row-gap: {{SIZE}}{{UNIT}};',
+                ],
+                'condition' => $show_gdpr = [
+                    'view' => $this->gdpr ? 'traditional' : '',
+                ],
+            ]
+        );
+
+        $this->addResponsiveControl(
+            'max_width',
+            [
+                'label' => __('Max Width'),
+                'type' => ControlsManager::SLIDER,
+                'size_units' => ['px', '%'],
+                'range' => [
+                    'px' => [
+                        'max' => 1600,
+                    ],
+                ],
+                'selectors' => [
+                    '{{WRAPPER}} form' => 'max-width: {{SIZE}}{{UNIT}}',
+                ],
             ]
         );
 
@@ -405,20 +425,59 @@ class ModulesXPremiumXWidgetsXEmailSubscription extends WidgetBase
             ]
         );
 
-        $this->addResponsiveControl(
-            'max_width',
+        $this->addControl(
+            'heading_style_label',
             [
-                'label' => __('Max Width'),
-                'type' => ControlsManager::SLIDER,
-                'size_units' => ['px', '%'],
-                'range' => [
-                    'px' => [
-                        'max' => 1600,
-                    ],
+                'type' => ControlsManager::HEADING,
+                'label' => __('Label'),
+                'separator' => 'before',
+                'condition' => $show_gdpr,
+            ]
+        );
+
+        $this->addGroupControl(
+            GroupControlTypography::getType(),
+            [
+                'name' => 'label_typography',
+                'scheme' => SchemeTypography::TYPOGRAPHY_3,
+                'selector' => '{{WRAPPER}} .elementor-form label',
+                'condition' => $show_gdpr,
+            ]
+        );
+
+        $this->addControl(
+            'label_color',
+            [
+                'label' => __('Text Color'),
+                'type' => ControlsManager::COLOR,
+                'scheme' => [
+                    'type' => SchemeColor::getType(),
+                    'value' => SchemeColor::COLOR_3,
                 ],
                 'selectors' => [
-                    '{{WRAPPER}} form' => 'max-width: {{SIZE}}{{UNIT}}',
+                    '{{WRAPPER}} .elementor-form label' => 'color: {{VALUE}};',
                 ],
+                'condition' => $show_gdpr,
+            ]
+        );
+
+        $this->addControl(
+            'label_spacing',
+            [
+                'label' => __('Spacing'),
+                'type' => ControlsManager::SLIDER,
+                'range' => [
+                    'px' => [
+                        'max' => 60,
+                    ],
+                ],
+                'default' => [
+                    'size' => 5,
+                ],
+                'selectors' => [
+                    '{{WRAPPER}} .elementor-field-option .elementor-field-label' => 'padding-inline-start: {{SIZE}}{{UNIT}};',
+                ],
+                'condition' => $show_gdpr,
             ]
         );
 
@@ -427,7 +486,7 @@ class ModulesXPremiumXWidgetsXEmailSubscription extends WidgetBase
         $this->startControlsSection(
             'section_input_style',
             [
-                'label' => __('Email'),
+                'label' => __('Email', 'Shop.Forms.Labels'),
                 'tab' => ControlsManager::TAB_STYLE,
             ]
         );
@@ -458,8 +517,6 @@ class ModulesXPremiumXWidgetsXEmailSubscription extends WidgetBase
                 'selectors' => [
                     '{{WRAPPER}} input[type=email]' => 'color: {{VALUE}};',
                     '{{WRAPPER}} input[type=email]::placeholder' => 'color: {{VALUE}};',
-                    '{{WRAPPER}} input[type=email]:-ms-input-placeholder' => 'color: {{VALUE}};',
-                    '{{WRAPPER}} input[type=email]::-ms-input-placeholder ' => 'color: {{VALUE}};',
                 ],
             ]
         );
@@ -502,9 +559,7 @@ class ModulesXPremiumXWidgetsXEmailSubscription extends WidgetBase
                 'type' => ControlsManager::COLOR,
                 'selectors' => [
                     '{{WRAPPER}} input[type=email]:focus' => 'color: {{VALUE}};',
-                    '{{WRAPPER}} input[type=email]::placeholder:focus' => 'color: {{VALUE}};',
-                    '{{WRAPPER}} input[type=email]:-ms-input-placeholder:focus' => 'color: {{VALUE}};',
-                    '{{WRAPPER}} input[type=email]::-ms-input-placeholder:focus ' => 'color: {{VALUE}};',
+                    '{{WRAPPER}} input[type=email]:focus::placeholder' => 'color: {{VALUE}};',
                 ],
             ]
         );
@@ -735,99 +790,6 @@ class ModulesXPremiumXWidgetsXEmailSubscription extends WidgetBase
         $this->endControlsSection();
 
         $this->startControlsSection(
-            'section_gdpr_style',
-            [
-                'label' => __('GDPR'),
-                'tab' => ControlsManager::TAB_STYLE,
-                'condition' => [
-                    'view' => $this->gdpr ? 'traditional' : 'hide',
-                ],
-            ]
-        );
-
-        $this->addControl(
-            'row_gap',
-            [
-                'label' => __('Rows Gap'),
-                'type' => ControlsManager::SLIDER,
-                'default' => [
-                    'size' => 10,
-                ],
-                'range' => [
-                    'px' => [
-                        'max' => 60,
-                    ],
-                ],
-                'selectors' => [
-                    '{{WRAPPER}} .elementor-field-type-gdpr' => 'margin-top: {{SIZE}}{{UNIT}};',
-                ],
-            ]
-        );
-
-        $this->addControl(
-            'heading_style_label',
-            [
-                'type' => ControlsManager::HEADING,
-                'label' => __('Label'),
-                'separator' => 'before',
-            ]
-        );
-
-        $this->addControl(
-            'label_color',
-            [
-                'label' => __('Text Color'),
-                'type' => ControlsManager::COLOR,
-                'selectors' => [
-                    '{{WRAPPER}} label.elementor-field-label' => 'color: {{VALUE}};',
-                ],
-                'scheme' => [
-                    'type' => SchemeColor::getType(),
-                    'value' => SchemeColor::COLOR_3,
-                ],
-            ]
-        );
-
-        $this->addGroupControl(
-            GroupControlTypography::getType(),
-            [
-                'name' => 'label_typography',
-                'scheme' => SchemeTypography::TYPOGRAPHY_3,
-                'selector' => '{{WRAPPER}} label.elementor-field-label',
-            ]
-        );
-
-        $this->addControl(
-            'heading_style_checkbox',
-            [
-                'type' => ControlsManager::HEADING,
-                'label' => __('Checkbox'),
-                'separator' => 'before',
-            ]
-        );
-
-        $this->addControl(
-            'checkbox_spacing',
-            [
-                'label' => __('Spacing'),
-                'type' => ControlsManager::SLIDER,
-                'default' => [
-                    'size' => 5,
-                ],
-                'range' => [
-                    'px' => [
-                        'max' => 60,
-                    ],
-                ],
-                'selectors' => !$this->gdpr ? [] : [
-                    '{{WRAPPER}} input[type=checkbox]' => 'margin: 0 {{SIZE}}{{UNIT}};',
-                ],
-            ]
-        );
-
-        $this->endControlsSection();
-
-        $this->startControlsSection(
             'section_messages_style',
             [
                 'label' => __('Messages'),
@@ -843,6 +805,13 @@ class ModulesXPremiumXWidgetsXEmailSubscription extends WidgetBase
                 'options' => [
                     'before' => __('Before'),
                     'after' => __('After'),
+                ],
+                'selectors_dictionary' => [
+                    'before' => -1,
+                    'after' => '',
+                ],
+                'selectors' => [
+                    '{{WRAPPER}} .elementor-message' => 'order: {{VALUE}}',
                 ],
                 'default' => 'after',
             ]
@@ -900,86 +869,91 @@ class ModulesXPremiumXWidgetsXEmailSubscription extends WidgetBase
 
     protected function render()
     {
+        if (_CE_ADMIN_) {
+            return; // Use contentTemplate
+        }
         $settings = $this->getSettingsForDisplay();
+        $has_button_text = trim($settings['button']) || !$settings['button'];
+        $action = Helper::$link->getModuleLink('creativeelements', 'ajax', [], null, null, null, true);
 
-        $this->addRenderAttribute('form', [
-            'action' => $this->context->link->getModuleLink('creativeelements', 'ajax', [], null, null, null, true),
-            'method' => 'post',
-            'data-msg' => $settings['messages_position'],
-        ]);
         $this->addRenderAttribute('email', [
-            'placeholder' => $settings['placeholder'] ?: $this->email_placeholder,
+            'placeholder' => $settings['placeholder'] ?: __('Your email address', 'Shop.Forms.Labels'),
             'inputmode' => 'email',
         ]);
         $this->addRenderAttribute('button', 'class', ['elementor-button', 'elementor-size-sm']);
+        $has_button_text || $this->addRenderAttribute('button', 'title', __('Subscribe', 'Shop.Theme.Actions'));
 
         if ($settings['hover_animation']) {
             $this->addRenderAttribute('button', 'class', 'elementor-animation-' . $settings['hover_animation']);
         } ?>
-        <form class="elementor-email-subscription" <?php $this->printRenderAttributeString('form'); ?>>
-            <input type="hidden" name="action" value="0">
-            <div class="elementor-field-type-subscribe">
-                <input type="email" name="email" class="elementor-field elementor-field-textual" <?php $this->printRenderAttributeString('email'); ?> required>
-                <button type="submit" name="submitNewsletter" value="1" <?php $this->printRenderAttributeString('button'); ?>>
-                    <span class="elementor-button-content-wrapper">
-                    <?php if ($icon = IconsManager::getBcIcon($settings, 'icon', ['aria-hidden' => 'true'])) { ?>
-                        <span class="elementor-align-icon-<?php echo esc_attr($this->getSettings('icon_align')); ?>"><?php echo $icon; ?></span>
-                    <?php } ?>
-                    <?php if (trim($settings['button']) || !$settings['button']) { ?>
-                        <span class="elementor-button-text"><?php echo $settings['button'] ?: $this->button_placeholder; ?></span>
-                    <?php } ?>
-                    </span>
-                </button>
+        <form class="ce-subscribe-form elementor-form" method="post" action="<?php echo esc_attr($action); ?>">
+            <div class="elementor-form-fields-wrapper">
+                <input type="hidden" name="action" value="0">
+                <div class="elementor-field-group elementor-column elementor-col-100 elementor-field-type-subscribe">
+                    <input type="email" name="email" class="elementor-field elementor-field-textual" <?php $this->printRenderAttributeString('email'); ?> required>
+                    <button type="submit" name="submitNewsletter" value="1" <?php $this->printRenderAttributeString('button'); ?>>
+                        <span class="elementor-button-content-wrapper">
+                        <?php if ($icon = IconsManager::getBcIcon($settings, 'icon', ['aria-hidden' => 'true'])) { ?>
+                            <span class="elementor-align-icon-<?php echo esc_attr($settings['icon_align']); ?>"><?php echo $icon; ?></span>
+                        <?php } ?>
+                        <?php if ($has_button_text) { ?>
+                            <span class="elementor-button-text"><?php echo $settings['button'] ?: __('Subscribe', 'Shop.Theme.Actions'); ?></span>
+                        <?php } ?>
+                        </span>
+                    </button>
+                </div>
+            <?php if ($this->gdpr) { ?>
+                <div class="elementor-field-type-checkbox">
+                    <label class="elementor-field-option">
+                        <input type="checkbox" name="<?php echo $this->gdpr; ?>" value="1" required><span class="elementor-field-label"><?php echo $this->gdpr_msg; ?></span>
+                    </label>
+                </div>
+            <?php } ?>
             </div>
-        <?php if ($this->gdpr) { ?>
-            <div class="elementor-field-type-gdpr">
-                <label class="elementor-field-label">
-                    <input type="checkbox" name="<?php echo $this->gdpr; ?>" value="1" required><span class="elementor-checkbox-label"><?php echo $this->gdpr_msg; ?></span>
-                </label>
-            </div>
-        <?php } ?>
         </form>
         <?php
     }
 
     protected function contentTemplate()
     {
+        $trans = [Helper::$translator, 'trans'];
         ?>
-        <# var placeholder = settings.placeholder || <?php echo json_encode($this->email_placeholder); ?> #>
-        <form class="elementor-email-subscription">
-            <div class="elementor-field-type-subscribe">
-                <input type="email" placeholder="{{ placeholder }}" class="elementor-field elementor-field-textual" required>
-                <button type="submit" class="elementor-button elementor-size-sm elementor-animation-{{ settings.hover_animation }}">
-                    <span class="elementor-button-content-wrapper">
-                    <# if (settings.icon || settings.selected_icon.value) { #>
-                        <span class="elementor-button-icon elementor-align-icon-{{ settings.icon_align }}">
-                            {{{ elementor.helpers.getBcIcon(view, settings, 'icon', {'aria-hidden': true}) }}}
+        <# var icon; #>
+        <form class="ce-subscribe-form elementor-form">
+            <div class="elementor-form-fields-wrapper">
+                <div class="elementor-field-group elementor-column elementor-col-100 elementor-field-type-subscribe">
+                    <input type="email" class="elementor-field elementor-field-textual" placeholder="{{ settings.placeholder || <?php echo json_encode($trans('Your email address', [], 'Shop.Forms.Labels')); ?> }}" required>
+                    <button type="submit" class="elementor-button elementor-size-sm elementor-animation-{{ settings.hover_animation }}">
+                        <span class="elementor-button-content-wrapper">
+                        <# if ( icon = elementor.helpers.getBcIcon( view, settings, 'icon' ) ) { #>
+                            <span class="elementor-button-icon elementor-align-icon-{{ settings.icon_align }}">{{{ icon }}}</span>
+                        <# } #>
+                        <# if (settings.button.trim() || !settings.button) { #>
+                            <span class="elementor-button-text">{{ settings.button || <?php echo json_encode($trans('Subscribe', [], 'Shop.Theme.Actions')); ?> }}</span>
+                        <# } #>
                         </span>
-                    <# } #>
-                    <# if (settings.button.trim() || !settings.button) { #>
-                        <span class="elementor-button-text">{{ settings.button || <?php echo json_encode($this->button_placeholder); ?> }}</span>
-                    <# } #>
-                    </span>
-                </button>
+                    </button>
+                </div>
+            <?php if ($this->gdpr) { ?>
+                <div class="elementor-field-type-checkbox">
+                    <label class="elementor-field-option">
+                        <input type="checkbox"><span class="elementor-field-label"><?php echo $this->gdpr_msg; ?></span>
+                    </label>
+                </div>
+            <?php } ?>
             </div>
-        <?php if ($this->gdpr) { ?>
-            <div class="elementor-field-type-gdpr">
-                <label class="elementor-field-label">
-                    <input type="checkbox"><span class="elementor-checkbox-label"><?php echo $this->gdpr_msg; ?></span>
-                </label>
+            <div class="elementor-message elementor-message-success elementor-hidden" role="alert">
+                <?php echo $trans('You have successfully subscribed to this newsletter.', [], 'Modules.Emailsubscription.Shop'); ?>
             </div>
-        <?php } ?>
+            <div class="elementor-message elementor-message-danger elementor-hidden" role="alert">
+                <?php echo $trans('An error occurred during the subscription process.', [], 'Modules.Emailsubscription.Shop'); ?>
+            </div>
         </form>
         <?php
     }
 
     public function __construct($data = [], $args = [])
     {
-        $this->context = \Context::getContext();
-        $t = $this->context->getTranslator();
-        $this->email_placeholder = $t->trans('Your email address', [], 'Shop.Forms.Labels');
-        $this->button_placeholder = $t->trans('Subscribe', [], 'Shop.Theme.Actions');
-
         $this->initGDPR();
 
         parent::__construct($data, $args);
@@ -987,21 +961,19 @@ class ModulesXPremiumXWidgetsXEmailSubscription extends WidgetBase
 
     protected function initGDPR()
     {
-        $id_lang = $this->context->language->id;
-
         if (\Module::isEnabled('psgdpr') && \Module::getInstanceByName('psgdpr')
-            && call_user_func('GDPRConsent::getConsentActive', $id_module = \Module::getModuleIdByName('ps_emailsubscription'))
+            && \GDPRConsent::getConsentActive($id_module = \Module::getModuleIdByName('ps_emailsubscription'))
         ) {
             $this->gdpr = 'psgdpr_consent_checkbox';
-            $this->gdpr_msg = call_user_func('GDPRConsent::getConsentMessage', $id_module, $id_lang);
-            $this->gdpr_cfg = $this->context->link->getAdminLink('AdminModules', true, [], [
+            $this->gdpr_msg = \GDPRConsent::getConsentMessage($id_module, $GLOBALS['language']->id);
+            _CE_ADMIN_ && $this->gdpr_cfg = Helper::$link->getAdminLink('AdminModules', true, [], [
                 'configure' => 'psgdpr',
                 'page' => 'dataConsent',
             ]);
         } elseif (\Module::isEnabled('gdprpro') && \Configuration::get('gdpr-pro_consent_newsletter_enable')) {
             $this->gdpr = 'gdpr_consent_chkbox';
-            $this->gdpr_msg = \Configuration::get('gdpr-pro_consent_newsletter_text', $id_lang);
-            $this->gdpr_cfg = $this->context->link->getAdminLink('AdminGdprConfig');
+            $this->gdpr_msg = \Configuration::get('gdpr-pro_consent_newsletter_text', $GLOBALS['language']->id);
+            _CE_ADMIN_ && $this->gdpr_cfg = Helper::$link->getAdminLink('AdminGdprConfig');
         }
         // Strip <p> tags from GDPR message
         $this->gdpr_msg && $this->gdpr_msg = preg_replace('`</?p\b.*?>`i', '', $this->gdpr_msg);

@@ -64,7 +64,7 @@ class ModulesXCatalogXWidgetsXListingXBlock extends WidgetBase
                 ],
             ],
         ];
-        if (is_admin() && Plugin::$instance->documents->getCurrent()->getTemplateType() === 'listing-category') {
+        if (_CE_ADMIN_ && Plugin::$instance->documents->getCurrent()->getTemplateType() === 'listing-category') {
             $groups['category'] = [
                 'label' => __('Category'),
                 'options' => [
@@ -87,7 +87,7 @@ class ModulesXCatalogXWidgetsXListingXBlock extends WidgetBase
     protected function render()
     {
         $block = $this->getSettings('block');
-        $products = &\Context::getContext()->smarty->tpl_vars['listing']->value['products'];
+        $products = &$GLOBALS['smarty']->tpl_vars['listing']->value['products'];
 
         if (!$block || !$products && 'ce_product_list_header' !== $block && 'ce_product_list' !== $block) {
             return;

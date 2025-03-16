@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of the ramsey/uuid library
  *
@@ -11,8 +12,7 @@
  * @link https://packagist.org/packages/ramsey/uuid Packagist
  * @link https://github.com/ramsey/uuid GitHub
  */
-
-namespace Ramsey\Uuid\Generator;
+namespace PrestaShop\Module\PsAccounts\Vendor\Ramsey\Uuid\Generator;
 
 /**
  * PeclUuidTimeGenerator provides functionality to generate strings of binary
@@ -31,8 +31,7 @@ class PeclUuidTimeGenerator implements TimeGeneratorInterface
      */
     public function generate($node = null, $clockSeq = null)
     {
-        $uuid = uuid_create(UUID_TYPE_TIME);
-
-        return uuid_parse($uuid);
+        $uuid = \uuid_create(\UUID_TYPE_TIME);
+        return \uuid_parse($uuid);
     }
 }

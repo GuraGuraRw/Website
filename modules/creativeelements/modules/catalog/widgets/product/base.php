@@ -16,9 +16,6 @@ use CE\ModulesXCatalogXControlsXSelectCategory as SelectCategory;
 use CE\ModulesXCatalogXControlsXSelectManufacturer as SelectManufacturer;
 use CE\ModulesXCatalogXControlsXSelectSupplier as SelectSupplier;
 
-version_compare(_PS_VERSION_, '1.7.5', '<')
-    && class_alias('\PrestaShop\PrestaShop\Core\Product\ProductPresenter', '\PrestaShop\PrestaShop\Adapter\Presenter\Product\ProductPresenter');
-
 abstract class ModulesXCatalogXWidgetsXProductXBase extends WidgetBase
 {
     const REMOTE_RENDER = true;
@@ -37,11 +34,7 @@ abstract class ModulesXCatalogXWidgetsXProductXBase extends WidgetBase
 
     private static $presentationSettings;
 
-    private static $translator;
-
     private static $itemList;
-
-    protected $context;
 
     protected $catalog;
 
@@ -49,23 +42,24 @@ abstract class ModulesXCatalogXWidgetsXProductXBase extends WidgetBase
 
     public function __construct($data = [], $args = [])
     {
-        $this->context = \Context::getContext();
         $this->catalog = \Configuration::get('PS_CATALOG_MODE');
         $this->imageSize = \ImageType::getFormattedName('home');
 
-        if (is_admin() || \CreativeElements::isMaintenance()) {
-            isset($this->context->customer->id) || $this->context->customer = new \Customer();
+        if (_CE_ADMIN_ || \CreativeElements::isMaintenance()) {
+            isset($GLOBALS['customer']->id) || $GLOBALS['context']->customer = $GLOBALS['customer'] = new \Customer();
         } elseif (null === self::$assembler) {
-            self::$translator = $this->context->getTranslator();
-            self::$presentationSettings = (new \ProductPresenterFactory($this->context))->getPresentationSettings();
-            self::$presenter = new \PrestaShop\PrestaShop\Adapter\Presenter\Product\ProductPresenter(
-                new \PrestaShop\PrestaShop\Adapter\Image\ImageRetriever($this->context->link),
-                $this->context->link,
+            $presenter_class = version_compare(_PS_VERSION_, '1.7.5', '<')
+                ? '\PrestaShop\PrestaShop\Core\Product\ProductPresenter'
+                : '\PrestaShop\PrestaShop\Adapter\Presenter\Product\ProductPresenter';
+            self::$presentationSettings = (new \ProductPresenterFactory($GLOBALS['context']))->getPresentationSettings();
+            self::$presenter = new $presenter_class(
+                new \PrestaShop\PrestaShop\Adapter\Image\ImageRetriever(Helper::$link),
+                Helper::$link,
                 new \PrestaShop\PrestaShop\Adapter\Product\PriceFormatter(),
                 new \PrestaShop\PrestaShop\Adapter\Product\ProductColorsRetriever(),
-                self::$translator
+                Helper::$translator
             );
-            self::$assembler = new \ProductAssembler($this->context);
+            self::$assembler = new \ProductAssembler($GLOBALS['context']);
         }
         parent::__construct($data, $args);
     }
@@ -78,8 +72,7 @@ abstract class ModulesXCatalogXWidgetsXProductXBase extends WidgetBase
     public static function getSkinTemplate($skin)
     {
         if (preg_match('/^product-(\d+)\d{6}$/', $skin, $m)) {
-            $context = \Context::getContext();
-            $uid = new UId($m[1], UId::THEME, $context->language->id, $context->shop->id);
+            $uid = new UId($m[1], UId::THEME, $GLOBALS['language']->id, $GLOBALS['context']->shop->id);
             $path = "catalog/_partials/miniatures/product-$uid.tpl";
 
             if (file_exists(_CE_TEMPLATES_ . "front/theme/$path")) {
@@ -102,10 +95,9 @@ abstract class ModulesXCatalogXWidgetsXProductXBase extends WidgetBase
     {
         static $opts;
 
-        if (is_admin() && null === $opts) {
-            $context = \Context::getContext();
-            $_uid = sprintf('%02d%02d%02d', UId::THEME, $context->language->id, $context->shop->id);
-            $themes = \CETheme::getOptions('product-miniature', $context->language->id, $context->shop->id);
+        if (_CE_ADMIN_ && null === $opts) {
+            $_uid = sprintf('%02d%02d%02d', UId::THEME, $GLOBALS['language']->id, $GLOBALS['context']->shop->id);
+            $themes = \CETheme::getOptions('product-miniature', $GLOBALS['language']->id, $GLOBALS['context']->shop->id);
             $skins = [
                 'product' => __('Default'),
             ];
@@ -134,9 +126,9 @@ abstract class ModulesXCatalogXWidgetsXProductXBase extends WidgetBase
     {
         $opts = [
             'category' => __('Featured Products'),
-            'prices-drop' => __('Prices Drop'),
-            'new-products' => __('New Products'),
-            'best-sales' => __('Best Sellers'),
+            'prices-drop' => __('Prices drop', 'Shop.Navigation'),
+            'new-products' => __('New products', 'Shop.Navigation'),
+            'best-sales' => __('Best sellers', 'Shop.Navigation'),
             'related' => __('Related Products'),
             'viewed' => __('Recently Viewed'),
             'manufacturer' => __('Products by Brand'),
@@ -240,7 +232,7 @@ abstract class ModulesXCatalogXWidgetsXProductXBase extends WidgetBase
         $this->addControl(
             'related_product_id',
             [
-                'label' => __('Product'),
+                'label' => __('Product', 'Shop.Theme.Catalog'),
                 'type' => ControlsManager::SELECT2,
                 'label_block' => true,
                 'select2options' => [
@@ -265,7 +257,7 @@ abstract class ModulesXCatalogXWidgetsXProductXBase extends WidgetBase
                 'select2options' => [
                     'allowClear' => false,
                 ],
-                'extend' => [
+                'options' => [
                     '0' => __('Current Category') . ' / ' . __('Default'),
                 ],
                 'default' => 0,
@@ -284,7 +276,7 @@ abstract class ModulesXCatalogXWidgetsXProductXBase extends WidgetBase
                 'select2options' => [
                     'allowClear' => false,
                 ],
-                'extend' => [
+                'options' => [
                     '0' => __('Products with the same brand'),
                 ],
                 'default' => 0,
@@ -303,7 +295,7 @@ abstract class ModulesXCatalogXWidgetsXProductXBase extends WidgetBase
                 'select2options' => [
                     'allowClear' => false,
                 ],
-                'extend' => [
+                'options' => [
                     '0' => __('Products with the same supplier'),
                 ],
                 'default' => 0,
@@ -321,7 +313,7 @@ abstract class ModulesXCatalogXWidgetsXProductXBase extends WidgetBase
                 'default' => 'position',
                 'options' => [
                     'name' => __('Name'),
-                    'price' => __('Price'),
+                    'price' => __('Price', 'Shop.Theme.Catalog'),
                     'position' => __('Popularity'),
                     'quantity' => __('Sales Volume'),
                     'date_add' => __('Arrival'),
@@ -463,7 +455,7 @@ abstract class ModulesXCatalogXWidgetsXProductXBase extends WidgetBase
         $this->addControl(
             'show_regular_price',
             [
-                'label' => __('Regular Price'),
+                'label' => __('Regular price', 'Shop.Theme.Catalog'),
                 'type' => $this->catalog ? ControlsManager::HIDDEN : ControlsManager::SWITCHER,
                 'label_on' => __('Show'),
                 'label_off' => __('Hide'),
@@ -544,10 +536,10 @@ abstract class ModulesXCatalogXWidgetsXProductXBase extends WidgetBase
                 'label_block' => true,
                 'options' => [
                     'sale' => __('Sale'),
-                    'new' => __('New'),
-                    'pack' => __('Pack'),
+                    'new' => __('New', 'Shop.Theme.Catalog'),
+                    'pack' => __('Pack', 'Shop.Theme.Catalog'),
                     'out' => __('Out-of-Stock'),
-                    'online' => __('Online only'),
+                    'online' => __('Online only', 'Shop.Theme.Catalog'),
                 ],
                 'default' => ['sale', 'new', 'pack', 'out', 'online'],
                 'separator' => 'before',
@@ -575,7 +567,7 @@ abstract class ModulesXCatalogXWidgetsXProductXBase extends WidgetBase
         $this->addControl(
             'badge_new_text',
             [
-                'label' => __('New'),
+                'label' => __('New', 'Shop.Theme.Catalog'),
                 'type' => ControlsManager::TEXT,
                 'placeholder' => __('Default'),
                 'conditions' => [
@@ -593,7 +585,7 @@ abstract class ModulesXCatalogXWidgetsXProductXBase extends WidgetBase
         $this->addControl(
             'badge_pack_text',
             [
-                'label' => __('Pack'),
+                'label' => __('Pack', 'Shop.Theme.Catalog'),
                 'type' => ControlsManager::TEXT,
                 'placeholder' => __('Default'),
                 'conditions' => [
@@ -629,7 +621,7 @@ abstract class ModulesXCatalogXWidgetsXProductXBase extends WidgetBase
         $this->addControl(
             'badge_online_text',
             [
-                'label' => __('Online only'),
+                'label' => __('Online only', 'Shop.Theme.Catalog'),
                 'type' => ControlsManager::TEXT,
                 'placeholder' => __('Default'),
                 'conditions' => [
@@ -677,7 +669,7 @@ abstract class ModulesXCatalogXWidgetsXProductXBase extends WidgetBase
             [
                 'label' => __('Text'),
                 'type' => ControlsManager::TEXT,
-                'default' => __('Add to Cart'),
+                'default' => Helper::$translator->trans('Add to cart', [], 'Shop.Theme.Actions'),
             ]
         );
 
@@ -814,7 +806,7 @@ abstract class ModulesXCatalogXWidgetsXProductXBase extends WidgetBase
             [
                 'label' => __('Text'),
                 'type' => ControlsManager::TEXT,
-                'default' => __('Quick View'),
+                'default' => Helper::$translator->trans('Quick view', [], 'Shop.Theme.Actions'),
             ]
         );
 
@@ -994,6 +986,47 @@ abstract class ModulesXCatalogXWidgetsXProductXBase extends WidgetBase
         );
 
         $this->addControl(
+            'image_width',
+            [
+                'label' => __('Width'),
+                'type' => ControlsManager::SLIDER,
+                'placeholder' => __('Auto'),
+                'size_units' => ['px', '%'],
+                'range' => [
+                    'px' => [
+                        'max' => 800,
+                    ],
+                ],
+                'selectors' => [
+                    '{{WRAPPER}} .elementor-image img' => 'width: {{SIZE}}{{UNIT}};',
+                ],
+                'default' => [
+                    'unit' => '%',
+                ],
+            ]
+        );
+
+        $this->addGroupControl(
+            GroupControlBorder::getType(),
+            [
+                'name' => 'image_border',
+                'selector' => '{{WRAPPER}} .elementor-image img',
+            ]
+        );
+
+        $this->addControl(
+            'image_border_radius',
+            [
+                'label' => __('Border Radius'),
+                'type' => ControlsManager::DIMENSIONS,
+                'size_units' => ['px', '%'],
+                'selectors' => [
+                    '{{WRAPPER}} .elementor-image img' => 'border-radius: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+                ],
+            ]
+        );
+
+        $this->addControl(
             'hover_animation',
             [
                 'label' => __('Hover Animation'),
@@ -1011,27 +1044,6 @@ abstract class ModulesXCatalogXWidgetsXProductXBase extends WidgetBase
                     'buzz-out' => __('Buzz Out'),
                 ],
                 'prefix_class' => 'elementor-img-hover-',
-            ]
-        );
-
-        $this->addGroupControl(
-            GroupControlBorder::getType(),
-            [
-                'name' => 'image_border',
-                'separator' => 'before',
-                'selector' => '{{WRAPPER}} .elementor-image img',
-            ]
-        );
-
-        $this->addControl(
-            'image_border_radius',
-            [
-                'label' => __('Border Radius'),
-                'type' => ControlsManager::DIMENSIONS,
-                'size_units' => ['px', '%'],
-                'selectors' => [
-                    '{{WRAPPER}} .elementor-image img' => 'border-radius: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
-                ],
             ]
         );
 
@@ -1306,7 +1318,7 @@ abstract class ModulesXCatalogXWidgetsXProductXBase extends WidgetBase
         $this->startControlsTab(
             'content_style_price',
             [
-                'label' => __('Price'),
+                'label' => __('Price', 'Shop.Theme.Catalog'),
             ]
         );
 
@@ -1355,7 +1367,7 @@ abstract class ModulesXCatalogXWidgetsXProductXBase extends WidgetBase
         $this->addControl(
             'heading_style_regular_price',
             [
-                'label' => __('Regular Price'),
+                'label' => __('Regular Price', 'Shop.Theme.Catalog'),
                 'type' => ControlsManager::HEADING,
                 'separator' => 'before',
                 'condition' => [
@@ -2014,7 +2026,7 @@ abstract class ModulesXCatalogXWidgetsXProductXBase extends WidgetBase
         $this->startControlsTab(
             'badge_style_new',
             [
-                'label' => __('New'),
+                'label' => __('New', 'Shop.Theme.Catalog'),
                 'conditions' => [
                     'terms' => [
                         [
@@ -2074,7 +2086,7 @@ abstract class ModulesXCatalogXWidgetsXProductXBase extends WidgetBase
         $this->startControlsTab(
             'badge_style_pack',
             [
-                'label' => __('Pack'),
+                'label' => __('Pack', 'Shop.Theme.Catalog'),
                 'conditions' => [
                     'terms' => [
                         [
@@ -2194,7 +2206,7 @@ abstract class ModulesXCatalogXWidgetsXProductXBase extends WidgetBase
         $this->startControlsTab(
             'badge_style_online',
             [
-                'label' => __('Online only'),
+                'label' => __('Online only', 'Shop.Theme.Catalog'),
             ]
         );
 
@@ -2251,10 +2263,10 @@ abstract class ModulesXCatalogXWidgetsXProductXBase extends WidgetBase
     {
         static $id_product;
 
-        null === $id_product && $id_product = Helper::getLastUpdatedProductId($this->context->shop->id) ?: '';
+        null === $id_product && $id_product = Helper::getLastUpdatedProductId($GLOBALS['context']->shop->id) ?: '';
 
         // Check Skin
-        if (!in_array($widget['settings']['skin'], ['product', 'custom']) && !static::getSkinTemplate($widget['settings']['skin'])) {
+        if (empty($widget['settings']['skin']) || !in_array($widget['settings']['skin'], ['product', 'custom']) && !static::getSkinTemplate($widget['settings']['skin'])) {
             $widget['settings']['skin'] = 'product';
         }
 
@@ -2278,10 +2290,11 @@ abstract class ModulesXCatalogXWidgetsXProductXBase extends WidgetBase
 
         // Check Product IDs
         if (!empty($widget['settings']['products'])) {
-            $ps = _DB_PREFIX_;
-            $ids = implode(',', array_map('intval', array_column($widget['settings']['products'], 'id')));
+            $ids = array_column($widget['settings']['products'], 'id');
             $pids = array_column(
-                \Db::getInstance()->executeS("SELECT `id_product` FROM `{$ps}product` WHERE `id_product` IN ($ids)") ?: [],
+                \Db::getInstance()->executeS(
+                    'SELECT `id_product` FROM ' . _DB_PREFIX_ . 'product WHERE `id_product` IN (' . implode(',', array_map('intval', $ids)) . ')'
+                ) ?: [],
                 'id_product'
             );
             foreach ($widget['settings']['products'] as &$product) {
@@ -2290,9 +2303,7 @@ abstract class ModulesXCatalogXWidgetsXProductXBase extends WidgetBase
         }
 
         // Check Product Image Sizes
-        $sizes = array_map(function ($size) {
-            return $size['name'];
-        }, \ImageType::getImagesTypes('products'));
+        $sizes = array_column(\ImageType::getImagesTypes('products'), 'name');
 
         foreach (['image_size', 'image_size_tablet', 'image_size_mobile'] as $image_size) {
             if (isset($widget['settings'][$image_size]) && !in_array($widget['settings'][$image_size], $sizes)) {
@@ -2312,25 +2323,24 @@ abstract class ModulesXCatalogXWidgetsXProductXBase extends WidgetBase
     {
         return \Db::getInstance()->executeS('
             SELECT p.`id_product` FROM ' . _DB_PREFIX_ . 'accessory
-            LEFT JOIN ' . _DB_PREFIX_ . 'product AS p ON p.`id_product` = id_product_2
+            LEFT JOIN ' . _DB_PREFIX_ . 'product p ON p.`id_product` = `id_product_2`
             ' . \Shop::addSqlAssociation('product', 'p') . '
-            WHERE id_product_1 = ' . (int) $id_product . ' AND p.active = 1 AND p.visibility IN ("both", "catalog")
+            WHERE `id_product_1` = ' . (int) $id_product . ' AND p.`active` = 1 AND p.`visibility` IN ("both", "catalog")
         ');
     }
 
     protected function getProduct($id)
     {
         try {
-            $assembledProduct = self::$assembler->assembleProduct(['id_product' => $id]);
+            // Fix: Missing id_product not handled before PS 8.1
+            $assembledProduct = @self::$assembler->assembleProduct(['id_product' => $id]);
 
-            return !empty($assembledProduct['active']) ? self::$presenter->present(
-                self::$presentationSettings,
-                $assembledProduct,
-                $this->context->language
-            ) : false;
-        } catch (\ErrorException $err) {
+            return !empty($assembledProduct['active'])
+                ? self::$presenter->present(self::$presentationSettings, $assembledProduct, $GLOBALS['language'])
+                : false;
+        } catch (\Exception $e) {
             return false;
-        } catch (\Exception $ex) {
+        } catch (\Error $e) {
             return false;
         }
     }
@@ -2338,7 +2348,8 @@ abstract class ModulesXCatalogXWidgetsXProductXBase extends WidgetBase
     protected function getProducts($listing, $order_by, $order_dir, $limit, $id, $products = [])
     {
         $tpls = [];
-        $isProductController = $this->context->controller instanceof \ProductController;
+        $controller = $GLOBALS['context']->controller;
+        $isProductController = $controller instanceof \ProductController;
 
         if ('products' === $listing) {
             // Custom Products
@@ -2359,24 +2370,24 @@ abstract class ModulesXCatalogXWidgetsXProductXBase extends WidgetBase
         }
         if ('related' === $listing && !$id && $isProductController) {
             // Related Products on product page
-            $products = &$this->context->smarty->tpl_vars['accessories']->value;
-
+            if (empty($GLOBALS['smarty']->tpl_vars['accessories']) || !$products = &$GLOBALS['smarty']->tpl_vars['accessories']->value) {
+                return [];
+            }
             if ('rand' === $order_by) {
                 shuffle($products);
             }
             if (count($products) > $limit) {
                 $products = array_slice($products, 0, $limit);
             }
+
             return $products;
         }
         if ('viewed' === $listing) {
             // Recently Viewed
-            $products = isset($this->context->cookie->ceViewedProducts)
-                ? explode(',', $this->context->cookie->ceViewedProducts)
-                : []
-            ;
+            $products = isset($GLOBALS['cookie']->ceViewedProducts) ? explode(',', $GLOBALS['cookie']->ceViewedProducts) : [];
+
             if ($isProductController) {
-                $id_product = $this->context->controller->getProduct()->id;
+                $id_product = $controller->getProduct()->id;
 
                 if ($id_product && in_array($id_product, $products)) {
                     $products = array_diff($products, [$id_product]);
@@ -2406,13 +2417,13 @@ abstract class ModulesXCatalogXWidgetsXProductXBase extends WidgetBase
                 if ($id) {
                     $category = new \Category((int) $id);
                 } elseif ($isProductController) {
-                    $category = new \Category((int) $this->context->controller->getProduct()->id_category_default);
-                } elseif ($this->context->controller instanceof \CategoryController) {
-                    $category = $this->context->controller->getCategory();
+                    $category = new \Category((int) $controller->getProduct()->id_category_default);
+                } elseif ($controller instanceof \CategoryController) {
+                    $category = $controller->getCategory();
                 } else {
-                    $category = new \Category($this->context->shop->id_category);
+                    $category = new \Category($GLOBALS['context']->shop->id_category);
                 }
-                $searchProvider = new \PrestaShop\PrestaShop\Adapter\Category\CategoryProductSearchProvider(self::$translator, $category);
+                $searchProvider = new \PrestaShop\PrestaShop\Adapter\Category\CategoryProductSearchProvider(Helper::$translator, $category);
 
                 $query->setSortOrder(
                     'rand' === $order_by
@@ -2421,22 +2432,22 @@ abstract class ModulesXCatalogXWidgetsXProductXBase extends WidgetBase
                 );
                 break;
             case 'prices-drop':
-                $searchProvider = new \PrestaShop\PrestaShop\Adapter\PricesDrop\PricesDropProductSearchProvider(self::$translator);
+                $searchProvider = new \PrestaShop\PrestaShop\Adapter\PricesDrop\PricesDropProductSearchProvider(Helper::$translator);
                 $query->setSortOrder(new \PrestaShop\PrestaShop\Core\Product\Search\SortOrder('product', $order_by, $order_dir));
                 break;
             case 'new-products':
-                $searchProvider = new \PrestaShop\PrestaShop\Adapter\NewProducts\NewProductsProductSearchProvider(self::$translator);
+                $searchProvider = new \PrestaShop\PrestaShop\Adapter\NewProducts\NewProductsProductSearchProvider(Helper::$translator);
                 $query->setSortOrder(new \PrestaShop\PrestaShop\Core\Product\Search\SortOrder('product', $order_by, $order_dir));
                 break;
             case 'best-sales':
-                $searchProvider = new \PrestaShop\PrestaShop\Adapter\BestSales\BestSalesProductSearchProvider(self::$translator);
+                $searchProvider = new \PrestaShop\PrestaShop\Adapter\BestSales\BestSalesProductSearchProvider(Helper::$translator);
                 $query->setSortOrder(new \PrestaShop\PrestaShop\Core\Product\Search\SortOrder('product', $order_by, $order_dir));
                 break;
             case 'related':
                 if ($id) {
                     $products = self::getAccessoriesLight($id);
-                } elseif ($this->context->controller instanceof \CartController) {
-                    $cart = $this->context->controller->cart_presenter->present($this->context->cart, true);
+                } elseif ($controller instanceof \CartController) {
+                    $cart = &$GLOBALS['smarty']->tpl_vars['cart']->value;
                     $i = count($cart['products']);
 
                     $exclude_ids = array_unique(array_map(function ($product) {
@@ -2466,25 +2477,25 @@ abstract class ModulesXCatalogXWidgetsXProductXBase extends WidgetBase
                 break;
             case 'manufacturer':
                 if (!$id && $isProductController) {
-                    $id = $this->context->controller->getProduct()->id_manufacturer;
+                    $id = $controller->getProduct()->id_manufacturer;
                 }
                 $manufacturer = new \Manufacturer((int) $id);
-                $searchProvider = new \PrestaShop\PrestaShop\Adapter\Manufacturer\ManufacturerProductSearchProvider(self::$translator, $manufacturer);
+                $searchProvider = new \PrestaShop\PrestaShop\Adapter\Manufacturer\ManufacturerProductSearchProvider(Helper::$translator, $manufacturer);
                 $query->setSortOrder(new \PrestaShop\PrestaShop\Core\Product\Search\SortOrder('product', $order_by, $order_dir));
                 break;
             case 'supplier':
                 if (!$id && $isProductController) {
-                    $id = $this->context->controller->getProduct()->id_supplier;
+                    $id = $controller->getProduct()->id_supplier;
                 }
                 $supplier = new \Supplier((int) $id);
-                $searchProvider = new \PrestaShop\PrestaShop\Adapter\Supplier\SupplierProductSearchProvider(self::$translator, $supplier);
+                $searchProvider = new \PrestaShop\PrestaShop\Adapter\Supplier\SupplierProductSearchProvider(Helper::$translator, $supplier);
                 $query->setSortOrder(new \PrestaShop\PrestaShop\Core\Product\Search\SortOrder('product', $order_by, $order_dir));
                 break;
         }
 
-        if ('category' === $listing && !$id && $this->context->controller instanceof \CartController) {
+        if ('category' === $listing && !$id && $controller instanceof \CartController) {
             // Current Category on Cart Page
-            $cart = $this->context->controller->cart_presenter->present($this->context->cart, true);
+            $cart = &$GLOBALS['smarty']->tpl_vars['cart']->value;
 
             $category_ids = array_unique(array_map(function ($product) {
                 return $product->id_category_default;
@@ -2494,11 +2505,11 @@ abstract class ModulesXCatalogXWidgetsXProductXBase extends WidgetBase
                 return $product->id;
             }, $cart['products']));
 
-            $productSearchContext = new \PrestaShop\PrestaShop\Core\Product\Search\ProductSearchContext($this->context);
+            $productSearchContext = new \PrestaShop\PrestaShop\Core\Product\Search\ProductSearchContext($GLOBALS['context']);
 
             foreach ($category_ids as $id_category) {
                 $category = new \Category($id_category);
-                $searchProvider = new \PrestaShop\PrestaShop\Adapter\Category\CategoryProductSearchProvider(self::$translator, $category);
+                $searchProvider = new \PrestaShop\PrestaShop\Adapter\Category\CategoryProductSearchProvider(Helper::$translator, $category);
                 $result = $searchProvider->runQuery($productSearchContext, $query);
 
                 foreach ($result->getProducts() as $product) {
@@ -2513,12 +2524,12 @@ abstract class ModulesXCatalogXWidgetsXProductXBase extends WidgetBase
                 }
             }
         } elseif ('related' !== $listing && isset($searchProvider)) {
-            $result = $searchProvider->runQuery(new \PrestaShop\PrestaShop\Core\Product\Search\ProductSearchContext($this->context), $query);
+            $result = $searchProvider->runQuery(new \PrestaShop\PrestaShop\Core\Product\Search\ProductSearchContext($GLOBALS['context']), $query);
             $products = $result->getProducts();
         }
 
         if ($isProductController) {
-            $current_product_id = $this->context->controller->getProduct()->id;
+            $current_product_id = $controller->getProduct()->id;
             $products = array_filter($products, function ($product) use ($current_product_id) {
                 return $product['id_product'] != $current_product_id;
             });
@@ -2531,7 +2542,7 @@ abstract class ModulesXCatalogXWidgetsXProductXBase extends WidgetBase
             $tpls[] = self::$presenter->present(
                 self::$presentationSettings,
                 self::$assembler->assembleProduct($product),
-                $this->context->language
+                $GLOBALS['language']
             );
         }
 
@@ -2542,7 +2553,7 @@ abstract class ModulesXCatalogXWidgetsXProductXBase extends WidgetBase
     {
         $display_class = $settings['title_display'] ? " ce-display-{$settings['title_display']}" : '';
         $image_size = $settings['image_size'] ?: $this->imageSize;
-        $cover = $product['cover'] ?: Helper::getNoImage();
+        $cover = $product['cover'] ?: $GLOBALS['smarty']->tpl_vars['urls']->value['no_picture_image'];
         $cover_url = [
             'desktop' => $cover['bySize'][$image_size]['url'],
         ];
@@ -2642,7 +2653,7 @@ abstract class ModulesXCatalogXWidgetsXProductXBase extends WidgetBase
                 </div>
             </a>
         <?php if ($settings['show_atc'] && !$this->catalog && $product['available_for_order']) { ?>
-            <form class="elementor-atc<?php $settings['atc_type'] && print " elementor-button-{$settings['atc_type']}"; ?>" action="<?php echo esc_attr($product['add_to_cart_url']); ?>">
+            <form class="elementor-atc<?php $settings['atc_type'] && print " elementor-button-{$settings['atc_type']}"; ?>" action="<?php echo esc_attr($product['add_to_cart_url'] ?: ''); ?>">
                 <input type="hidden" name="qty" value="<?php echo max(1, $product[
                     !empty($product['product_attribute_minimal_quantity']) ? 'product_attribute_minimal_quantity' : 'minimal_quantity'
                 ]); ?>">
@@ -2673,7 +2684,7 @@ abstract class ModulesXCatalogXWidgetsXProductXBase extends WidgetBase
 
     protected function renderItemList(&$products)
     {
-        if (self::$itemList || $this->context->controller instanceof \ProductListingFrontController) {
+        if (self::$itemList || $GLOBALS['context']->controller instanceof \ProductListingFrontController) {
             return;
         }
         self::$itemList = [

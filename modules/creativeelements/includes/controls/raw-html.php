@@ -71,6 +71,7 @@ class ControlRawHtml extends BaseUIControl
         return [
             'raw' => '',
             'content_classes' => '',
+            'render_type' => 'none',
         ];
     }
 }

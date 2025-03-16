@@ -41,6 +41,11 @@ class ModulesXPremiumXWidgetsXTestimonialCarousel extends WidgetBase
         return ['testimonial', 'blockquote', 'carousel', 'slider'];
     }
 
+    protected function isDynamicContent()
+    {
+        return false;
+    }
+
     protected function _registerControls()
     {
         $this->startControlsSection(
@@ -170,7 +175,7 @@ class ModulesXPremiumXWidgetsXTestimonialCarousel extends WidgetBase
                 'label' => __('Space Between'),
                 'type' => ControlsManager::SLIDER,
                 'selectors' => [
-                    '{{WRAPPER}} .swiper-container:not(.swiper-container-initialized) .swiper-wrapper' => 'grid-column-gap: {{SIZE}}px;',
+                    '{{WRAPPER}} .swiper:not(.swiper-initialized) .swiper-wrapper' => 'grid-column-gap: {{SIZE}}px;',
                 ],
                 'frontend_available' => true,
                 'render_type' => 'none',
@@ -508,16 +513,18 @@ class ModulesXPremiumXWidgetsXTestimonialCarousel extends WidgetBase
                             <div class="elementor-testimonial-image">
                             <?php if ($has_link) { ?>
                                 <a <?php $this->printRenderAttributeString('link'); ?>>
-                                    <?php echo GroupControlImageSize::getAttachmentImageHtml($slide, 'image', 'auto'); ?>
+                                    <?php echo GroupControlImageSize::getAttachmentImageHtml($slide, 'image'); ?>
+                                    <?php empty($slide['image']['loading']) && print '<div class="swiper-lazy-preloader"></div>'; ?>
                                 </a>
                             <?php } else { ?>
-                                <?php echo GroupControlImageSize::getAttachmentImageHtml($slide, 'image', 'auto'); ?>
+                                <?php echo GroupControlImageSize::getAttachmentImageHtml($slide, 'image'); ?>
+                                <?php empty($slide['image']['loading']) && print '<div class="swiper-lazy-preloader"></div>'; ?>
                             <?php } ?>
                             </div>
                         </div>
                     </div>
                 <?php } ?>
-                <?php if (!empty($slide['content'])) { ?>
+                <?php if ('' !== $slide['content']) { ?>
                     <div class="elementor-testimonial-content"><?php echo $slide['content']; ?></div>
                 <?php } ?>
                     <div class="elementor-testimonial-meta <?php echo $layout_class; ?>">
@@ -526,15 +533,17 @@ class ModulesXPremiumXWidgetsXTestimonialCarousel extends WidgetBase
                             <div class="elementor-testimonial-image">
                             <?php if ($has_link) { ?>
                                 <a <?php $this->printRenderAttributeString('link'); ?>>
-                                    <?php echo GroupControlImageSize::getAttachmentImageHtml($slide, 'image', 'auto'); ?>
+                                    <?php echo GroupControlImageSize::getAttachmentImageHtml($slide, 'image'); ?>
+                                    <?php empty($slide['image']['loading']) && print '<div class="swiper-lazy-preloader"></div>'; ?>
                                 </a>
                             <?php } else { ?>
-                                <?php echo GroupControlImageSize::getAttachmentImageHtml($slide, 'image', 'auto'); ?>
+                                <?php echo GroupControlImageSize::getAttachmentImageHtml($slide, 'image'); ?>
+                                <?php empty($slide['image']['loading']) && print '<div class="swiper-lazy-preloader"></div>'; ?>
                             <?php } ?>
                             </div>
                         <?php } ?>
                             <div class="elementor-testimonial-details">
-                            <?php if (!empty($slide['name'])) { ?>
+                            <?php if ('' !== $slide['name']) { ?>
                                 <div class="elementor-testimonial-name">
                                 <?php if ($has_link) { ?>
                                     <a <?php $this->printRenderAttributeString('link'); ?>><?php echo $slide['name']; ?></a>
@@ -543,7 +552,7 @@ class ModulesXPremiumXWidgetsXTestimonialCarousel extends WidgetBase
                                 <?php } ?>
                                 </div>
                             <?php } ?>
-                            <?php if (!empty($slide['title'])) { ?>
+                            <?php if ('' !== $slide['title']) { ?>
                                 <div class="elementor-testimonial-job">
                                 <?php if ($has_link) { ?>
                                     <a <?php $this->printRenderAttributeString('link'); ?>><?php echo $slide['title']; ?></a>

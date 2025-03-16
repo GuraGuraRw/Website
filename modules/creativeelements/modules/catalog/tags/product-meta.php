@@ -13,7 +13,7 @@ if (!defined('_PS_VERSION_')) {
 }
 
 use CE\CoreXDynamicTagsXTag as Tag;
-use CE\ModulesXDynamicTagsXModule as Module;
+use CE\ModulesXDynamicTagsXModule as TagsModule;
 
 class ModulesXCatalogXTagsXProductMeta extends Tag
 {
@@ -31,17 +31,40 @@ class ModulesXCatalogXTagsXProductMeta extends Tag
 
     public function getGroup()
     {
-        return Module::CATALOG_GROUP;
+        return TagsModule::CATALOG_GROUP;
     }
 
     public function getCategories()
     {
-        return [Module::TEXT_CATEGORY];
+        return [TagsModule::TEXT_CATEGORY];
     }
 
     public function getPanelTemplateSettingKey()
     {
         return 'type';
+    }
+
+    public static function getOptions()
+    {
+        return [
+            'reference' => __('Reference', 'Admin.Catalog.Feature'),
+            'quantity' => __('Quantity', 'Admin.Catalog.Feature'),
+            'category' => __('Category', 'Admin.Global'),
+            'manufacturer' => __('Brand', 'Admin.Global'),
+            'availability_date' => __('Availability date', 'Admin.Catalog.Feature'),
+            'delivery' => __('Delivery Time', 'Admin.Catalog.Feature'),
+            'condition' => __('Condition', 'Admin.Catalog.Feature'),
+            'references' => [
+                'label' => __('Specific references', 'Admin.Catalog.Feature'),
+                'options' => [
+                    'isbn' => 'ISBN',
+                    'ean13' => 'EAN-13 / JAN',
+                    'upc' => 'UPC',
+                    'mpn' => 'MPN',
+                ],
+            ],
+            'supplier' => __('Supplier', 'Admin.Global'),
+        ];
     }
 
     protected function _registerControls()
@@ -51,26 +74,7 @@ class ModulesXCatalogXTagsXProductMeta extends Tag
             [
                 'label' => __('Field'),
                 'type' => ControlsManager::SELECT,
-                'groups' => [
-                    'category' => __('Category'),
-                    'manufacturer' => __('Brand'),
-                    'supplier' => __('Supplier'),
-                    // 'tags' => __('Tags'),
-                    'delivery' => __('Delivery Time'),
-                    'quantity' => __('Quantity'),
-                    'availability_date' => __('Availability Date'),
-                    'condition' => __('Condition'),
-                    'references' => [
-                        'label' => __('References'),
-                        'options' => [
-                            'reference' => __('SKU'),
-                            'isbn' => __('ISBN'),
-                            'ean13' => __('EAN-13'),
-                            'upc' => __('UPC'),
-                            'mpn' => __('MPN'),
-                        ],
-                    ],
-                ],
+                'groups' => _CE_ADMIN_ ? self::getOptions() : [],
                 'default' => 'reference',
             ]
         );
@@ -78,9 +82,8 @@ class ModulesXCatalogXTagsXProductMeta extends Tag
 
     public function render()
     {
-        $context = \Context::getContext();
-        $vars = &$context->smarty->tpl_vars;
-        $product = &$vars['product']->value;
+        $vars = &$GLOBALS['smarty']->tpl_vars;
+        $product = $vars['product']->value;
         $type = $this->getSettings('type');
 
         switch ($type) {
@@ -88,8 +91,10 @@ class ModulesXCatalogXTagsXProductMeta extends Tag
                 echo esc_html($product['category_name']);
                 break;
             case 'manufacturer':
-                if (!empty($vars['product_manufacturer']->value->name)) {
+                if (isset($vars['product_manufacturer'])) {
                     echo esc_html($vars['product_manufacturer']->value->name);
+                } elseif ($product['id_manufacturer']) {
+                    echo esc_html(\Manufacturer::getNameById($product['id_manufacturer']));
                 }
                 break;
             case 'supplier':
@@ -113,7 +118,7 @@ class ModulesXCatalogXTagsXProductMeta extends Tag
                 empty($product[$type]) || print esc_html($product[$type]['label']);
                 break;
             case 'availability_date':
-                echo esc_html(Tools::displayDate($product[$type]));
+                echo esc_html(\Tools::displayDate($product[$type]));
                 break;
             case 'reference':
                 echo esc_html($product['reference_to_display']);
@@ -140,10 +145,10 @@ class ModulesXCatalogXTagsXProductMeta extends Tag
                 echo '{$product.category_name}';
                 break;
             case 'manufacturer':
-                echo '{if $product.id_manufacturer}Manufacturer::getNameById($product.id_manufacturer){/if}';
+                echo '{if $product.id_manufacturer}{Manufacturer::getNameById($product.id_manufacturer)}{/if}';
                 break;
             case 'supplier':
-                echo '{if $product.id_supplier}Supplier::getNameById($product.id_supplier){/if}';
+                echo '{if $product.id_supplier}{Supplier::getNameById($product.id_supplier)}{/if}';
                 break;
             case 'delivery':
                 echo '{if 1 == $product.additional_delivery_times}{$product.delivery_information}';

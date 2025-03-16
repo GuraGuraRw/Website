@@ -14,6 +14,8 @@ if (!defined('_PS_VERSION_')) {
 
 class ModulesXCatalogXWidgetsXProductXAddToWishlist extends WidgetIcon
 {
+    const HELP_URL = '';
+
     const REMOTE_RENDER = true;
 
     public function getName()
@@ -41,11 +43,16 @@ class ModulesXCatalogXWidgetsXProductXAddToWishlist extends WidgetIcon
         return ['shop', 'store', 'product', 'wishlist', 'favorite'];
     }
 
+    protected function isDynamicContent()
+    {
+        return true;
+    }
+
     protected function _registerControls()
     {
         parent::_registerControls();
 
-        is_admin() && !\Module::isEnabled('blockwishlist') && $this->addControl(
+        _CE_ADMIN_ && !\Module::isEnabled('blockwishlist') && $this->addControl(
             'notice',
             [
                 'raw' => sprintf(__('%s module (%s) must be installed!'), __('Wishlist'), 'blockwishlist'),
@@ -84,9 +91,8 @@ class ModulesXCatalogXWidgetsXProductXAddToWishlist extends WidgetIcon
 
         if (null === $tagged) {
             $tagged = [];
-            $context = \Context::getContext();
 
-            if ($context->customer->isLogged()) {
+            if ($GLOBALS['customer']->isLogged()) {
                 $js_def = &\Closure::bind(function &() {
                     return \Media::$js_def;
                 }, null, 'Media')->__invoke();
@@ -98,8 +104,8 @@ class ModulesXCatalogXWidgetsXProductXAddToWishlist extends WidgetIcon
 
                     $tagged = call_user_func(
                         'WishList::getAllProductByCustomer',
-                        $context->customer->id,
-                        $context->shop->id
+                        $GLOBALS['customer']->id,
+                        $GLOBALS['context']->shop->id
                     ) ?: [];
                 }
             }
@@ -110,8 +116,7 @@ class ModulesXCatalogXWidgetsXProductXAddToWishlist extends WidgetIcon
 
     protected function render()
     {
-        $context = \Context::getContext();
-        $product = &$context->smarty->tpl_vars['product']->value;
+        $product = $GLOBALS['smarty']->tpl_vars['product']->value;
         $checked = array_filter($this->getProductsTagged(), function ($tagged) use ($product) {
             return $tagged['id_product'] == $product['id_product']
                 && $tagged['id_product_attribute'] == $product['id_product_attribute'];
@@ -121,7 +126,7 @@ class ModulesXCatalogXWidgetsXProductXAddToWishlist extends WidgetIcon
             'library' => 'ce-icons',
         ]);
         $this->setSettings('link', [
-            'url' => $context->link->getModuleLink('blockwishlist', 'action'),
+            'url' => Helper::$link->getModuleLink('blockwishlist', 'action'),
         ]);
 
         $this->addRenderAttribute('icon-wrapper', [

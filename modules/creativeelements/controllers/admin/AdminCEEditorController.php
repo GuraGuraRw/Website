@@ -43,10 +43,9 @@ class AdminCEEditorController extends ModuleAdminController
             }
         }
 
-        if (!isset($this->context->employee) || !$this->context->employee->isLoggedBack()) {
-            if (isset($this->context->employee)) {
-                $this->context->employee->logout();
-            }
+        if ((int) _PS_VERSION_ < 9 && (!$this->context->employee || !$this->context->employee->isLoggedBack())) {
+            $this->context->employee && $this->context->employee->logout();
+
             $redirect = ($uid = CE\UId::parse(Tools::getValue('uid'))) ? "&redirect={$uid->getAdminController()}" : '';
 
             Tools::redirectAdmin($this->context->link->getAdminLink('AdminLogin') . $redirect);
@@ -236,88 +235,77 @@ class AdminCEEditorController extends ModuleAdminController
 
     public function ajaxProcessAutocompleteLink()
     {
-        $context = Context::getContext();
+        $link = $this->context->link;
         $display_suppliers = Configuration::get('PS_DISPLAY_SUPPLIERS');
-        $display_manufacturers = version_compare(_PS_VERSION_, '1.7.7', '<')
-            ? $display_suppliers
-            : Configuration::get('PS_DISPLAY_MANUFACTURERS');
-        $db = Db::getInstance(_PS_USE_SQL_SLAVE_);
-        $ps = _DB_PREFIX_;
-        $search = $db->escape(Tools::getValue('search'));
-        $id_lang = (int) $context->language->id;
-        $id_shop = (int) $context->shop->id;
-        $limit = 10;
+        $display_manufacturers = version_compare(_PS_VERSION_, '1.7.7', '<') ? $display_suppliers : Configuration::get('PS_DISPLAY_MANUFACTURERS');
+        $search = Tools::getValue('search');
+        $id_lang = $this->context->language->id;
+        $id_shop = $this->context->shop->id;
+        $rows = Db::getInstance(_PS_USE_SQL_SLAVE_)->executeS('(
+            SELECT m.`id_meta` AS `ID`, ml.`title`, m.`page` AS `permalink`, "Page" AS `info` FROM ' . _DB_PREFIX_ . 'meta m
+            LEFT JOIN ' . _DB_PREFIX_ . 'meta_lang ml ON m.`id_meta` = ml.`id_meta`
+            WHERE ml.`id_lang` = ' . (int) $id_lang . ' AND ml.`id_shop` = ' . (int) $id_shop . ' AND ml.`title` LIKE "%' . pSQL($search) . '%" LIMIT 10
+        ) UNION (
+            SELECT `id_cms` AS `ID`, `meta_title` AS `title`, `link_rewrite` AS `permalink`, "CMS" AS `info` FROM ' . _DB_PREFIX_ . 'cms_lang
+            WHERE `id_lang` = ' . (int) $id_lang . ' AND `id_shop` = ' . (int) $id_shop . ' AND `meta_title` LIKE "%' . pSQL($search) . '%" LIMIT 10
+        ) UNION (
+            SELECT `id_cms_category` AS `ID`, `name` AS `title`, `link_rewrite` AS `permalink`, "CMS Category" AS `info` FROM ' . _DB_PREFIX_ . 'cms_category_lang
+            WHERE `id_lang` = ' . (int) $id_lang . ' AND `id_shop` = ' . (int) $id_shop . ' AND `name` LIKE "%' . pSQL($search) . '%" LIMIT 10
+        ) UNION (
+            SELECT `id_product` AS `ID`, `name` AS `title`, "" AS `permalink`, "Product" AS `info` FROM ' . _DB_PREFIX_ . 'product_lang
+            WHERE `id_lang` = ' . (int) $id_lang . ' AND `id_shop` = ' . (int) $id_shop . ' AND `name` LIKE "%' . pSQL($search) . '%" LIMIT 10
+        ) UNION (
+            SELECT `id_category` AS `ID`, `name` AS `title`, `link_rewrite` AS `permalink`, "Category" AS `info` FROM ' . _DB_PREFIX_ . 'category_lang
+            WHERE `id_lang` = ' . (int) $id_lang . ' AND `id_shop` = ' . (int) $id_shop . ' AND `name` LIKE "%' . pSQL($search) . '%" LIMIT 10
+        )' . (!$display_manufacturers ? '' : ' UNION (
+            SELECT `id_manufacturer` AS `ID`, `name` AS `title`, "" AS `permalink`, "Brand" AS `info` FROM ' . _DB_PREFIX_ . 'manufacturer
+            WHERE `active` = 1 AND `name` LIKE "%' . pSQL($search) . '%" LIMIT 10
+        )') . (!$display_suppliers ? '' : ' UNION (
+            SELECT `id_supplier` AS `ID`, `name` AS `title`, "" AS `permalink`, "Supplier" AS `info` FROM ' . _DB_PREFIX_ . 'supplier
+            WHERE `active` = 1 AND `name` LIKE "%' . pSQL($search) . '%" LIMIT 10
+        )')) ?: [];
 
-        $rows = $db->executeS("(
-            SELECT m.`id_meta` AS `ID`, ml.`title`, m.`page` AS `permalink`, 'Page' AS `info` FROM `{$ps}meta` AS m
-            LEFT JOIN `{$ps}meta_lang` AS ml ON m.`id_meta` = ml.`id_meta`
-            WHERE ml.`id_lang` = $id_lang AND ml.`id_shop` = $id_shop AND ml.`title` LIKE '%$search%' LIMIT $limit
-        ) UNION (
-            SELECT `id_cms` AS `ID`, `meta_title` AS `title`, `link_rewrite` AS `permalink`, 'CMS' AS `info` FROM `{$ps}cms_lang`
-            WHERE `id_lang` = $id_lang AND `id_shop` = $id_shop AND `meta_title` LIKE '%$search%' LIMIT $limit
-        ) UNION (
-            SELECT `id_cms_category` AS `ID`, `name` AS `title`, `link_rewrite` AS `permalink`, 'CMS Category' AS `info` FROM `{$ps}cms_category_lang`
-            WHERE `id_lang` = $id_lang AND `id_shop` = $id_shop AND `name` LIKE '%$search%' LIMIT $limit
-        ) UNION (
-            SELECT `id_product` AS `ID`, `name` AS `title`, '' AS `permalink`, 'Product' AS `info` FROM `{$ps}product_lang`
-            WHERE `id_lang` = $id_lang AND `id_shop` = $id_shop AND `name` LIKE '%$search%' LIMIT $limit
-        ) UNION (
-            SELECT `id_category` AS `ID`, `name` AS `title`, `link_rewrite` AS `permalink`, 'Category' AS `info` FROM `{$ps}category_lang`
-            WHERE `id_lang` = $id_lang AND `id_shop` = $id_shop AND `name` LIKE '%$search%' LIMIT $limit
-        )" . (!$display_manufacturers ? '' : " UNION (
-            SELECT `id_manufacturer` AS `ID`, `name` AS `title`, '' AS `permalink`, 'Brand' AS `info` FROM `{$ps}manufacturer`
-            WHERE `active` = 1 AND `name` LIKE '%$search%' LIMIT $limit
-        )") . (!$display_suppliers ? '' : " UNION (
-            SELECT `id_supplier` AS `ID`, `name` AS `title`, '' AS `permalink`, 'Supplier' AS `info` FROM `{$ps}supplier`
-            WHERE `active` = 1 AND `name` LIKE '%$search%' LIMIT $limit
-        )"));
-
-        if ($rows) {
-            foreach ($rows as &$row) {
-                switch ($row['info']) {
-                    case 'CMS':
-                        $row['permalink'] = $context->link->getCMSLink($row['ID'], $row['permalink'], null, $id_lang, $id_shop);
-                        break;
-                    case 'CMS Category':
-                        $row['permalink'] = $context->link->getCMSCategoryLink($row['ID'], $row['permalink'], $id_lang, $id_shop);
-                        break;
-                    case 'Product':
-                        $product = new Product($row['ID'], false, $id_lang, $id_shop);
-                        $row['permalink'] = $context->link->getProductLink($product);
-                        break;
-                    case 'Category':
-                        $row['permalink'] = $context->link->getCategoryLink($row['ID'], $row['permalink'], $id_lang, null, $id_shop);
-                        break;
-                    case 'Brand':
-                        $row['permalink'] = $context->link->getManufacturerLink($row['ID'], Tools::str2url($row['title']), $id_lang, $id_shop);
-                        break;
-                    case 'Supplier':
-                        $row['permalink'] = $context->link->getSupplierLink($row['ID'], Tools::str2url($row['title']), $id_lang, $id_shop);
-                        break;
-                    default:
-                        $row['permalink'] = $context->link->getPageLink($row['permalink'], null, $id_lang, null, false, $id_shop);
-                        break;
-                }
-                $row['info'] = CE\__($row['info']);
+        foreach ($rows as &$row) {
+            switch ($row['info']) {
+                case 'CMS':
+                    $row['permalink'] = $link->getCMSLink($row['ID'], $row['permalink'], null, $id_lang, $id_shop);
+                    break;
+                case 'CMS Category':
+                    $row['permalink'] = $link->getCMSCategoryLink($row['ID'], $row['permalink'], $id_lang, $id_shop);
+                    break;
+                case 'Product':
+                    $product = new Product($row['ID'], false, $id_lang, $id_shop);
+                    $row['permalink'] = $link->getProductLink($product);
+                    break;
+                case 'Category':
+                    $row['permalink'] = $link->getCategoryLink($row['ID'], $row['permalink'], $id_lang, null, $id_shop);
+                    break;
+                case 'Brand':
+                    $row['permalink'] = $link->getManufacturerLink($row['ID'], Tools::str2url($row['title']), $id_lang, $id_shop);
+                    break;
+                case 'Supplier':
+                    $row['permalink'] = $link->getSupplierLink($row['ID'], Tools::str2url($row['title']), $id_lang, $id_shop);
+                    break;
+                default:
+                    $row['permalink'] = $link->getPageLink($row['permalink'], null, $id_lang, null, false, $id_shop);
+                    break;
             }
+            $row['info'] = CE\__($row['info']);
         }
         exit(json_encode($rows));
     }
 
     public function ajaxProcessCmsList()
     {
-        $db = Db::getInstance(_PS_USE_SQL_SLAVE_);
-        $ps = _DB_PREFIX_;
-        $context = Context::getContext();
-        $id_lang = (int) $context->language->id;
-        $id_shop = (int) $context->shop->id;
-        $query = $db->escape(Tools::getValue('q'));
-        $limit = (int) Tools::getValue('limit', 20);
-
-        $rows = $db->executeS("
-            SELECT `id_cms` AS `id`, CONCAT('#', `id_cms`, ' ', `meta_title`) AS `name` FROM `{$ps}cms_lang`
-            WHERE `id_lang` = $id_lang AND `id_shop` = $id_shop AND `meta_title` LIKE '%$query%' LIMIT $limit
-        ");
+        $id_lang = $this->context->language->id;
+        $id_shop = $this->context->shop->id;
+        $query = Tools::getValue('q');
+        $limit = Tools::getValue('limit', 20);
+        $rows = Db::getInstance(_PS_USE_SQL_SLAVE_)->executeS('
+            SELECT `id_cms` AS `id`, CONCAT("#", `id_cms`, " ", `meta_title`) AS `name` FROM ' . _DB_PREFIX_ . 'cms_lang
+            WHERE `id_lang` = ' . (int) $id_lang . ' AND `id_shop` = ' . (int) $id_shop . ' AND `meta_title` LIKE "%' . pSQL($query) . '%"
+            LIMIT ' . (int) $limit
+        );
         exit(json_encode($rows));
     }
 
@@ -326,18 +314,14 @@ class AdminCEEditorController extends ModuleAdminController
         if (!$ids = Tools::getValue('ids')) {
             return [];
         }
-        $db = Db::getInstance(_PS_USE_SQL_SLAVE_);
-        $ps = _DB_PREFIX_;
-        $context = Context::getContext();
-        $id_lang = (int) $context->language->id;
-        $id_shop = (int) $context->shop->id;
+        $id_lang = $this->context->language->id;
+        $id_shop = $this->context->shop->id;
         $limit = count($ids);
-        $ids = implode(',', array_map('intval', $ids));
-
-        $rows = $db->executeS("
-            SELECT `id_cms` AS `id`, CONCAT('#', `id_cms`, ' ', `meta_title`) AS `name` FROM `{$ps}cms_lang`
-            WHERE `id_lang` = $id_lang AND `id_shop` = $id_shop AND `id_cms` IN ($ids) LIMIT $limit
-        ");
+        $rows = Db::getInstance(_PS_USE_SQL_SLAVE_)->executeS('
+            SELECT `id_cms` AS `id`, CONCAT("#", `id_cms`, " ", `meta_title`) AS `name` FROM ' . _DB_PREFIX_ . 'cms_lang
+            WHERE `id_lang` = ' . (int) $id_lang . ' AND `id_shop` = ' . (int) $id_shop . ' AND `id_cms` IN (' . implode(',', array_map('intval', (array) $ids)) . ')
+            LIMIT ' . (int) $limit
+        );
         exit(json_encode($rows));
     }
 
@@ -346,18 +330,16 @@ class AdminCEEditorController extends ModuleAdminController
         if (!$ids = Tools::getValue('ids')) {
             return [];
         }
-        $context = Context::getContext();
         $results = [];
+        $id_lang = $this->context->language->id;
+        $id_shop = $this->context->shop->id;
         $items = Db::getInstance(_PS_USE_SQL_SLAVE_)->executeS('
-            SELECT p.`id_product`, pl.`link_rewrite`, p.`reference`, pl.`name`, image_shop.`id_image` id_image FROM `' . _DB_PREFIX_ . 'product` p ' .
+            SELECT p.`id_product`, pl.`link_rewrite`, p.`reference`, pl.`name`, s.`id_image` id_image FROM `' . _DB_PREFIX_ . 'product` p ' .
             Shop::addSqlAssociation('product', 'p') . '
-            LEFT JOIN `' . _DB_PREFIX_ . 'product_lang` pl ' .
-                'ON pl.id_product = p.id_product AND pl.id_lang = ' . (int) $context->language->id . Shop::addSqlRestrictionOnLang('pl') . '
-            LEFT JOIN `' . _DB_PREFIX_ . 'image_shop` image_shop ' .
-                'ON image_shop.`id_product` = p.`id_product` AND image_shop.cover=1 AND image_shop.id_shop=' . (int) $context->shop->id . '
-            LEFT JOIN `' . _DB_PREFIX_ . 'image_lang` il ' .
-                'ON image_shop.`id_image` = il.`id_image` AND il.`id_lang` = ' . (int) $context->language->id . '
-            WHERE p.id_product IN (' . implode(',', array_map('intval', $ids)) . ') GROUP BY p.id_product
+            LEFT JOIN ' . _DB_PREFIX_ . 'product_lang pl ON pl.`id_product` = p.`id_product` AND pl.`id_lang` = ' . (int) $id_lang . Shop::addSqlRestrictionOnLang('pl') . '
+            LEFT JOIN ' . _DB_PREFIX_ . 'image_shop s ON s.`id_product` = p.`id_product` AND s.`cover` = 1 AND s.`id_shop` = ' . (int) $id_shop . '
+            LEFT JOIN ' . _DB_PREFIX_ . 'image_lang l ON s.`id_image` = l.`id_image` AND l.`id_lang` = ' . (int) $id_lang . '
+            WHERE p.`id_product` IN (' . implode(',', array_map('intval', (array) $ids)) . ') GROUP BY p.`id_product`
         ');
         if ($items) {
             $protocol = Tools::getShopProtocol();
@@ -372,7 +354,7 @@ class AdminCEEditorController extends ModuleAdminController
                     'id_product' => $item['id_product'],
                     'name' => $item['name'] . (!empty($item['reference']) ? ' (ref: ' . $item['reference'] . ')' : ''),
                     'ref' => (!empty($item['reference']) ? $item['reference'] : ''),
-                    'image' => str_replace('http://', $protocol, $context->link->getImageLink($item['link_rewrite'], $item['id_image'], $image_size)),
+                    'image' => str_replace('http://', $protocol, $this->context->link->getImageLink($item['link_rewrite'], $item['id_image'], $image_size)),
                 ];
             }
         }

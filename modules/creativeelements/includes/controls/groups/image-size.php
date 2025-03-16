@@ -69,35 +69,32 @@ class GroupControlImageSize extends GroupControlBase
      * @param string $image_key Optional. Settings key for image. Default
      *                          is null. If not defined uses image size key
      *                          as the image key.
+     * @param string $class Optional. Class attribute
      *
      * @return string Image HTML
      */
-    public static function getAttachmentImageHtml($settings, $setting_key = 'image', $loading = 'lazy', $class = '')
+    public static function getAttachmentImageHtml($settings, $setting_key = 'image', $class = '')
     {
         if (empty($settings[$setting_key]['url'])) {
             return '';
         }
         $attr = [
-            'src="' . esc_attr(Helper::getMediaLink($settings[$setting_key]['url'])) . '"',
-            'alt="' . ControlMedia::getImageAlt($settings[$setting_key]) . '"',
+            'src' => Helper::getMediaLink($settings[$setting_key]['url']),
+            'alt' => isset($settings[$setting_key]['alt']) ? $settings[$setting_key]['alt'] : '',
         ];
-        if ($loading && 'eager' !== $loading && empty($settings[$setting_key]['loading'])) {
-            $attr[] = 'loading="' . esc_attr($loading) . '"';
-        }
-        if ($title = ControlMedia::getImageTitle($settings[$setting_key])) {
-            $attr[] = 'title="' . $title . '"';
-        }
+        empty($settings[$setting_key]['loading'])
+            && $attr['loading'] = 'lazy';
+        empty($settings[$setting_key]['title'])
+            || $attr['title'] = $settings[$setting_key]['title'];
         empty($settings[$setting_key]['width'])
-            || $attr[] = 'width="' . esc_attr($settings[$setting_key]['width']) . '"';
+            || $attr['width'] = $settings[$setting_key]['width'];
         empty($settings[$setting_key]['height'])
-            || $attr[] = 'height="' . esc_attr($settings[$setting_key]['height']) . '"';
+            || $attr['height'] = $settings[$setting_key]['height'];
         empty($settings['hover_animation'])
             || $class .= ($class ? ' ' : '') . 'elementor-animation-' . $settings['hover_animation'];
-        if ($class) {
-            $attr[] = 'class="' . $class . '"';
-        }
+        $class && $attr['class'] = $class;
 
-        return '<img ' . implode(' ', $attr) . '>';
+        return '<img ' . Utils::renderHtmlAttributes($attr) . '>';
     }
 
     /**
@@ -129,42 +126,9 @@ class GroupControlImageSize extends GroupControlBase
         return $full ? ['' => _x('Full', 'Image Size Control')] + $options[$type] : $options[$type];
     }
 
-    /**
-     * Get attachment image src.
-     *
-     * Retrieve the attachment image source URL.
-     *
-     * @since 1.0.0
-     * @static
-     *
-     * @param string $attachment_id The attachment ID
-     * @param string $image_size_key Settings key for image size
-     * @param array $settings Control settings
-     *
-     * @return string Attachment image source URL
-     */
-    public static function getAttachmentImageSrc($attachment_id, $image_size_key, array $settings)
-    {
-        return false;
-    }
+    // public static function getAttachmentImageSrc($attachment_id, $image_size_key, array $settings)
 
-    /**
-     * Get child default arguments.
-     *
-     * Retrieve the default arguments for all the child controls for a specific group
-     * control.
-     *
-     * @since 1.2.2
-     *
-     * @return array Default arguments for all the child controls
-     */
-    protected function getChildDefaultArgs()
-    {
-        return [
-            'include' => [],
-            'exclude' => [],
-        ];
-    }
+    // protected function getChildDefaultArgs()
 
     /**
      * Init fields.
@@ -201,20 +165,5 @@ class GroupControlImageSize extends GroupControlBase
 
     // private function getImageSizes()
 
-    /**
-     * Get default options.
-     *
-     * Retrieve the default options of the image size control. Used to return the
-     * default options while initializing the image size control.
-     *
-     * @since 1.9.0
-     *
-     * @return array Default image size control options
-     */
-    protected function getDefaultOptions()
-    {
-        return [
-            'popover' => false,
-        ];
-    }
+    // protected function getDefaultOptions()
 }

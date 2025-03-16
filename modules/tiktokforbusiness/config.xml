@@ -2,7 +2,7 @@
 <module>
 	<name>tiktokforbusiness</name>
 	<displayName><![CDATA[TikTok for Business]]></displayName>
-	<version><![CDATA[1.0.6]]></version>
+	<version><![CDATA[1.0.7]]></version>
 	<description><![CDATA[The TikTok module provides merchants with an easy to set up solution that unlocks TikTok’s innovative social commerce features. Merchants can seamlessly sync their product catalog, customize Pixel event tracking, and unlock paid advertising and organic visibility from a single location.]]></description>
 	<author><![CDATA[TikTok]]></author>
 	<tab><![CDATA[social_networks]]></tab>

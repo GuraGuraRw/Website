@@ -21,6 +21,8 @@ if (!defined('_PS_VERSION_')) {
  */
 class WidgetSpacer extends WidgetBase
 {
+    const HELP_URL = 'http://docs.webshopworks.com/creative-elements/85-widgets/basic-widgets/299-spacer-widget';
+
     /**
      * Get widget name.
      *
@@ -91,6 +93,11 @@ class WidgetSpacer extends WidgetBase
     public function getKeywords()
     {
         return ['space'];
+    }
+
+    protected function isDynamicContent()
+    {
+        return false;
     }
 
     /**

@@ -12,6 +12,8 @@ if (!defined('_PS_VERSION_')) {
     exit;
 }
 
+use CE\CoreXSchemesXManager as SchemesManager;
+
 /**
  * Elementor column element.
  *
@@ -79,12 +81,17 @@ class ElementColumn extends ElementBase
         return 'eicon-column';
     }
 
+    protected function isDynamicContent()
+    {
+        return false;
+    }
+
     /**
      * @since 2.5.9
      */
     protected function shouldPrintEmpty()
     {
-        return !Helper::$section_stack[0]->getSettings('tabs');
+        return !Helper::$section_stack[0] || !Helper::$section_stack[0]->getSettings('tabs');
     }
 
     /**
@@ -112,7 +119,7 @@ class ElementColumn extends ElementBase
 
     public function isControlVisible($control, $values = null)
     {
-        if (null === $values && !empty($control['check_section'])) {
+        if (null === $values && !empty($control['check_section']) && Helper::$section_stack[0]) {
             // Use Tabbed Section settings
             $values = Helper::$section_stack[0]->getSettings();
         }
@@ -243,15 +250,87 @@ class ElementColumn extends ElementBase
             ]
         );
 
+        $this->addControl(
+            'widgets_space',
+            [
+                'label' => __('Widgets Space'),
+                'type' => ControlsManager::SELECT,
+                'options' => [
+                    'gap' => __('Gap'),
+                    '' => __('Margin'),
+                ],
+                'classes' => 'elementor-control-type-heading',
+                'prefix_class' => 'ce-widgets-space--',
+            ]
+        );
+
+        $this->addResponsiveControl(
+            'row_gap',
+            [
+                'label' => __('Rows Gap') . ' (px)',
+                'type' => ControlsManager::NUMBER,
+                'placeholder' => 20,
+                'selectors' => [
+                    '{{WRAPPER}} > .elementor-column-wrap > .elementor-widget-wrap' => 'row-gap: {{VALUE}}px',
+                ],
+                'condition' => [
+                    'widgets_space!' => '',
+                ],
+            ]
+        );
+
+        $this->addResponsiveControl(
+            'column_gap',
+            [
+                'label' => __('Columns Gap') . ' (px)',
+                'type' => ControlsManager::NUMBER,
+                'placeholder' => 20,
+                'selectors' => [
+                    '{{WRAPPER}} > .elementor-column-wrap > .elementor-widget-wrap' => 'column-gap: {{VALUE}}px',
+                ],
+                'condition' => [
+                    'widgets_space!' => '',
+                ],
+            ]
+        );
+
+        $this->addResponsiveControl(
+            'wrap',
+            [
+                'label' => __('Wrap'),
+                'type' => ControlsManager::CHOOSE,
+                'options' => [
+                    'nowrap' => [
+                        'title' => __('No Wrap'),
+                        'icon' => 'eicon-nowrap',
+                    ],
+                    'wrap' => [
+                        'title' => __('Wrap'),
+                        'icon' => 'eicon-wrap',
+                    ],
+                ],
+                'selectors' => [
+                    '{{WRAPPER}} > .elementor-column-wrap > .elementor-widget-wrap' => 'flex-wrap: {{VALUE}}',
+                ],
+                'description' => __('Items within the column can stay in a single line (No wrap), or break into multiple lines (Wrap).'),
+                'condition' => [
+                    'widgets_space!' => '',
+                ],
+            ]
+        );
+
         $this->addResponsiveControl(
             'space_between_widgets',
             [
-                'label' => __('Widgets Space') . ' (px)',
+                'label' => __('Size') . ' (px)',
                 'type' => ControlsManager::NUMBER,
                 'placeholder' => 20,
                 'selectors' => [
                     // Need the full path for exclude the inner section
                     '{{WRAPPER}} > .elementor-column-wrap > .elementor-widget-wrap > .elementor-widget:not(.elementor-widget__width-auto):not(.elementor-widget__width-initial, .elementor-widget__width-calc):not(:last-child):not(.elementor-absolute)' => 'margin-bottom: {{VALUE}}px',
+                ],
+                'condition' => [
+                    'widgets_space' => '',
                 ],
             ]
         );
@@ -278,6 +357,7 @@ class ElementColumn extends ElementBase
                 'type' => ControlsManager::SELECT,
                 'options' => &$options,
                 'render_type' => 'none',
+                'separator' => 'before',
             ]
         );
 
@@ -887,17 +967,35 @@ class ElementColumn extends ElementBase
         $this->startControlsSection(
             '_section_responsive',
             [
-                'label' => __('Responsive'),
+                'label' => __('Visibility'),
                 'tab' => ControlsManager::TAB_ADVANCED,
             ]
         );
 
-        $this->addControl(
+        _CE_ADMIN_ && $this->addControl(
             'responsive_description',
             [
-                'raw' => __('Responsive visibility will take effect only on preview or live page, and not while editing in Creative Elements.'),
+                'raw' => '<strong>' . __('Please note!') . '</strong> ' .
+                    __('These options are not considered best practice for responsive web design and should not be used too frequently.'),
                 'type' => ControlsManager::RAW_HTML,
-                'content_classes' => 'elementor-descriptor',
+                'content_classes' => 'elementor-panel-alert elementor-panel-alert-warning',
+                'conditions' => [
+                    'relation' => 'or',
+                    'terms' => [
+                        [
+                            'name' => 'hide_desktop',
+                            'value' => 'hidden-desktop',
+                        ],
+                        [
+                            'name' => 'hide_tablet',
+                            'value' => 'hidden-tablet',
+                        ],
+                        [
+                            'name' => 'hide_mobile',
+                            'value' => 'hidden-phone',
+                        ],
+                    ],
+                ],
             ]
         );
 
@@ -934,6 +1032,7 @@ class ElementColumn extends ElementBase
                 'label_on' => __('Hide'),
                 'label_off' => __('Show'),
                 'return_value' => 'hidden-phone',
+                'description' => __('Responsive visibility will take effect only on preview or live page, and not while editing in Creative Elements.'),
             ]
         );
 
@@ -984,7 +1083,7 @@ class ElementColumn extends ElementBase
 
         $section = Helper::$section_stack[0];
 
-        if ($section->getSettings('tabs') && array_search($this, $section->getChildren(), true) === Helper::getFirstTabIndex($section)) {
+        if ($section && $section->getSettings('tabs') && array_search($this, $section->getChildren(), true) === Helper::getFirstTabIndex($section)) {
             $this->addRenderAttribute('_wrapper', 'class', 'elementor-active');
         }
 
@@ -1041,7 +1140,7 @@ class ElementColumn extends ElementBase
 
         $this->addRenderAttribute('_wrapper', 'class', [
             'elementor-column',
-            'elementor-col-' . (Helper::$section_stack[0]->getSettings('tabs')
+            'elementor-col-' . (Helper::$section_stack[0] && Helper::$section_stack[0]->getSettings('tabs')
                 ? 100
                 : $this->getSettings('_column_size')
             ),

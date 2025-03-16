@@ -78,6 +78,14 @@ class ModulesXPremiumXWidgetsXTrustedshopsReviews extends WidgetBase
             ]
         );
 
+        $this->addControl(
+            'hide_empty',
+            [
+                'label' => __('Hide Empty'),
+                'type' => ControlsManager::SWITCHER,
+            ]
+        );
+
         $this->endControlsSection();
 
         $this->registerCarouselSection([
@@ -144,7 +152,7 @@ class ModulesXPremiumXWidgetsXTrustedshopsReviews extends WidgetBase
                     'size' => 10,
                 ],
                 'selectors' => [
-                    '{{WRAPPER}} .swiper-container:not(.swiper-container-initialized) .swiper-wrapper' => 'grid-column-gap: {{SIZE}}px;',
+                    '{{WRAPPER}} .swiper:not(.swiper-initialized) .swiper-wrapper' => 'grid-column-gap: {{SIZE}}px;',
                 ],
                 'frontend_available' => true,
                 'render_type' => 'none',
@@ -448,13 +456,7 @@ class ModulesXPremiumXWidgetsXTrustedshopsReviews extends WidgetBase
         $reviews = get_transient('ts_' . $tsId);
 
         if (false === $reviews) {
-            $result = \Tools::file_get_contents("http://api.trustedshops.com/rest/public/v2/shops/$tsId/reviews.json");
-
-            if (empty($result)) {
-                return false;
-            }
-
-            $result = json_decode($result, true);
+            $result = json_decode(wp_remote_get("https://api.trustedshops.com/rest/public/v2/shops/$tsId/reviews.json") ?: '', true);
 
             if (empty($result['response']['data']['shop']['reviews'])) {
                 return false;
@@ -472,12 +474,13 @@ class ModulesXPremiumXWidgetsXTrustedshopsReviews extends WidgetBase
     {
         $settings = $this->getSettingsForDisplay();
         $reviews = $this->getReviews($settings['ts_id']);
+        $hide_empty = (bool) $settings['hide_empty'];
 
-        if (empty($reviews)) {
+        if (!$reviews) {
             return;
         }
 
-        $date_format = \Context::getContext()->language->date_format_lite;
+        $date_format = $GLOBALS['language']->date_format_lite;
         $star = '<i class="ceicon-star"></i>';
         $unstar = '<i class="ceicon-' . $settings['rating_unmarked_style'] . ' elementor-unmarked-star"></i>';
         $slides = [];
@@ -485,7 +488,7 @@ class ModulesXPremiumXWidgetsXTrustedshopsReviews extends WidgetBase
         foreach ($reviews as &$review) {
             $rating = round($review['mark']);
 
-            if ($rating >= (int) $settings['min_rating']) {
+            if ($rating >= (int) $settings['min_rating'] && (!$hide_empty || $review['comment'])) {
                 ob_start(); ?>
                 <div class="swiper-slide">
                     <div class="elementor-trustedshops-review">

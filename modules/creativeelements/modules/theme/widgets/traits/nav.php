@@ -232,30 +232,28 @@ trait ModulesXThemeXWidgetsXTraitsXNav
             ]
         );
 
-        if (isset($layout_options['dropdown'])) {
-            $submenu_condition['layout!'] = 'dropdown';
-
-            $this->addControl(
-                'align_submenu',
-                [
-                    'label' => __('Submenu Align'),
-                    'type' => ControlsManager::CHOOSE,
-                    'label_block' => false,
-                    'options' => [
-                        'left' => [
-                            'title' => __('Left'),
-                            'icon' => 'eicon-h-align-left',
-                        ],
-                        'right' => [
-                            'title' => __('Right'),
-                            'icon' => 'eicon-h-align-right',
-                        ],
+        $this->addControl(
+            'align_submenu',
+            [
+                'label' => __('Submenu Align'),
+                'type' => ControlsManager::CHOOSE,
+                'label_block' => false,
+                'options' => [
+                    'left' => [
+                        'title' => __('Left'),
+                        'icon' => 'eicon-h-align-left',
                     ],
-                    'frontend_available' => true,
-                    'condition' => $submenu_condition,
-                ]
-            );
-        }
+                    'right' => [
+                        'title' => __('Right'),
+                        'icon' => 'eicon-h-align-right',
+                    ],
+                ],
+                'frontend_available' => true,
+                'condition' => [
+                    'layout!' => 'dropdown',
+                ] + $submenu_condition,
+            ]
+        );
 
         $this->addControl(
             'show_submenu_on',
@@ -296,7 +294,7 @@ trait ModulesXThemeXWidgetsXTraitsXNav
             [
                 'name' => 'menu_typography',
                 'scheme' => empty($args['scheme']) ? null : SchemeTypography::TYPOGRAPHY_1,
-                'selector' => '{{WRAPPER}} .elementor-nav--main',
+                'selector' => '{{WRAPPER}} .elementor-nav--main a.elementor-item',
             ]
         );
 

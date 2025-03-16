@@ -217,7 +217,7 @@ function wp_insert_post(array $postarr, $wp_error = false)
     }
     $uid = new UId(0, $is_revision ? UId::REVISION : UId::TEMPLATE);
     $post = WPPost::getInstance($uid);
-    $postarr['post_author'] = \Context::getContext()->employee->id;
+    $postarr['post_author'] = _CE_ADMIN_ ? (int) $GLOBALS['employee']->id : 0;
 
     foreach ($postarr as $key => &$value) {
         $post->$key = $value;
@@ -244,7 +244,6 @@ function get_post_meta($id, $key = '', $single = false)
     if (false === $id) {
         return $id;
     }
-    $table = _DB_PREFIX_ . 'ce_meta';
     $id = ($uid = UId::parse($id)) ? $uid->toDefault() : preg_replace('/\D+/', '', $id);
 
     if (!is_numeric($id)) {
@@ -252,28 +251,29 @@ function get_post_meta($id, $key = '', $single = false)
     }
     if (!$key) {
         $res = [];
-        $rows = \Db::getInstance()->executeS("SELECT name, value FROM $table WHERE id = $id");
-
+        $rows = \Db::getInstance()->executeS(
+            'SELECT `name`, `value` FROM ' . _DB_PREFIX_ . 'ce_meta WHERE `id` = ' . pSQL($id)
+        );
         if ($rows) {
             foreach ($rows as &$row) {
                 $key = &$row['name'];
                 $val = &$row['value'];
 
                 isset($res[$key]) || $res[$key] = [];
-                $res[$key][] = isset($val[0]) && ('{' === $val[0] || '[' === $val[0] || '"' === $val[0]) ? json_decode($val, true) : $val;
+                $res[$key][] = $val && ('{' === $val[0] || '[' === $val[0] || '"' === $val[0]) ? json_decode($val, true) : $val;
             }
         }
 
         return $res;
     }
-    $key = preg_replace('/\W+/', '', $key);
-
     if (!$single) {
         throw new \RuntimeException('TODO');
     }
-    $val = \Db::getInstance()->getValue("SELECT value FROM $table WHERE id = $id AND name = '$key'");
+    $val = \Db::getInstance()->getValue(
+        'SELECT `value` FROM ' . _DB_PREFIX_ . 'ce_meta WHERE `id` = ' . pSQL($id) . ' AND `name` = "' . pSQL($key) . '"'
+    );
 
-    return isset($val[0]) && ('{' === $val[0] || '[' === $val[0] || '"' === $val[0]) ? json_decode($val, true) : $val;
+    return $val && ('{' === $val[0] || '[' === $val[0] || '"' === $val[0]) ? json_decode($val, true) : $val;
 }
 
 function update_post_meta($id, $key, $value, $prev_value = '')
@@ -282,17 +282,17 @@ function update_post_meta($id, $key, $value, $prev_value = '')
         throw new \RuntimeException('TODO');
     }
     $db = \Db::getInstance();
-    $table = _DB_PREFIX_ . 'ce_meta';
     $res = true;
     $ids = ($uid = UId::parse($id)) ? $uid->getListByShopContext() : (array) $id;
     $data = [
-        'name' => preg_replace('/\W+/', '', $key),
+        'name' => $db->escape($key),
         'value' => $db->escape(is_array($value) || is_object($value) ? json_encode($value, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) : $value, true),
     ];
     foreach ($ids as $id) {
-        $data['id'] = preg_replace('/\D+/', '', $id);
-        $id_ce_meta = $db->getValue("SELECT id_ce_meta FROM $table WHERE id = {$data['id']} AND name = '{$data['name']}'");
-
+        $data['id'] = $db->escape($id);
+        $id_ce_meta = $db->getValue(
+            'SELECT `id_ce_meta` FROM ' . _DB_PREFIX_ . 'ce_meta WHERE `id` = ' . pSQL($id) . ' AND `name` = "' . pSQL($key) . '"'
+        );
         if ($id_ce_meta) {
             $data['id_ce_meta'] = (int) $id_ce_meta;
             $type = \Db::REPLACE;
@@ -300,7 +300,7 @@ function update_post_meta($id, $key, $value, $prev_value = '')
             unset($data['id_ce_meta']);
             $type = \Db::INSERT;
         }
-        $res &= $db->insert($table, $data, false, true, $type, false);
+        $res &= $db->insert('ce_meta', $data, false, true, $type);
     }
 
     return $res;
@@ -326,7 +326,7 @@ function delete_post_meta($id, $key, $value = '')
     $key = preg_replace('/[^\w\%]+/', '', $key);
     $like = strpos($key, '%') === false ? '=' : 'LIKE';
 
-    return \Db::getInstance()->delete('ce_meta', "id $in $ids AND name $like '$key'");
+    return \Db::getInstance()->delete('ce_meta', "`id` $in $ids AND `name` $like '$key'");
 }
 
 function get_post_type($post = null)
@@ -382,8 +382,8 @@ function get_post_type_object($post_type)
 
 function current_user_can($capability, $args = null)
 {
-    if (is_admin()) {
-        $employee = \Context::getContext()->employee;
+    if (_CE_ADMIN_) {
+        $employee = $GLOBALS['employee'];
     } elseif ($id_employee = get_current_user_id()) {
         $employee = new \Employee($id_employee);
     }
@@ -489,10 +489,9 @@ function wp_is_post_autosave($post)
     if (UId::REVISION !== $uid->id_type) {
         return false;
     }
-    $table = _DB_PREFIX_ . 'ce_revision';
 
     return \Db::getInstance()->getValue(
-        "SELECT parent FROM $table WHERE id_ce_revision = {$uid->id} AND active = 0"
+        'SELECT `parent` FROM ' . _DB_PREFIX_ . 'ce_revision WHERE `id_ce_revision` = ' . (int) $uid->id . ' AND `active` = 0'
     );
 }
 
@@ -503,12 +502,10 @@ function wp_get_post_autosave($post_id, $user_id = 0)
     if (UId::REVISION === $uid->id_type) {
         return false;
     }
-    $table = _DB_PREFIX_ . 'ce_revision';
     $parent = $uid->toDefault();
-    $id_employee = (int) ($user_id ? $user_id : get_current_user_id());
-
+    $id_employee = $user_id ?: get_current_user_id();
     $id = \Db::getInstance()->getValue(
-        "SELECT id_ce_revision FROM $table WHERE parent = $parent AND active = 0 AND id_employee = $id_employee"
+        'SELECT `id_ce_revision` FROM ' . _DB_PREFIX_ . 'ce_revision WHERE `parent` = ' . pSQL($parent) . ' AND `active` = 0 AND `id_employee` = ' . (int) $id_employee
     );
 
     return $id ? WPPost::getInstance(new UId($id, UId::REVISION)) : false;
@@ -525,20 +522,18 @@ function wp_get_post_parent_id($post_id)
 
 function wp_get_post_revisions($post_id, $args = null)
 {
+    $revisions = [];
     $uid = uidval($post_id);
     $parent = $uid->toDefault();
-    $revisions = [];
-    $table = _DB_PREFIX_ . 'ce_revision';
-    $fields = !empty($args['fields']) && 'ids' === $args['fields'] ? 'id_ce_revision' : '*';
-    $id_employee = (int) \Context::getContext()->employee->id;
-    $limit = !empty($args['posts_per_page']) ? 'LIMIT 1, ' . (int) $args['posts_per_page'] : '';
+    $id_employee = $GLOBALS['employee']->id;
 
-    $rows = \Db::getInstance()->executeS(
-        "SELECT $fields FROM $table
-        WHERE parent = $parent AND (active = 1 OR id_employee = $id_employee)
-        ORDER BY date_upd DESC $limit"
-    );
-    if ($rows) {
+    $query = new \DbQuery();
+    $query->select($fields = !empty($args['fields']) && 'ids' === $args['fields'] ? '`id_ce_revision`' : '*')->from('ce_revision');
+    $query->where('`parent` = ' . pSQL($parent))->where('`active` = 1 OR `id_employee` = ' . (int) $id_employee);
+    $query->orderBy('`date_upd` DESC');
+    empty($args['posts_per_page']) || $query->limit($args['posts_per_page'], 1);
+
+    if ($rows = \Db::getInstance()->executeS($query)) {
         foreach ($rows as &$row) {
             $uid = new UId($row['id_ce_revision'], UId::REVISION);
 
@@ -574,17 +569,14 @@ function wp_save_post_revision(WPPost $post)
     }
 
     $db = \Db::getInstance();
-    $table = _DB_PREFIX_ . 'ce_revision';
-    $id_employee = \Context::getContext()->employee->id;
 
     foreach (array_reverse($post->uid->getListByShopContext(true)) as $parent) {
         $revisions = $db->executeS(
-            "SELECT id_ce_revision AS id FROM $table WHERE parent = $parent AND active = 1 ORDER BY date_upd DESC"
+            'SELECT `id_ce_revision` AS id FROM ' . _DB_PREFIX_ . 'ce_revision WHERE `parent` = ' . pSQL($parent) . ' AND `active` = 1 ORDER BY `date_upd` DESC'
         );
         $return = wp_insert_post([
             'post_type' => 'CERevision',
             'post_status' => 'publish',
-            'post_author' => $id_employee,
             'post_parent' => "$parent",
             'post_title' => $post->post_title,
             'post_content' => $post->post_content,
@@ -633,7 +625,7 @@ function get_page_templates($post = null, $post_type = 'CMS')
             ],
         ],
     ];
-    foreach (\Context::getContext()->shop->theme->get('meta.available_layouts') as $name => &$layout) {
+    foreach ($GLOBALS['context']->shop->theme->get('meta.available_layouts') as $name => &$layout) {
         $templates['theme']['options'][$name] = 'layout-full-width' === $name ? __('One Column') : $layout['name'];
     }
     $post_type = $post ? $post->post_type : $post_type;

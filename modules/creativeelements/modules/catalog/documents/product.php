@@ -26,11 +26,23 @@ class ModulesXCatalogXDocumentsXProduct extends ThemePageDocument
         return __('Product Page');
     }
 
+    public function getContainerAttributes()
+    {
+        $attributes = parent::getContainerAttributes();
+
+        if ($this->getName() === 'product') {
+            $attributes['id'] = 'product-details';
+            $attributes['data-product'] = json_encode($GLOBALS['smarty']->tpl_vars['product']->value['embedded_attributes']);
+        }
+
+        return $attributes;
+    }
+
     protected static function getEditorPanelCategories()
     {
         return [
             'product-elements' => [
-                'title' => __('Product'),
+                'title' => __('Product', 'Shop.Theme.Catalog'),
             ],
         ] + parent::getEditorPanelCategories();
     }
@@ -81,7 +93,7 @@ class ModulesXCatalogXDocumentsXProduct extends ThemePageDocument
         ];
     }
 
-    protected function getPermalinkUrl(\Link $link, $id_lang, $id_shop, array $args, $relative = true)
+    protected function getPermalinkUrl($id_lang, $id_shop, array $args, $relative = true)
     {
         $settings = $this->getData('settings');
 
@@ -91,12 +103,12 @@ class ModulesXCatalogXDocumentsXProduct extends ThemePageDocument
             && $product = new \Product(Helper::getLastUpdatedProductId($id_shop) ?: null, false, $id_lang);
         if (!$product->active) {
             isset($args['id_employee'])
-                || $args['id_employee'] = \Context::getContext()->employee->id;
+                || $args['id_employee'] = $GLOBALS['employee']->id;
             $args['adtoken'] = \Tools::getAdminTokenLite('AdminProducts');
         }
-        $url = $link->getProductLink($product, null, null, null, $id_lang, $id_shop, $product->cache_default_attribute ?: 0, false, $relative, false, $args, false);
+        $url = Helper::$link->getProductLink($product, null, null, null, $id_lang, $id_shop, $product->cache_default_attribute ?: 0, false, $relative, false, [], false);
 
-        return explode('#', $url)[0];
+        return add_query_arg($args, explode('#', $url)[0]);
     }
 
     protected function _registerControls()
@@ -115,7 +127,7 @@ class ModulesXCatalogXDocumentsXProduct extends ThemePageDocument
             'preview_id',
             [
                 'type' => ControlsManager::SELECT2,
-                'label' => __('Product'),
+                'label' => __('Product', 'Shop.Theme.Catalog'),
                 'label_block' => true,
                 'select2options' => [
                     'placeholder' => __('Loading') . '...',
@@ -125,7 +137,7 @@ class ModulesXCatalogXDocumentsXProduct extends ThemePageDocument
                         'url' => Helper::getAjaxProductsListLink(),
                     ],
                 ],
-                'default' => is_admin() ? (Helper::getLastUpdatedProductId(\Context::getContext()->shop->id) ?: 1) : '',
+                'default' => _CE_ADMIN_ ? (Helper::getLastUpdatedProductId($GLOBALS['context']->shop->id) ?: 1) : '',
                 'export' => false,
             ]
         );

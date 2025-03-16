@@ -21,6 +21,8 @@ if (!defined('_PS_VERSION_')) {
  */
 class WidgetVideo extends WidgetBase
 {
+    const HELP_URL = 'http://docs.webshopworks.com/creative-elements/85-widgets/basic-widgets/296-video-widget';
+
     /**
      * Get widget name.
      *
@@ -91,6 +93,11 @@ class WidgetVideo extends WidgetBase
     public function getKeywords()
     {
         return ['video', 'player', 'embed', 'youtube', 'vimeo', 'dailymotion'];
+    }
+
+    protected function isDynamicContent()
+    {
+        return false;
     }
 
     /**
@@ -864,26 +871,26 @@ class WidgetVideo extends WidgetBase
                 }
 
                 $lightbox_options = [
-                        'type' => 'video',
-                        'videoType' => $settings['video_type'],
-                        'url' => $lightbox_url,
-                        'modalOptions' => [
-                            'id' => 'elementor-lightbox-' . $this->getId(),
-                            'entranceAnimation' => $settings['lightbox_content_animation'],
-                            'entranceAnimation_tablet' => $settings['lightbox_content_animation_tablet'],
-                            'entranceAnimation_mobile' => $settings['lightbox_content_animation_mobile'],
-                            'videoAspectRatio' => $settings['aspect_ratio'],
-                        ],
-                    ];
+                    'type' => 'video',
+                    'videoType' => $settings['video_type'],
+                    'url' => $lightbox_url,
+                    'modalOptions' => [
+                        'id' => 'elementor-lightbox-' . $this->getId(),
+                        'entranceAnimation' => $settings['lightbox_content_animation'],
+                        'entranceAnimation_tablet' => $settings['lightbox_content_animation_tablet'],
+                        'entranceAnimation_mobile' => $settings['lightbox_content_animation_mobile'],
+                        'videoAspectRatio' => $settings['aspect_ratio'],
+                    ],
+                ];
 
                 if ('hosted' === $settings['video_type']) {
                     $lightbox_options['videoParams'] = $this->getHostedParams();
                 }
 
                 $this->addRenderAttribute('image-overlay', [
-                        'data-elementor-open-lightbox' => 'yes',
-                        'data-elementor-lightbox' => json_encode($lightbox_options),
-                    ]);
+                    'data-elementor-open-lightbox' => 'yes',
+                    'data-elementor-lightbox' => json_encode($lightbox_options),
+                ]);
 
                 if (Plugin::$instance->editor->isEditMode()) {
                     $this->addRenderAttribute('image-overlay', 'class', 'elementor-clickable');
@@ -1042,7 +1049,7 @@ class WidgetVideo extends WidgetBase
 
         foreach (['autoplay', 'loop', 'controls'] as $option_name) {
             if ($settings[$option_name]) {
-                $video_params[$option_name] = '';
+                $video_params[$option_name] = [];
             }
         }
 
@@ -1051,7 +1058,7 @@ class WidgetVideo extends WidgetBase
         }
 
         if ($settings['play_on_mobile']) {
-            $video_params['playsinline'] = '';
+            $video_params['playsinline'] = [];
         }
 
         if (!$settings['download_button']) {
@@ -1059,7 +1066,7 @@ class WidgetVideo extends WidgetBase
         }
 
         if ($settings['poster']['url']) {
-            $video_params['poster'] = $settings['poster']['url'];
+            $video_params['poster'] = Helper::getMediaLink($settings['poster']['url']);
         }
 
         return $video_params;
@@ -1108,15 +1115,10 @@ class WidgetVideo extends WidgetBase
      */
     private function renderHostedVideo()
     {
-        $video_url = $this->getHostedVideoUrl();
-
-        if (empty($video_url)) {
+        if (!$video_url = $this->getHostedVideoUrl()) {
             return;
-        }
-
-        $video_params = $this->getHostedParams(); ?>
-        <video class="elementor-video" src="<?php echo esc_url($video_url); ?>"
-            <?php echo Utils::renderHtmlAttributes($video_params); ?>></video>
+        } ?>
+        <video class="elementor-video" src="<?php echo esc_url($video_url); ?>" <?php echo Utils::renderHtmlAttributes($this->getHostedParams()); ?>></video>
         <?php
     }
 }

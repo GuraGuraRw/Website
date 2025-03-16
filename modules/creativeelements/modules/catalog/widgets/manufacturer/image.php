@@ -14,6 +14,8 @@ if (!defined('_PS_VERSION_')) {
 
 class ModulesXCatalogXWidgetsXManufacturerXImage extends WidgetImage
 {
+    const HELP_URL = '';
+
     public function getName()
     {
         return 'manufacturer-image';
@@ -37,6 +39,11 @@ class ModulesXCatalogXWidgetsXManufacturerXImage extends WidgetImage
     public function getKeywords()
     {
         return ['shop', 'store', 'brand', 'manufacturer', 'image', 'picture', 'product'];
+    }
+
+    protected function isDynamicContent()
+    {
+        return true;
     }
 
     protected function _registerControls()

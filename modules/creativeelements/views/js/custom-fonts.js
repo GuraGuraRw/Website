@@ -280,8 +280,8 @@ module.exports = function () {
 
 			$('select[name="font_face['+ i +'][font_weight]"]').val(font.font_weight);
 			$('select[name="font_face['+ i +'][font_style]"]').val(font.font_style);
-			$('input[name="font_face['+ i +'][woff][url]"]').val(font.woff && font.woff.url || '').trigger('input');
 			$('input[name="font_face['+ i +'][woff2][url]"]').val(font.woff2 && font.woff2.url || '').trigger('input');
+			$('input[name="font_face['+ i +'][woff][url]"]').val(font.woff && font.woff.url || '').trigger('input');
 			$('input[name="font_face['+ i +'][ttf][url]"]').val(font.ttf && font.ttf.url || '').trigger('input');
 			$('input[name="font_face['+ i +'][otf][url]"]').val(font.otf && font.otf.url || '').trigger('input');
 
@@ -1029,7 +1029,8 @@ var DropZoneField = function (_elementorModules$Vie) {
 							onSuccess(data, self);
 						}
 					} else {
-						$errorMsg.text(data.error);
+						// $errorMsg.text(data.error);
+						alert(data.error)
 						if (onError) {
 							onError(self, _arguments);
 						}

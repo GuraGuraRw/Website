@@ -1,6 +1,6 @@
 <?php
 /**
- * 2024 Packlink
+ * 2025 Packlink
  *
  * NOTICE OF LICENSE
  *
@@ -10,7 +10,7 @@
  * http://www.apache.org/licenses/LICENSE-2.0.txt
  *
  * @author    Packlink <support@packlink.com>
- * @copyright 2024 Packlink Shipping S.L
+ * @copyright 2025 Packlink Shipping S.L
  * @license   http://www.apache.org/licenses/LICENSE-2.0.txt  Apache License 2.0
  */
 use Packlink\PrestaShop\Classes\Utility\PacklinkInstaller;

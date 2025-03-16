@@ -19,7 +19,7 @@ use CE\ModulesXCatalogXWidgetsXCategoryXGrid as CategoryGrid;
 use CE\ModulesXCatalogXWidgetsXCategoryXList as CategoryList;
 use CE\ModulesXCatalogXWidgetsXListingXDescription as ListingDescription;
 use CE\ModulesXCatalogXWidgetsXListingXImage as ListingImage;
-use CE\ModulesXCatalogXWidgetsXListingXPageTitle as PageTitle;
+use CE\ModulesXThemeXWidgetsXPageTitle as PageTitle;
 
 class ModulesXCatalogXDocumentsXListingXCategory extends ListingPageDocument
 {
@@ -66,14 +66,14 @@ class ModulesXCatalogXDocumentsXListingXCategory extends ListingPageDocument
         );
     }
 
-    protected function getPermalinkUrl(\Link $link, $id_lang, $id_shop, array $args, $relative = true)
+    protected function getPermalinkUrl($id_lang, $id_shop, array $args, $relative = true)
     {
         $settings = $this->getData('settings');
         $id_category = !empty($settings['id_category'])
             ? $settings['id_category']
             : \Configuration::get('PS_HOME_CATEGORY', null, null, $id_shop ?: null);
 
-        return add_query_arg($args, $link->getCategoryLink($id_category, null, $id_lang, null, $id_shop, $relative));
+        return add_query_arg($args, Helper::$link->getCategoryLink($id_category, null, $id_lang, null, $id_shop, $relative));
     }
 
     protected function registerPreviewSettings()
@@ -87,7 +87,7 @@ class ModulesXCatalogXDocumentsXListingXCategory extends ListingPageDocument
                 'select2options' => [
                     'allowClear' => false,
                 ],
-                'extend' => [
+                'options' => [
                     '0' => __('Default'),
                 ],
                 'default' => 0,
@@ -102,7 +102,6 @@ class ModulesXCatalogXDocumentsXListingXCategory extends ListingPageDocument
 
         $widgets_manager->registerWidgetType(new PageTitle([], null, [
             'title' => __('Category Name'),
-            'icon' => 'eicon-product-title',
             'categories' => ['listing-elements' => 1],
             'keywords' => ['shop', 'store', 'heading', 'title', 'name', 'category'],
             'dynamic_tag_name' => 'category-name',

@@ -79,6 +79,11 @@ class WidgetImageGallery extends WidgetBase
         return ['images', 'photos', 'visual', 'gallery', 'grid', 'masonry'];
     }
 
+    protected function isDynamicContent()
+    {
+        return false;
+    }
+
     /**
      * Register image gallery widget controls.
      *
@@ -1431,7 +1436,7 @@ class WidgetImageGallery extends WidgetBase
                 <figure class="ce-gallery-item<?php echo $animated_class; ?>"<?php $style && print ' style="' . implode('; ', $style) . '"'; ?>>
                     <div class="ce-gallery-icon<?php echo $image_animated_class; ?>">
                         <?php $link && print "<a {$this->getRenderAttributeString('link')} {$this->getRenderAttributeString($link_i)}>"; ?>
-                        <?php echo GroupControlImageSize::getAttachmentImageHtml($item, 'image', 'lazy', 'elementor-bg'); ?>
+                        <?php echo GroupControlImageSize::getAttachmentImageHtml($item, 'image', 'elementor-bg'); ?>
                         <?php $link && print '</a>'; ?>
                     <?php if (!empty($settings['overlay'])) { ?>
                         <div class="ce-gallery-overlay elementor-animated-item--<?php echo $overlay_animation; ?>"></div>
@@ -1471,7 +1476,7 @@ class WidgetImageGallery extends WidgetBase
                 url: elementor.helpers.getMediaLink(attachment.image.url),
             };
         }
-        var gallery = !settings.gallery_rand ? settings.gallery : settings.gallery.sort(function shuffle() {
+        var gallery = !settings.gallery_rand ? settings.gallery : settings.gallery && settings.gallery.sort(function shuffle() {
                 return Math.random() > 0.5 ? 1 : -1;
             }),
             imageAnimatedClass = (!settings.image_hover_animation.indexOf('move') || !settings.image_hover_animation.indexOf('zoom')

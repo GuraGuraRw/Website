@@ -45,59 +45,98 @@ class ModulesXDynamicTagsXTagsXInternalURL extends DataTag
         return 'type';
     }
 
-    protected function _registerControls()
+    protected function getPagesGroups()
     {
         $pages = [
-            '' => __('Select...'),
-            'index' => __('Home'),
-            'listing' => [
-                'label' => __('Listing'),
+            'index' => __('Home', 'Admin.Catalog.Feature'),
+            'contact' => __('Contact us', 'Shop.Navigation'),
+            'cms' => 'CMS',
+            'catalog' => [
+                'label' => __('Catalog', 'Admin.Navigation.Menu'),
                 'options' => [
-                    'category' => __('Category'),
-                    'manufacturer' => __('Brand'),
-                    'supplier' => __('Supplier'),
-                    'search' => __('Search'),
-                    'prices-drop' => __('Prices Drop'),
-                    'new-products' => __('New Products'),
-                    'best-sales' => __('Best Sellers'),
+                    'product' => __('Product', 'Admin.Global'),
+                    'category' => __('Category', 'Admin.Global'),
+                    'manufacturer' => __('Brand', 'Admin.Global'),
+                    'supplier' => __('Supplier', 'Admin.Global'),
+                    'search' => __('Search', 'Shop.Navigation'),
+                    'prices-drop' => __('Prices drop', 'Shop.Navigation'),
+                    'new-products' => __('New products', 'Shop.Navigation'),
+                    'best-sales' => __('Best sellers', 'Shop.Navigation'),
                 ],
             ],
-            'product' => __('Product'),
-            'cart' => __('Shopping Cart'),
-            'contact' => __('Contact Page'),
-            'cms' => __('CMS'),
-            'usermenu' => [
-                'label' => __('Usermenu'),
+            'checkout' => [
+                'label' => __('Checkout', 'Shop.Theme.Actions'),
                 'options' => [
-                    'authentication' => __('Sign in'),
-                    'my-account' => __('My account'),
-                    'identity' => __('Personal info'),
-                    'address' => __('New Address'),
-                    'addresses' => __('Addresses'),
-                    'history' => __('Order history'),
-                    'order-slip' => __('Credit slip'),
-                    'discount' => __('My vouchers'),
-                    'logout' => __('Sign out'),
+                    'cart' => __('Cart', 'Shop.Navigation'),
+                    'order' => __('Order', 'Shop.Navigation'),
                 ],
             ],
-            'pagenotfound' => __('404 Page'),
+            'customer' => [
+                'label' => __('Customer', 'Admin.Global'),
+                'options' => [
+                    'authentication' => __('Login', 'Shop.Navigation'),
+                    'password' => __('Forgot your password', 'Shop.Navigation'),
+                    'registration' => __('Registration', 'Shop.Navigation'),
+                    'guest-tracking' => __('Guest tracking', 'Shop.Navigation'),
+                ],
+            ],
+            'my-account' => __('My account', 'Shop.Navigation'),
+            'identity' => '&ensp;' . __('Personal Information', 'Shop.Theme.Checkout'),
+            'addresses' => '&ensp;' . __('Addresses', 'Shop.Navigation'),
+            'address' => '&ensp;' . __('New address', 'Shop.Theme.Customeraccount'),
+            'history' => '&ensp;' . __('Order history', 'Shop.Navigation'),
+            'order-slip' => '&ensp;' . __('Credit slip', 'Shop.Navigation'),
+            'discount' => '&ensp;' . __('Vouchers', 'Shop.Theme.Customeraccount'),
+            'order-follow' => '&ensp;' . __('Merchandise returns', 'Shop.Theme.Customeraccount'),
+            'logout' => '&ensp;' . __('Sign out', 'Shop.Theme.Actions'),
+            'misc' => [
+                'label' => __('Miscellaneous', 'Admin.Global'),
+                'options' => [
+                    'stores' => __('Stores', 'Shop.Navigation'),
+                    'sitemap' => __('Sitemap', 'Shop.Navigation'),
+                    'pagenotfound' => __('404 error', 'Shop.Navigation'),
+                ],
+            ],
         ];
-        if (!\Configuration::get('PS_DISPLAY_BEST_SELLERS') || \Configuration::get('PS_CATALOG_MODE')) {
-            unset($pages['listing']['options']['best-sales']);
+        if (\Configuration::get('PS_CATALOG_MODE')) {
+            unset($pages['catalog']['options']['best-sales'], $pages['checkout'], $pages['discount'], $pages['history'], $pages['order-slip'], $pages['order-follow']);
+        } else {
+            if (!\Configuration::get('PS_DISPLAY_BEST_SELLERS')) {
+                unset($pages['catalog']['options']['best-sales']);
+            }
+            if (!\Configuration::get('PS_CART_RULE_FEATURE_ACTIVE')) {
+                unset($pages['discount']);
+            }
+            if (!\Configuration::get('PS_ORDER_RETURN')) {
+                unset($pages['order-follow']);
+            }
         }
+
+        return $pages;
+    }
+
+    protected function _registerControls()
+    {
+        $pages = _CE_ADMIN_ ? $this->getPagesGroups() : [];
+
         if (!$display_suppliers = \Configuration::get('PS_DISPLAY_SUPPLIERS')) {
-            unset($pages['listing']['options']['supplier']);
+            unset($pages['catalog']['options']['supplier']);
         }
         if (!$display_manufacturers = version_compare(_PS_VERSION_, '1.7.7', '<') ? $display_suppliers : \Configuration::get('PS_DISPLAY_MANUFACTURERS')) {
-            unset($pages['listing']['options']['manufacturer']);
+            unset($pages['catalog']['options']['manufacturer']);
         }
+
         $this->addControl(
             'type',
             [
                 'label' => __('Page'),
                 'label_block' => true,
-                'type' => ControlsManager::SELECT,
-                'groups' => &$pages,
+                'type' => ControlsManager::SELECT2,
+                'select2options' => [
+                    'placeholder' => __('Select...'),
+                    'allowClear' => false,
+                ],
+                'options' => &$pages,
             ]
         );
 
@@ -147,7 +186,7 @@ class ModulesXDynamicTagsXTagsXInternalURL extends DataTag
                 'select2options' => [
                     'allowClear' => false,
                 ],
-                'default' => \Context::getContext()->shop->id_category,
+                'default' => $GLOBALS['context']->shop->id_category,
                 'condition' => [
                     'type' => 'category',
                 ],
@@ -161,11 +200,12 @@ class ModulesXDynamicTagsXTagsXInternalURL extends DataTag
                 'label_block' => true,
                 'type' => SelectManufacturer::CONTROL_TYPE,
                 'select2options' => [
-                    'placeholder' => __('Select...'),
+                    'allowClear' => false,
                 ],
-                'extend' => [
-                    '0' => __('Listing'),
+                'options' => [
+                    '0' => __('Brand list', 'Shop.Navigation'),
                 ],
+                'default' => 0,
                 'condition' => [
                     'type' => 'manufacturer',
                 ],
@@ -179,11 +219,12 @@ class ModulesXDynamicTagsXTagsXInternalURL extends DataTag
                 'label_block' => true,
                 'type' => SelectSupplier::CONTROL_TYPE,
                 'select2options' => [
-                    'placeholder' => __('Select...'),
+                    'allowClear' => false,
                 ],
-                'extend' => [
-                    '0' => __('Listing'),
+                'options' => [
+                    '0' => __('Suppliers list', 'Shop.Navigation'),
                 ],
+                'default' => 0,
                 'condition' => [
                     'type' => 'supplier',
                 ],
@@ -208,21 +249,21 @@ class ModulesXDynamicTagsXTagsXInternalURL extends DataTag
         $settings = $this->getSettings();
         $type = $settings['type'];
         $method = "get{$type}Link";
-        $context = \Context::getContext();
 
         if (method_exists('Link', $method) && !empty($settings["id_$type"])) {
-            return $context->link->$method($settings["id_$type"]);
+            return Helper::$link->$method($settings["id_$type"]);
         }
-        $id_lang = $context->language->id;
-
         if ('search' === $type && $settings['search']) {
-            return $context->link->getPageLink($type, true, $id_lang, ['s' => $settings['search']]);
+            return Helper::$link->getPageLink($type, true, null, ['s' => $settings['search']]);
+        }
+        if ('registration' === $type && (int) _PS_VERSION_ < 8) {
+            return Helper::$link->getPageLink('authentication', true, null, ['create_account' => '1']);
         }
         if ('logout' === $type) {
-            return $context->link->getPageLink('index', true, $id_lang, 'mylogout');
+            return Helper::$link->getPageLink('index', true, null, 'mylogout');
         }
 
-        return $context->link->getPageLink($type, true, $id_lang);
+        return Helper::$link->getPageLink($type, true);
     }
 
     protected function getSmartyValue(array $options = [])
@@ -239,10 +280,14 @@ class ModulesXDynamicTagsXTagsXInternalURL extends DataTag
                 "{capture assign=ce_search}{$settings['search']}{/capture}" .
                 '{call_user_func([$link, getPageLink], search, true, $language.id, array_combine([s], [$ce_search]))}';
         }
-        if ('logout' === $type) {
-            return '{call_user_func([$link, getPageLink], index, true, $language.id, mylogout)}';
+        if ('registration' === $type) {
+            return '{$urls.pages.register}';
         }
+        if ('logout' === $type) {
+            return '{$urls.actions.logout}';
+        }
+        $page = str_replace('-', '_', $type);
 
-        return "{call_user_func([\$link, getPageLink], $type, true, \$language.id)}";
+        return "{\$urls.pages.$page}";
     }
 }

@@ -9,9 +9,9 @@ use PrestaShop\Module\PsAccounts\Vendor\GuzzleHttp\Promise\PromiseInterface;
 use PrestaShop\Module\PsAccounts\Vendor\GuzzleHttp\Psr7;
 use PrestaShop\Module\PsAccounts\Vendor\GuzzleHttp\TransferStats;
 use PrestaShop\Module\PsAccounts\Vendor\GuzzleHttp\Utils;
-use Psr\Http\Message\RequestInterface;
-use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\StreamInterface;
+use PrestaShop\Module\PsAccounts\Vendor\Psr\Http\Message\RequestInterface;
+use PrestaShop\Module\PsAccounts\Vendor\Psr\Http\Message\ResponseInterface;
+use PrestaShop\Module\PsAccounts\Vendor\Psr\Http\Message\StreamInterface;
 /**
  * HTTP handler that uses PHP's HTTP stream wrapper.
  */

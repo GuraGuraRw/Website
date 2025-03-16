@@ -13,7 +13,7 @@ if (!defined('_PS_VERSION_')) {
 }
 
 use CE\CoreXDynamicTagsXTag as Tag;
-use CE\ModulesXDynamicTagsXModule as Module;
+use CE\ModulesXDynamicTagsXModule as TagsModule;
 
 class ModulesXCatalogXTagsXProductName extends Tag
 {
@@ -31,17 +31,17 @@ class ModulesXCatalogXTagsXProductName extends Tag
 
     public function getGroup()
     {
-        return Module::CATALOG_GROUP;
+        return TagsModule::CATALOG_GROUP;
     }
 
     public function getCategories()
     {
-        return [Module::TEXT_CATEGORY];
+        return [TagsModule::TEXT_CATEGORY];
     }
 
     public function render()
     {
-        echo \Context::getContext()->smarty->tpl_vars['product']->value['name'];
+        echo $GLOBALS['smarty']->tpl_vars['product']->value['name'];
     }
 
     protected function renderSmarty()

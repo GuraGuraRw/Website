@@ -15,6 +15,7 @@ class CERevision extends ObjectModel
     public $parent;
     public $id_employee;
     public $title;
+    public $type;
     public $content;
     public $active;
     public $date_upd;
@@ -35,10 +36,9 @@ class CERevision extends ObjectModel
 
     public static function deleteAllByParent($parent)
     {
-        $ps = _DB_PREFIX_;
-        $db = Db::getInstance();
-        $rows = $db->executeS("SELECT id_ce_revision FROM {$ps}ce_revision WHERE parent LIKE '{$db->escape($parent)}'");
-
+        $rows = Db::getInstance()->executeS(
+            'SELECT `id_ce_revision` FROM ' . _DB_PREFIX_ . 'ce_revision WHERE `parent` LIKE "' . pSQL($parent) . '"'
+        );
         if ($rows) {
             foreach ($rows as &$row) {
                 (new CERevision($row['id_ce_revision']))->delete();

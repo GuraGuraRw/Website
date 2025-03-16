@@ -21,6 +21,8 @@ if (!defined('_PS_VERSION_')) {
  */
 class WidgetImage extends WidgetBase
 {
+    const HELP_URL = 'http://docs.webshopworks.com/creative-elements/85-widgets/basic-widgets/293-image-widget';
+
     /**
      * Get widget name.
      *
@@ -91,6 +93,11 @@ class WidgetImage extends WidgetBase
     public function getKeywords()
     {
         return ['image', 'picture', 'photo', 'visual'];
+    }
+
+    protected function isDynamicContent()
+    {
+        return false;
     }
 
     /**

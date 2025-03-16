@@ -22,6 +22,8 @@ if (!defined('_PS_VERSION_')) {
  */
 class WidgetMenuAnchor extends WidgetBase
 {
+    const HELP_URL = 'http://docs.webshopworks.com/creative-elements/86-widgets/general-widgets/330-menu-anchor-widget';
+
     /**
      * Get widget name.
      *
@@ -76,6 +78,11 @@ class WidgetMenuAnchor extends WidgetBase
     public function getKeywords()
     {
         return ['menu', 'anchor', 'link'];
+    }
+
+    protected function isDynamicContent()
+    {
+        return false;
     }
 
     /**

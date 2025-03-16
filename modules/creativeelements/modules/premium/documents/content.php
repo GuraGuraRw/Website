@@ -45,25 +45,27 @@ class ModulesXPremiumXDocumentsXContent extends Document
     {
         parent::_registerControls();
 
-        $this->addControl(
-            'full_width',
-            [
-                'label' => __('Clear Content Wrapper'),
-                'type' => ControlsManager::SWITCHER,
-                'description' => sprintf(__(
-                    'Not working? You can set a different selector for the content wrapper ' .
-                    'in the <a href="%s" target="_blank">Settings page</a>.'
-                ), Helper::getSettingsLink()),
-                'selectors' => [
-                    \Configuration::get('elementor_page_wrapper_selector') => 'min-width: 100%; margin: 0; padding: 0;',
+        if ($selector = \Configuration::get('elementor_page_wrapper_selector')) {
+            $this->addControl(
+                'full_width',
+                [
+                    'label' => __('Clear Content Wrapper'),
+                    'type' => ControlsManager::SWITCHER,
+                    'description' => sprintf(__(
+                        'Not working? You can set a different selector for the content wrapper ' .
+                        'in the <a href="%s" target="_blank">Settings page</a>.'
+                    ), Helper::getSettingsLink()),
+                    'selectors' => [
+                        $selector => 'min-width: 100%; margin: 0 !important; padding: 0 !important; background: inherit !important; color: inherit !important; font: inherit !important; box-shadow: none !important',
+                    ],
                 ],
-            ],
-            [
-                'position' => [
-                    'of' => 'post_status',
-                ],
-            ]
-        );
+                [
+                    'position' => [
+                        'of' => 'post_status',
+                    ],
+                ]
+            );
+        }
 
         Post::registerStyleControls($this);
 
@@ -90,9 +92,9 @@ class ModulesXPremiumXDocumentsXContent extends Document
             'ps-widget-module',
             // Site
             'nav-menu',
+            'user-menu',
             'shopping-cart',
             'ajax-search',
-            'sign-in',
             'language-selector',
             'currency-selector',
             'breadcrumb',

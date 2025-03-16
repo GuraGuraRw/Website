@@ -1,0 +1,14 @@
+@import url('https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css');
+li#subtab-EtsAdminSelfUpgrade a.link > i:before {
+    content: "\f062";
+    font-family: Fontawesome;
+    font-size: 16px;
+    height: 16px;
+    line-height: 8px;
+    vertical-align: -5px;
+    display: inline-block;
+    color: #fff;
+}
+li#subtab-EtsAdminSelfUpgrade a.link > i{
+    font-size: 0;
+}

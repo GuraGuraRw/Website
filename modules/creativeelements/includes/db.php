@@ -354,7 +354,7 @@ class DB
 
         // It was switched from an empty global post, restore this state and unset the global post
         if (false === $data['original_id']) {
-            unset($GLOBALS['post']);
+            // unset($GLOBALS['post']);
 
             return;
         }

@@ -42,7 +42,7 @@ abstract class CoreXDynamicTagsXTag extends BaseTag
      */
     public function getContent(array $options = [])
     {
-        if (static::REMOTE_RENDER && is_admin() && 'render' === self::$render_method) {
+        if (_CE_ADMIN_ && static::REMOTE_RENDER && 'render' === self::$render_method) {
             return;
         }
 

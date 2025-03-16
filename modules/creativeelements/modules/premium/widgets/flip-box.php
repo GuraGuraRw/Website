@@ -39,6 +39,11 @@ class ModulesXPremiumXWidgetsXFlipBox extends WidgetBase
         return ['flip', 'box', 'cta', 'banner'];
     }
 
+    protected function isDynamicContent()
+    {
+        return false;
+    }
+
     protected function _registerControls()
     {
         $this->startControlsSection(
@@ -1480,6 +1485,14 @@ class ModulesXPremiumXWidgetsXFlipBox extends WidgetBase
             ]
         );
 
+        $this->addGroupControl(
+            GroupControlTextShadow::getType(),
+            [
+                'name' => 'button_text_shadow',
+                'selector' => '{{WRAPPER}} .elementor-button',
+            ]
+        );
+
         $this->startControlsTabs('tabs_button_colors');
 
         $this->startControlsTab(
@@ -1593,6 +1606,14 @@ class ModulesXPremiumXWidgetsXFlipBox extends WidgetBase
                 'selectors' => [
                     '{{WRAPPER}} .elementor-button' => 'border-radius: {{SIZE}}{{UNIT}};',
                 ],
+            ]
+        );
+
+        $this->addGroupControl(
+            GroupControlBoxShadow::getType(),
+            [
+                'name' => 'button_box_shadow',
+                'selector' => '{{WRAPPER}} .elementor-button',
             ]
         );
 
@@ -1729,7 +1750,7 @@ class ModulesXPremiumXWidgetsXFlipBox extends WidgetBase
         ?>
         <#
         if ( 'icon' === settings.graphic_element ) {
-            var icon = elementor.helpers.getBcIcon(view, settings, 'icon', {'aria-hidden': true}),
+            var icon = elementor.helpers.getBcIcon( view, settings, 'icon' ),
                 iconWrapperClasses = 'elementor-icon-wrapper';
             iconWrapperClasses += ' elementor-view-' + settings.icon_view;
 
@@ -1738,7 +1759,7 @@ class ModulesXPremiumXWidgetsXFlipBox extends WidgetBase
             }
         }
         if ( 'icon' === settings.graphic_element_b ) {
-            var iconB = elementor.helpers.getBcIcon(view, settings, 'icon_b', {'aria-hidden': true}),
+            var iconB = elementor.helpers.getBcIcon( view, settings, 'icon_b' ),
                 iconWrapperClassesBack = 'elementor-icon-wrapper';
             iconWrapperClassesBack += ' elementor-view-' + settings.icon_view_b;
 

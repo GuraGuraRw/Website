@@ -2,7 +2,7 @@
 
 namespace PrestaShop\Module\PsAccounts\Vendor\GuzzleHttp\Exception;
 
-use Psr\Http\Message\RequestInterface;
+use PrestaShop\Module\PsAccounts\Vendor\Psr\Http\Message\RequestInterface;
 /**
  * Exception thrown when a connection cannot be established.
  *

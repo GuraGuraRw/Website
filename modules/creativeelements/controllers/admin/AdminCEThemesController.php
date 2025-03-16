@@ -54,7 +54,7 @@ class AdminCEThemesController extends ModuleAdminController
             $this->identifier = 'id_ce_template';
             $this->className = 'CETemplate';
             $this->action_link = CESmarty::get(_CE_TEMPLATES_ . 'admin/admin.tpl', 'ce_action_link');
-            $this->_where = "AND a.type = 'kit'";
+            $this->_where = "AND a.`type` = 'kit'";
 
             $this->fields_list = [
                 'id_ce_template' => [
@@ -98,11 +98,10 @@ class AdminCEThemesController extends ModuleAdminController
             $this->className = 'CETheme';
             $this->lang = true;
 
-            $table_shop = _DB_PREFIX_ . $this->table . '_shop';
             $this->_select = 'sa.*';
-            $this->_join = "LEFT JOIN $table_shop sa ON sa.id_ce_theme = a.id_ce_theme AND b.id_shop = sa.id_shop";
+            $this->_join = 'LEFT JOIN ' . _DB_PREFIX_ . 'ce_theme_shop sa ON sa.`id_ce_theme` = a.`id_ce_theme` AND b.`id_shop` = sa.`id_shop`';
             $this->_where = 'AND sa.id_shop = ' . (int) $id_shop;
-            $this->hasManufacturers || $this->_where .= " AND a.type != 'listing-manufacturer'";
+            $this->hasManufacturers || $this->_where .= ' AND a.`type` <> "listing-manufacturer"';
 
             $this->fields_list = [
                 'id_ce_theme' => [
@@ -120,11 +119,14 @@ class AdminCEThemesController extends ModuleAdminController
                     'list' => [
                         'header' => $this->l('Header'),
                         'footer' => $this->l('Footer'),
-                        'page-' => $this->l('Page'),
+                        'page-' => $this->trans('Page', [], 'Admin.Global'),
                         'page-index' => '&emsp;' . $this->l('Home Page'),
                         'page-contact' => '&emsp;' . $this->l('Contact Page'),
+                        'page-authentication' => '&emsp;' . $this->l('Login Page'),
+                        'page-password' => '&emsp;' . $this->l('Password Page'),
+                        'page-registration' => '&emsp;' . $this->l('Registration Page'),
                         'page-not-found' => '&emsp;' . $this->l('404 Page'),
-                        'prod' => $this->l('Product'),
+                        'prod' => $this->trans('Product', [], 'Admin.Global'),
                         'product' => '&emsp;' . $this->l('Product Page'),
                         'product-quick-view' => '&emsp;' . $this->l('Quick View'),
                         'product-miniature' => '&emsp;' . $this->l('Product Miniature'),
@@ -175,8 +177,8 @@ class AdminCEThemesController extends ModuleAdminController
             'title' => $this->l('Theme Settings'),
             'tabs' => [
                 'site' => $this->l('Site'),
-                'page' => $this->l('Page'),
-                'prod' => $this->l('Product'),
+                'page' => $this->trans('Page', [], 'Admin.Global'),
+                'prod' => $this->trans('Product', [], 'Admin.Global'),
                 'list' => $this->l('Listing'),
             ],
             'fields' => [
@@ -187,7 +189,7 @@ class AdminCEThemesController extends ModuleAdminController
                     'type' => 'select',
                     'identifier' => 'value',
                     'list' => array_merge([
-                        ['value' => '', 'name' => $this->l('Default')],
+                        ['value' => '', 'name' => $this->trans('Default', [], 'Admin.Global')],
                     ], CETheme::getOptions('header', $id_lang, $id_shop)),
                 ],
                 'CE_FOOTER' => [
@@ -197,7 +199,7 @@ class AdminCEThemesController extends ModuleAdminController
                     'type' => 'select',
                     'identifier' => 'value',
                     'list' => array_merge([
-                        ['value' => '', 'name' => $this->l('Default')],
+                        ['value' => '', 'name' => $this->trans('Default', [], 'Admin.Global')],
                     ], CETheme::getOptions('footer', $id_lang, $id_shop)),
                 ],
                 'elementor_active_kit' => [
@@ -207,7 +209,7 @@ class AdminCEThemesController extends ModuleAdminController
                     'type' => 'select',
                     'identifier' => 'value',
                     'list' => array_merge([
-                        ['value' => '', 'name' => $this->trans('Add new', [], 'Admin.Actions')],
+                        ['value' => '', 'name' => $this->trans('Add New', [], 'Admin.Actions')],
                     ], CETemplate::getKitOptions()),
                 ],
                 'CE_PAGE_INDEX' => [
@@ -217,7 +219,7 @@ class AdminCEThemesController extends ModuleAdminController
                     'type' => 'select',
                     'identifier' => 'value',
                     'list' => array_merge([
-                        ['value' => '', 'name' => $this->l('Default')],
+                        ['value' => '', 'name' => $this->trans('Default', [], 'Admin.Global')],
                     ], CETheme::getOptions('page-index', $id_lang, $id_shop)),
                 ],
                 'CE_PAGE_CONTACT' => [
@@ -227,7 +229,7 @@ class AdminCEThemesController extends ModuleAdminController
                     'type' => 'select',
                     'identifier' => 'value',
                     'list' => array_merge([
-                        ['value' => '', 'name' => $this->l('Default')],
+                        ['value' => '', 'name' => $this->trans('Default', [], 'Admin.Global')],
                     ], CETheme::getOptions('page-contact', $id_lang, $id_shop)),
                 ],
                 'CE_PAGE_NOT_FOUND' => [
@@ -237,8 +239,38 @@ class AdminCEThemesController extends ModuleAdminController
                     'type' => 'select',
                     'identifier' => 'value',
                     'list' => array_merge([
-                        ['value' => '', 'name' => $this->l('Default')],
+                        ['value' => '', 'name' => $this->trans('Default', [], 'Admin.Global')],
                     ], CETheme::getOptions('page-not-found', $id_lang, $id_shop)),
+                ],
+                'CE_PAGE_AUTHENTICATION' => [
+                    'tab' => 'page',
+                    'title' => $this->l('Login Page'),
+                    'cast' => 'strval',
+                    'type' => 'select',
+                    'identifier' => 'value',
+                    'list' => array_merge([
+                        ['value' => '', 'name' => $this->trans('Default', [], 'Admin.Global')],
+                    ], CETheme::getOptions('page-authentication', $id_lang, $id_shop)),
+                ],
+                'CE_PAGE_PASSWORD' => [
+                    'tab' => 'page',
+                    'title' => $this->l('Password Page'),
+                    'cast' => 'strval',
+                    'type' => 'select',
+                    'identifier' => 'value',
+                    'list' => array_merge([
+                        ['value' => '', 'name' => $this->trans('Default', [], 'Admin.Global')],
+                    ], CETheme::getOptions('page-password', $id_lang, $id_shop)),
+                ],
+                'CE_PAGE_REGISTRATION' => [
+                    'tab' => 'page',
+                    'title' => $this->l('Registration Page'),
+                    'cast' => 'strval',
+                    'type' => 'select',
+                    'identifier' => 'value',
+                    'list' => array_merge([
+                        ['value' => '', 'name' => $this->trans('Default', [], 'Admin.Global')],
+                    ], CETheme::getOptions('page-registration', $id_lang, $id_shop)),
                 ],
                 'CE_PRODUCT' => [
                     'tab' => 'prod',
@@ -247,7 +279,7 @@ class AdminCEThemesController extends ModuleAdminController
                     'type' => 'select',
                     'identifier' => 'value',
                     'list' => array_merge([
-                        ['value' => '', 'name' => $this->l('Default')],
+                        ['value' => '', 'name' => $this->trans('Default', [], 'Admin.Global')],
                     ], CETheme::getOptions('product', $id_lang, $id_shop)),
                 ],
                 'CE_PRODUCT_QUICK_VIEW' => [
@@ -257,7 +289,7 @@ class AdminCEThemesController extends ModuleAdminController
                     'type' => 'select',
                     'identifier' => 'value',
                     'list' => array_merge([
-                        ['value' => '', 'name' => $this->l('Default')],
+                        ['value' => '', 'name' => $this->trans('Default', [], 'Admin.Global')],
                     ], CETheme::getOptions('product-quick-view', $id_lang, $id_shop)),
                 ],
                 'CE_PRODUCT_MINIATURE' => [
@@ -267,7 +299,7 @@ class AdminCEThemesController extends ModuleAdminController
                     'type' => 'select',
                     'identifier' => 'value',
                     'list' => array_merge([
-                        ['value' => '', 'name' => $this->l('Default')],
+                        ['value' => '', 'name' => $this->trans('Default', [], 'Admin.Global')],
                     ], CETheme::getOptions('product-miniature', $id_lang, $id_shop)),
                 ],
                 'CE_LISTING_CATEGORY' => [
@@ -277,7 +309,7 @@ class AdminCEThemesController extends ModuleAdminController
                     'type' => 'select',
                     'identifier' => 'value',
                     'list' => array_merge([
-                        ['value' => '', 'name' => $this->l('Default')],
+                        ['value' => '', 'name' => $this->trans('Default', [], 'Admin.Global')],
                     ], CETheme::getOptions('listing-category', $id_lang, $id_shop), $listing_pages),
                 ],
                 'CE_LISTING_MANUFACTURER' => [
@@ -287,7 +319,7 @@ class AdminCEThemesController extends ModuleAdminController
                     'type' => 'select',
                     'identifier' => 'value',
                     'list' => array_merge([
-                        ['value' => '', 'name' => $this->l('Default')],
+                        ['value' => '', 'name' => $this->trans('Default', [], 'Admin.Global')],
                     ], CETheme::getOptions('listing-manufacturer', $id_lang, $id_shop), $listing_pages),
                 ],
                 'CE_LISTING_SEARCH' => [
@@ -297,37 +329,37 @@ class AdminCEThemesController extends ModuleAdminController
                     'type' => 'select',
                     'identifier' => 'value',
                     'list' => array_merge([
-                        ['value' => '', 'name' => $this->l('Default')],
+                        ['value' => '', 'name' => $this->trans('Default', [], 'Admin.Global')],
                     ], $listing_pages),
                 ],
                 'CE_LISTING_PRICES_DROP' => [
                     'tab' => 'list',
-                    'title' => $this->l('Prices Drop'),
+                    'title' => $this->trans('Prices drop', [], 'Shop.Navigation'),
                     'cast' => 'strval',
                     'type' => 'select',
                     'identifier' => 'value',
                     'list' => array_merge([
-                        ['value' => '', 'name' => $this->l('Default')],
+                        ['value' => '', 'name' => $this->trans('Default', [], 'Admin.Global')],
                     ], $listing_pages),
                 ],
                 'CE_LISTING_NEW_PRODUCTS' => [
                     'tab' => 'list',
-                    'title' => $this->l('New Products'),
+                    'title' => $this->trans('New products', [], 'Shop.Navigation'),
                     'cast' => 'strval',
                     'type' => 'select',
                     'identifier' => 'value',
                     'list' => array_merge([
-                        ['value' => '', 'name' => $this->l('Default')],
+                        ['value' => '', 'name' => $this->trans('Default', [], 'Admin.Global')],
                     ], $listing_pages),
                 ],
                 'CE_LISTING_BEST_SALES' => [
                     'tab' => 'list',
-                    'title' => $this->l('Best Sellers'),
+                    'title' => $this->trans('Best sellers', [], 'Shop.Navigation'),
                     'cast' => 'strval',
                     'type' => 'select',
                     'identifier' => 'value',
                     'list' => array_merge([
-                        ['value' => '', 'name' => $this->l('Default')],
+                        ['value' => '', 'name' => $this->trans('Default', [], 'Admin.Global')],
                     ], $listing_pages),
                 ],
                 'CE_LISTING_NO_RESULTS' => [
@@ -337,12 +369,12 @@ class AdminCEThemesController extends ModuleAdminController
                     'type' => 'select',
                     'identifier' => 'value',
                     'list' => array_merge([
-                        ['value' => '', 'name' => $this->l('Default')],
+                        ['value' => '', 'name' => $this->trans('Default', [], 'Admin.Global')],
                     ], CETheme::getOptions('listing-no-results', $id_lang, $id_shop)),
                 ],
             ],
             'submit' => [
-                'title' => $this->l('Save'),
+                'title' => $this->trans('Save', [], 'Admin.Actions'),
             ],
         ];
         if (!$this->hasManufacturers) {
@@ -365,7 +397,7 @@ class AdminCEThemesController extends ModuleAdminController
             ${'_POST'}['elementor_active_kit'] = $id_kit;
             $this->fields_options['theme_settings']['fields']['elementor_active_kit']['list'][] = [
                 'value' => $id_kit,
-                'name' => "#$id_kit {$this->l('Default')}",
+                'name' => "#$id_kit {$this->trans('Default', [], 'Admin.Global')}",
             ];
         }
     }
@@ -391,7 +423,7 @@ class AdminCEThemesController extends ModuleAdminController
                     $sub_tabs = &$tab2['sub_tabs'];
                     $tab = Tab::getTab($id_lang, Tab::getIdFromClassName('AdminCEThemes'));
 
-                    $tab['name'] = $this->l('Template');
+                    $tab['name'] = $this->trans('Template', [], 'Admin.Global');
                     $tab['current'] = $new || (!$this->type || 'template' === $this->type) && !$this->object;
                     $tab['href'] = "$link&type=template";
                     $sub_tabs[] = $tab;
@@ -408,12 +440,12 @@ class AdminCEThemesController extends ModuleAdminController
                     $tab['href'] = "$link&type=footer";
                     $sub_tabs[] = $tab;
 
-                    $tab['name'] = $this->l('Page');
+                    $tab['name'] = $this->trans('Page', [], 'Admin.Global');
                     $tab['current'] = !$new && strpos($type, 'page') === 0;
                     $tab['href'] = "$link&type=page";
                     $sub_tabs[] = $tab;
 
-                    $tab['name'] = $this->l('Product');
+                    $tab['name'] = $this->trans('Product', [], 'Admin.Global');
                     $tab['current'] = !$new && strpos($type, 'prod') === 0;
                     $tab['href'] = "$link&type=prod";
                     $sub_tabs[] = $tab;
@@ -437,7 +469,7 @@ class AdminCEThemesController extends ModuleAdminController
     public function initToolBarTitle()
     {
         if ('add' === $this->display) {
-            $this->page_header_toolbar_title = $this->l('Add New');
+            $this->page_header_toolbar_title = $this->trans('Add New', [], 'Admin.Actions');
         } elseif ('edit' === $this->display) {
             $this->page_header_toolbar_title = 'kit' === $this->type
                 ? sprintf($this->l('Edit %s'), $this->l('Theme Style'))
@@ -456,7 +488,7 @@ class AdminCEThemesController extends ModuleAdminController
         if (empty($this->display) || 'options' === $this->display) {
             $this->page_header_toolbar_btn["add{$this->table}"] = [
                 'href' => self::$currentIndex . "&add{$this->table}&token={$this->token}",
-                'desc' => $this->trans('Add new', [], 'Admin.Actions'),
+                'desc' => $this->trans('Add New', [], 'Admin.Actions'),
                 'icon' => 'process-icon-new',
             ];
         }
@@ -531,7 +563,7 @@ class AdminCEThemesController extends ModuleAdminController
 
         $this->fields_form = [
             'legend' => [
-                'title' => $this->l($kit ? 'Theme Style' : 'Template'),
+                'title' => $kit ? $this->l('Theme Style') : $this->trans('Template', [], 'Admin.Global'),
                 'icon' => 'icon-edit',
             ],
             'input' => [
@@ -563,22 +595,25 @@ class AdminCEThemesController extends ModuleAdminController
                                     ],
                                 ],
                                 'page' => [
-                                    'label' => $this->l('Page'),
+                                    'label' => $this->trans('Page', [], 'Admin.Global'),
                                     'query' => [
                                         ['value' => 'page-index', 'label' => $this->l('Home Page')],
                                         ['value' => 'page-contact', 'label' => $this->l('Contact Page')],
+                                        ['value' => 'page-authentication', 'label' => $this->l('Login Page')],
+                                        ['value' => 'page-password', 'label' => $this->l('Password Page')],
+                                        ['value' => 'page-registration', 'label' => $this->l('Registration Page')],
                                         ['value' => 'page-not-found', 'label' => $this->l('404 Page')],
                                     ],
                                 ],
                                 'product' => [
-                                    'label' => $this->l('Product'),
+                                    'label' => $this->trans('Product', [], 'Admin.Global'),
                                     'query' => [
                                         ['value' => 'product', 'label' => $this->l('Product Page')],
                                         ['value' => 'product-quick-view', 'label' => $this->l('Quick View')],
                                         ['value' => 'product-miniature', 'label' => $this->l('Miniature')],
                                     ],
                                 ],
-                                'listing' => [
+                                'list' => [
                                     'label' => $this->l('Listing'),
                                     'query' => [
                                         'category' => [
@@ -652,7 +687,7 @@ class AdminCEThemesController extends ModuleAdminController
             ],
         ];
         if (!$kit && !$this->hasManufacturers) {
-            unset($this->fields_form['input']['type']['options']['optiongroup']['query']['listing']['query']['manufacturer']);
+            unset($this->fields_form['input']['type']['options']['optiongroup']['query']['list']['query']['manufacturer']);
         }
         if (!$kit && Shop::isFeatureActive()) {
             $this->fields_form['input']['shop'] = [
@@ -665,11 +700,8 @@ class AdminCEThemesController extends ModuleAdminController
         return parent::renderForm();
     }
 
-    protected function l($string, $module = 'creativeelements', $addslashes = false, $htmlentities = true)
+    protected function l($string, $ctx = '', $addslashes = false, $htmlentities = true)
     {
-        $js = $addslashes || !$htmlentities;
-        $str = Translate::getModuleTranslation($module, $string, '', null, $js, _CE_LOCALE_);
-
-        return $htmlentities ? $str : stripslashes($str);
+        return Translate::getModuleTranslation($this->module, $string, $ctx, null, $addslashes, _CE_LOCALE_, false, $htmlentities);
     }
 }

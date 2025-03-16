@@ -13,6 +13,7 @@ i.icon-AdminParentCEContent, i.mi-ce {
 	position: relative;
 	height: 1em;
 	width: 1.2857em;
+	-webkit-text-fill-color: transparent;
 }
 i.icon-AdminParentCEContent:before, i.mi-ce:before,
 i.icon-AdminParentCEContent:after, i.mi-ce:after {
@@ -40,9 +41,9 @@ i.icon-AdminParentCEContent:after, i.mi-ce:after {
 </style>
 {if !empty($edit_width_ce)}
 <script type="text/html" id="tmpl-btn-back-to-ps">
-    <a href="{$edit_width_ce|escape:'html':'UTF-8'}&amp;action=backToPsEditor" class="btn btn-default btn-back-to-ps"><i class="material-icons">navigate_before</i> {l s='Back to PrestaShop Editor' mod='creativeelements'}</a>
+	<a href="{$edit_width_ce|escape:'html':'UTF-8'}&amp;action=backToPsEditor" class="btn btn-default btn-back-to-ps"><i class="material-icons">navigate_before</i> {ce__('Back to PrestaShop Editor')}</a>
 </script>
 <script type="text/html" id="tmpl-btn-edit-with-ce">
-    <a href="{$edit_width_ce|escape:'html':'UTF-8'}" class="btn pointer btn-edit-with-ce"><i class="material-icons mi-ce"></i> {l s='Edit with Creative Elements' mod='creativeelements'}</a>
+	<a href="{$edit_width_ce|escape:'html':'UTF-8'}" class="btn pointer btn-edit-with-ce"><i class="material-icons mi-ce"></i> {ce__('Edit with Creative Elements')}</a>
 </script>
 {/if}

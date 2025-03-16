@@ -16,8 +16,6 @@ class ModulesXThemeXWidgetsXShoppingCart extends WidgetBase
 {
     const REMOTE_RENDER = true;
 
-    protected $context;
-
     protected $imageSize;
 
     public function getName()
@@ -79,7 +77,7 @@ class ModulesXThemeXWidgetsXShoppingCart extends WidgetBase
         $this->addControl(
             'show_subtotal',
             [
-                'label' => __('Subtotal'),
+                'label' => __('Subtotal', 'Shop.Theme.Checkout'),
                 'type' => ControlsManager::SWITCHER,
                 'label_on' => __('Show'),
                 'label_off' => __('Hide'),
@@ -294,7 +292,7 @@ class ModulesXThemeXWidgetsXShoppingCart extends WidgetBase
             'modal_url',
             [
                 'type' => ControlsManager::HIDDEN,
-                'default' => $this->context->link->getModuleLink('creativeelements', 'ajax', [], true),
+                'default' => Helper::$link->getModuleLink('creativeelements', 'ajax', [], true),
                 'condition' => [
                     'action_show_modal!' => '',
                 ],
@@ -406,7 +404,7 @@ class ModulesXThemeXWidgetsXShoppingCart extends WidgetBase
         $this->addControl(
             'show_shipping',
             [
-                'label' => __('Shipping Price'),
+                'label' => __('Shipping cost', 'Shop.Theme.Checkout'),
                 'type' => ControlsManager::SWITCHER,
                 'label_on' => __('Show'),
                 'label_off' => __('Hide'),
@@ -458,7 +456,7 @@ class ModulesXThemeXWidgetsXShoppingCart extends WidgetBase
             [
                 'label' => __('Text'),
                 'type' => ControlsManager::TEXT,
-                'placeholder' => __('View Cart'),
+                'placeholder' => \Translate::getModuleTranslation('creativeelements', 'View Cart', ''),
                 'condition' => [
                     'show_view_cart!' => '',
                 ],
@@ -484,7 +482,7 @@ class ModulesXThemeXWidgetsXShoppingCart extends WidgetBase
             'heading_checkout',
             [
                 'type' => ControlsManager::HEADING,
-                'label' => __('Checkout'),
+                'label' => __('Checkout', 'Shop.Theme.Actions'),
             ]
         );
 
@@ -507,7 +505,7 @@ class ModulesXThemeXWidgetsXShoppingCart extends WidgetBase
             [
                 'label' => __('Text'),
                 'type' => ControlsManager::TEXT,
-                'placeholder' => __('Checkout'),
+                'placeholder' => Helper::$translator->trans('Checkout', [], 'Shop.Theme.Actions'),
             ]
         );
 
@@ -538,6 +536,14 @@ class ModulesXThemeXWidgetsXShoppingCart extends WidgetBase
             [
                 'name' => 'toggle_button_typography',
                 'scheme' => SchemeTypography::TYPOGRAPHY_1,
+                'selector' => '{{WRAPPER}} .elementor-cart__toggle .elementor-button',
+            ]
+        );
+
+        $this->addGroupControl(
+            GroupControlTextShadow::getType(),
+            [
+                'name' => 'toggle_button_text_shadow',
                 'selector' => '{{WRAPPER}} .elementor-cart__toggle .elementor-button',
             ]
         );
@@ -674,6 +680,14 @@ class ModulesXThemeXWidgetsXShoppingCart extends WidgetBase
                 'selectors' => [
                     '{{WRAPPER}} .elementor-cart__toggle .elementor-button' => 'border-radius: {{SIZE}}{{UNIT}}',
                 ],
+            ]
+        );
+
+        $this->addGroupControl(
+            GroupControlBoxShadow::getType(),
+            [
+                'name' => 'toggle_button_box_shadow',
+                'selector' => '{{WRAPPER}} .elementor-cart__toggle .elementor-button',
             ]
         );
 
@@ -1162,7 +1176,7 @@ class ModulesXThemeXWidgetsXShoppingCart extends WidgetBase
         $this->startControlsSection(
             'section_style_summary',
             [
-                'label' => __('Summary'),
+                'label' => !_CE_ADMIN_ ?: __('Summary', 'Admin.Global'),
                 'tab' => ControlsManager::TAB_STYLE,
                 'condition' => [
                     'skin' => 'sidebar',
@@ -1407,7 +1421,7 @@ class ModulesXThemeXWidgetsXShoppingCart extends WidgetBase
             'heading_checkout_style',
             [
                 'type' => ControlsManager::HEADING,
-                'label' => __('Checkout'),
+                'label' => __('Checkout', 'Shop.Theme.Actions'),
                 'separator' => 'before',
             ]
         );
@@ -1506,15 +1520,15 @@ class ModulesXThemeXWidgetsXShoppingCart extends WidgetBase
     protected function render()
     {
         $settings = $this->getSettingsForDisplay();
-        $controller = $this->context->controller;
+        $controller = $GLOBALS['context']->controller;
         $cart_is_hidden = 'sidebar' !== $settings['skin']
             || $controller instanceof \CartController
             || $controller instanceof \OrderController
             || $controller instanceof \OrderConfirmationController;
-        $cart = $controller->cart_presenter->present($this->context->cart, true);
+        $cart = &$GLOBALS['smarty']->tpl_vars['cart']->value;
         $title_tag = $settings['title_tag'] ?: 'div';
         $display_class = $settings['title_display'] ? " ce-display-{$settings['title_display']}" : '';
-        $toggle_button_link = $this->context->link->getPageLink('cart', true, null, ['action' => 'show'], false, null, true);
+        $toggle_button_link = Helper::$link->getPageLink('cart', true, null, ['action' => 'show'], false, null, true);
         $toggle_button_classes = 'elementor-button elementor-size-' . $settings['toggle_size'] . ($cart_is_hidden ? ' elementor-cart-hidden' : '');
 
         if (!$cart_is_hidden) { ?>
@@ -1540,13 +1554,14 @@ class ModulesXThemeXWidgetsXShoppingCart extends WidgetBase
         <?php
     }
 
-    protected function renderCartContent(array &$cart, array &$settings, $view_cart_link)
+    protected function renderCartContent(&$cart, array &$settings, $view_cart_link)
     {
-        $checkout_link = $this->context->smarty->tpl_vars['urls']->value['pages']['order'];
+        $checkout_link = $GLOBALS['smarty']->tpl_vars['urls']->value['pages']['order'];
         $checkout_disabled = $cart['minimalPurchaseRequired'] || !$cart['products'] ? ' ce-disabled' : '';
+        $this->imageSize = \ImageType::getFormattedName('cart');
         ?>
         <div class="elementor-cart__empty-message<?php $cart['products'] && print ' elementor-hidden'; ?>"><?php echo $settings['empty_message']; ?></div>
-        <div class="elementor-cart__products ce-scrollbar--auto" data-gift="<?php esc_attr_e('Gift'); ?>">
+        <div class="elementor-cart__products ce-scrollbar--auto" data-gift="<?php esc_attr_e('Gift', 'Shop.Theme.Checkout'); ?>">
             <?php
             foreach ($cart['products'] as $product) {
                 $this->renderCartItem($product, $settings);
@@ -1575,7 +1590,7 @@ class ModulesXThemeXWidgetsXShoppingCart extends WidgetBase
             </div>
             <div class="elementor-align-justify<?php $settings['checkout_type'] && print " elementor-button-{$settings['checkout_type']}"; ?>">
                 <a href="<?php echo esc_attr($checkout_link); ?>" class="elementor-button elementor-button--checkout elementor-size-<?php echo $settings['view_cart_size'] . $checkout_disabled; ?>">
-                    <span class="elementor-button-text"><?php echo !empty($settings['checkout']) ? $settings['checkout'] : __('Checkout'); ?></span>
+                    <span class="elementor-button-text"><?php echo !empty($settings['checkout']) ? $settings['checkout'] : __('Checkout', 'Shop.Theme.Actions'); ?></span>
                 </a>
             </div>
         </div>
@@ -1585,11 +1600,13 @@ class ModulesXThemeXWidgetsXShoppingCart extends WidgetBase
 
     protected function renderCartItem($product, array &$settings)
     {
-        $cover = isset($product['default_image']) ? $product['default_image'] : ($product['cover'] ?: Helper::getNoImage());
+        $cover = !empty($product['default_image']) ? $product['default_image'] : (
+            $product['cover'] ?: $GLOBALS['smarty']->tpl_vars['urls']->value['no_picture_image']
+        );
         $cover_image = isset($cover['bySize'][$this->imageSize]) ? $cover['bySize'][$this->imageSize] : $cover['small']; ?>
         <div class="elementor-cart__product">
             <div class="elementor-cart__product-image">
-                <img src="<?php echo esc_attr($cover_image['url']); ?>" alt="<?php echo esc_attr($cover['legend']); ?>">
+                <img src="<?php echo esc_attr($cover_image['url']); ?>" alt="<?php echo esc_attr($cover['legend']); ?>" fetchpriority="low">
             </div>
             <div class="elementor-cart__product-name">
                 <a href="<?php echo esc_attr($product['url']); ?>">
@@ -1608,7 +1625,7 @@ class ModulesXThemeXWidgetsXShoppingCart extends WidgetBase
                             <span class="elementor-cart__product-attr-label"><?php echo $field['label']; ?>:</span>
                             <span class="elementor-cart__product-attr-value">
                             <?php if ('image' === $field['type']) { ?>
-                                <img src="<?php echo $field['image']['small']['url']; ?>" alt="">
+                                <img src="<?php echo $field['image']['small']['url']; ?>" alt="" fetchpriority="low">
                             <?php } elseif ('text' === $field['type']) { ?>
                                 <?php echo $field['text']; ?>
                             <?php }  ?>
@@ -1619,7 +1636,7 @@ class ModulesXThemeXWidgetsXShoppingCart extends WidgetBase
                 </div>
             </div>
             <div class="elementor-cart__product-price">
-                <span class="elementor-cart__product-quantity"><?php echo $product['quantity']; ?></span> &times; <?php echo $product['is_gift'] ? __('Gift') : $product['price']; ?>
+                <span class="elementor-cart__product-quantity"><?php echo $product['quantity']; ?></span> &times; <?php echo $product['is_gift'] ? __('Gift', 'Shop.Theme.Checkout') : $product['price']; ?>
             <?php if ($product['has_discount']) { ?>
                 <del><?php echo $product['regular_price']; ?></del>
             <?php } ?>
@@ -1630,7 +1647,7 @@ class ModulesXThemeXWidgetsXShoppingCart extends WidgetBase
                     data-id-product="<?php echo (int) $product['id_product']; ?>"
                     data-id-product-attribute="<?php echo (int) $product['id_product_attribute']; ?>"
                     data-id-customization="<?php echo (int) $product['id_customization']; ?>"
-                    title="<?php esc_attr_e('Remove this item'); ?>"></a>
+                    title="<?php esc_attr_e('remove from cart', 'Shop.Theme.Actions'); ?>"></a>
             </i>
         <?php } ?>
         </div>
@@ -1639,13 +1656,5 @@ class ModulesXThemeXWidgetsXShoppingCart extends WidgetBase
 
     public function renderPlainContent()
     {
-    }
-
-    public function __construct($data = [], $args = [])
-    {
-        $this->context = \Context::getContext();
-        $this->imageSize = \ImageType::getFormattedName('cart');
-
-        parent::__construct($data, $args);
     }
 }

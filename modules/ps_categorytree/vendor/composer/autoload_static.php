@@ -4,7 +4,7 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInit802cd7179b72b595c5232e1eb7eb96f9
+class ComposerStaticInit41f732baf3c2bb905904b8629cf342b4
 {
     public static $classMap = array (
         'Ps_CategoryTree' => __DIR__ . '/../..' . '/ps_categorytree.php',
@@ -13,7 +13,7 @@ class ComposerStaticInit802cd7179b72b595c5232e1eb7eb96f9
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->classMap = ComposerStaticInit802cd7179b72b595c5232e1eb7eb96f9::$classMap;
+            $loader->classMap = ComposerStaticInit41f732baf3c2bb905904b8629cf342b4::$classMap;
 
         }, null, ClassLoader::class);
     }

@@ -2,9 +2,9 @@
 
 namespace PrestaShop\Module\PsAccounts\Vendor\GuzzleHttp\Psr7;
 
-use Psr\Http\Message\MessageInterface;
-use Psr\Http\Message\RequestInterface;
-use Psr\Http\Message\ResponseInterface;
+use PrestaShop\Module\PsAccounts\Vendor\Psr\Http\Message\MessageInterface;
+use PrestaShop\Module\PsAccounts\Vendor\Psr\Http\Message\RequestInterface;
+use PrestaShop\Module\PsAccounts\Vendor\Psr\Http\Message\ResponseInterface;
 final class Message
 {
     /**

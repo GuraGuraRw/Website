@@ -85,16 +85,17 @@ class ModulesXCatalogXModule extends BaseModule
         }
     }
 
-    private function refreshProduct($content)
+    private function refreshProduct($id_ce_theme)
     {
-        $context = \Context::getContext();
+        $context = $GLOBALS['context'];
         $id_product = (int) \Tools::getValue('id_product');
         $groups = \Tools::getValue('group');
         $ipa = $groups ? (int) \Product::getIdProductAttributeByIdAttributes($id_product, $groups, true) : null;
         $product = new \Product($id_product, false, $context->language->id, $context->shop->id);
-        $product_url = $context->link->getProductLink($product, null, null, null, null, null, $ipa, false, false, true);
+        $product_url = Helper::$link->getProductLink($product, null, null, null, null, null, $ipa, false, false, true);
         $args = ${'_GET'};
         unset(
+            $args['ajax'],
             $args['controller'],
             $args['action'],
             $args['id_product'],
@@ -105,8 +106,17 @@ class ModulesXCatalogXModule extends BaseModule
         );
         header('Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0');
 
+        $document = Plugin::$instance->documents->getDocForFrontend(
+            new UId($id_ce_theme, UId::THEME, $context->language->id, $context->shop->id)
+        );
+        Plugin::$instance->documents->switchToDocument($document);
+        ob_start();
+        \Closure::bind(function () {
+            $this->printElements($this->getJsonMeta('_elementor_data'));
+        }, $document, $document)->__invoke();
+
         wp_send_json([
-            'product_content' => &$content,
+            'product_content' => ob_get_clean(),
             'product_url' => $args
                 ? str_replace('#', (strpos('?', $product_url) === false ? '?' : '&') . http_build_query($args) . '#', $product_url)
                 : $product_url,
@@ -114,25 +124,20 @@ class ModulesXCatalogXModule extends BaseModule
                 return $this->getProductMinimalQuantity(['id_product_attribute' => $ipa]);
             }, $context->controller, $context->controller)->__invoke(),
             'id_product_attribute' => $ipa,
-            'product_title' => $product->name,
+            'product_title' => $context->smarty->tpl_vars['page']->value['meta']['title'],
             'is_quick_view' => \Tools::getValue('quickview'),
         ]);
     }
 
     public function init()
     {
-        $context = \Context::getContext();
-        $controller = $context->controller;
+        $controller = $GLOBALS['context']->controller;
         // Init Quick View
-        if ($id_pqv = (int) \Configuration::get('CE_PRODUCT_QUICK_VIEW')) {
+        if ($id_pqv = \Configuration::get('CE_PRODUCT_QUICK_VIEW')) {
             Plugin::$instance->frontend->hasElementorInPage(true);
 
             if ($controller instanceof \ProductController && \Tools::getValue('action') === 'quickview') {
                 \CreativeElements::skipOverrideLayoutTemplate();
-
-                $context->smarty->assign('CE_PRODUCT_QUICK_VIEW_ID', $id_pqv);
-
-                UId::$_ID = new UId($id_pqv, UId::THEME, $context->language->id, $context->shop->id);
             }
         }
         // Init Product Refresh
@@ -151,9 +156,7 @@ class ModulesXCatalogXModule extends BaseModule
                 $manager->unregisterWidgetType('product-carousel');
             }, 11);
 
-            $this->refreshProduct(\CreativeElements::renderTheme(
-                new UId($id_ce_theme, UId::THEME, $context->language->id, $context->shop->id)
-            ));
+            $this->refreshProduct($id_ce_theme);
         }
         // Init Product Listing AJAX request
         if ($controller instanceof \ProductListingFrontController
@@ -161,7 +164,7 @@ class ModulesXCatalogXModule extends BaseModule
             && !\Tools::getIsset('action')
             && $id_ce_theme = substr(\CreativeElements::getPreviewUId(false), 0, -6) ?: \Configuration::get('CE_LISTING_' . strtoupper(str_replace('-', '_', $controller->php_self)))
         ) {
-            \Closure::bind(function () use ($context, $id_ce_theme) {
+            \Closure::bind(function () use ($id_ce_theme) {
                 // the search provider will need a context (language, shop...) to do its job
                 $psc = $this->getProductSearchContext();
                 // the controller generates the query...
@@ -227,8 +230,8 @@ class ModulesXCatalogXModule extends BaseModule
                 \Hook::exec('filterProductSearch', ['searchVariables' => &$searchVariables]);
                 \Hook::exec('actionProductSearchAfter', $searchVariables);
 
-                $context->smarty->assign('listing', $searchVariables);
-                $document = Plugin::$instance->documents->get(new UId($id_ce_theme, UId::THEME, $context->language->id, $context->shop->id));
+                $GLOBALS['smarty']->assign('listing', $searchVariables);
+                $document = Plugin::$instance->documents->get(new UId($id_ce_theme, UId::THEME, $GLOBALS['language']->id, $GLOBALS['context']->shop->id));
                 $rendered_blocks = $document->getRenderedBlocks();
 
                 $searchVariables['rendered_products_top'] = $rendered_blocks['rendered_products_top'] ?: $this->render('catalog/_partials/products-top');
@@ -249,7 +252,7 @@ class ModulesXCatalogXModule extends BaseModule
 
     public function __construct()
     {
-        add_action('template_redirect', [$this, 'init'], 1);
+        _CE_ADMIN_ || add_action('elementor/init', [$this, 'init'], 1);
         add_action('elementor/controls/controls_registered', [$this, 'registerControls']);
         add_action('elementor/documents/register', [$this, 'registerDocuments']);
         add_action('elementor/dynamic_tags/register_tags', [$this, 'registerTags']);

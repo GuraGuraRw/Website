@@ -18,17 +18,16 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
+use PrestaShop\Module\PrestashopFacebook\Adapter\BillingAdapter;
 use PrestaShop\Module\PrestashopFacebook\Adapter\ConfigurationAdapter;
 use PrestaShop\Module\PrestashopFacebook\Config\Config;
 use PrestaShop\Module\PrestashopFacebook\Config\Env;
 use PrestaShop\Module\PrestashopFacebook\Handler\ErrorHandler\ErrorHandler;
 use PrestaShop\Module\PrestashopFacebook\Presenter\ModuleUpgradePresenter;
-use PrestaShop\Module\PrestashopFacebook\Provider\MultishopDataProvider;
 use PrestaShop\Module\PrestashopFacebook\Repository\ShopRepository;
 use PrestaShop\PrestaShop\Core\Addon\Module\ModuleManagerBuilder;
 use PrestaShop\PsAccountsInstaller\Installer\Facade\PsAccounts;
 use PrestaShopCorp\Billing\Presenter\BillingPresenter;
-use PrestaShopCorp\Billing\Services\BillingService;
 
 class AdminPsfacebookModuleController extends ModuleAdminController
 {
@@ -51,11 +50,6 @@ class AdminPsfacebookModuleController extends ModuleAdminController
     private $moduleUpgradePresenter;
 
     /**
-     * @var MultishopDataProvider
-     */
-    private $multishopDataProvider;
-
-    /**
      * @var ShopRepository
      */
     private $shopRepository;
@@ -69,7 +63,6 @@ class AdminPsfacebookModuleController extends ModuleAdminController
         $this->configurationAdapter = $this->module->getService(ConfigurationAdapter::class);
         $this->env = $this->module->getService(Env::class);
         $this->moduleUpgradePresenter = $this->module->getService(ModuleUpgradePresenter::class);
-        $this->multishopDataProvider = $this->module->getService(MultishopDataProvider::class);
         $this->shopRepository = $this->module->getService(ShopRepository::class);
         $this->module->getService(ErrorHandler::class);
         $this->bootstrap = false;
@@ -131,9 +124,10 @@ class AdminPsfacebookModuleController extends ModuleAdminController
 
         // Load the context for PrestaShop Billing
         $billingFacade = $this->module->getService(BillingPresenter::class);
-        $billingService = $this->module->getService(BillingService::class);
+        $billingAdapter = new BillingAdapter($psAccountsData['psAccountsToken']);
+        $fetchSubscriptions = $billingAdapter->getCurrentSubscription($psAccountsData['psAccountShopId'], $this->module->name);
+        $currentSubscription = $fetchSubscriptions->getBody();
         $partnerLogo = $this->module->getLocalPath() . 'logo.png';
-        $currentSubscription = $billingService->getCurrentSubscription();
 
         // PrestaShop Billing
         Media::addJsDef($billingFacade->present([
@@ -144,7 +138,7 @@ class AdminPsfacebookModuleController extends ModuleAdminController
             'emailSupport' => 'no-reply@prestashop.com',
         ]));
         Media::addJsDef([
-            'psBillingSubscription' => (!empty($currentSubscription['success']) ? $currentSubscription['body'] : null),
+            'psBillingSubscription' => $fetchSubscriptions->isSuccessful() ? $currentSubscription : null,
         ]);
 
         /*********************
@@ -158,7 +152,7 @@ class AdminPsfacebookModuleController extends ModuleAdminController
                 ->present($this->module->name),
             'psAccountsToken' => $psAccountsData['psAccountsToken'],
             'defaultCategory' => $this->shopRepository->getDefaultCategoryShop(),
-            'psAccountShopInConflict' => $this->multishopDataProvider->isCurrentShopInConflict($this->context->shop),
+            'psAccountShopInConflict' => false,
             'psFacebookAppId' => $this->env->get('PSX_FACEBOOK_APP_ID'),
             'psFacebookFbeUiUrl' => $this->env->get('PSX_FACEBOOK_UI_URL'),
             'psFacebookSegmentId' => $this->env->get('PSX_FACEBOOK_SEGMENT_API_KEY'),
@@ -290,6 +284,33 @@ class AdminPsfacebookModuleController extends ModuleAdminController
                 [],
                 [
                     'action' => 'RetrieveTokens',
+                    'ajax' => 1,
+                ]
+            ),
+            'psFacebookGetChatStatus' => $this->context->link->getAdminLink(
+                'AdminAjaxPsfacebook',
+                true,
+                [],
+                [
+                    'action' => 'MerchantHasChatDisabled',
+                    'ajax' => 1,
+                ]
+            ),
+            'psFacebookDisableMessengerChat' => $this->context->link->getAdminLink(
+                'AdminAjaxPsfacebook',
+                true,
+                [],
+                [
+                    'action' => 'DisabledMessengerFeature',
+                    'ajax' => 1,
+                ]
+            ),
+            'psFacebookRetrieveExternalBusinessId' => $this->context->link->getAdminLink(
+                'AdminAjaxPsfacebook',
+                true,
+                [],
+                [
+                    'action' => 'RetrieveExternalBusinessId',
                     'ajax' => 1,
                 ]
             ),

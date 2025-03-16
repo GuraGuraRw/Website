@@ -15,6 +15,7 @@ if (!defined('_PS_VERSION_')) {
 use CE\CoreXFilesXCSSXPost as PostCSS;
 use CE\CoreXSettingsXManager as SettingsManager;
 use CE\CoreXUtilsXExceptions as Exceptions;
+use CE\ModulesXCatalogXFilesXCSSXMiniature as MiniatureCSS;
 
 /**
  * Elementor document.
@@ -29,6 +30,8 @@ abstract class CoreXBaseXDocument extends ControlsStack
 {
     // const TYPE_META_KEY = '_elementor_template_type';
     const PAGE_META_KEY = '_elementor_page_settings';
+
+    const CACHE_META_KEY = '_ce_element_cache';
 
     private $main_id;
 
@@ -69,8 +72,8 @@ abstract class CoreXBaseXDocument extends ControlsStack
         return [
             'has_elements' => true,
             'is_editable' => true,
-            'edit_capability' => '',
-            'show_in_finder' => true,
+            // 'edit_capability' => '',
+            // 'show_in_finder' => true,
             // 'show_on_admin_bar' => true,
             'support_kit' => false,
         ];
@@ -277,19 +280,9 @@ abstract class CoreXBaseXDocument extends ControlsStack
      */
     public function getExitToDashboardUrl()
     {
-        $url = get_edit_post_link($this->getMainId(), 'raw');
+        $url = get_edit_post_link($this->getMainId());
 
-        /*
-         * Document "exit to dashboard" URL.
-         *
-         * Filters the "Exit To Dashboard" URL.
-         *
-         * @since 2.0.0
-         *
-         * @param string   $url  The exit URL
-         * @param Document $this The document instance
-         */
-        $url = apply_filters('elementor/document/urls/exit_to_dashboard', $url, $this);
+        // $url = apply_filters('elementor/document/urls/exit_to_dashboard', $url, $this);
 
         return $url;
     }
@@ -512,6 +505,9 @@ abstract class CoreXBaseXDocument extends ControlsStack
 
         $post_css->delete();
 
+        // Remove Document Cache
+        $this->deleteCache();
+
         /*
          * After document save.
          *
@@ -527,24 +523,7 @@ abstract class CoreXBaseXDocument extends ControlsStack
         return true;
     }
 
-    /**
-     * Is built with Elementor.
-     *
-     * Check whether the post was built with Elementor.
-     *
-     * @since 2.0.0
-     *
-     * @return bool Whether the post was built with Elementor
-     */
-    public function isBuiltWithElementor()
-    {
-        $id_type = (int) substr($this->post->ID, -6, 2);
-
-        if (in_array($id_type, [UId::REVISION, UId::TEMPLATE, UId::CONTENT, UId::THEME])) {
-            return true;
-        }
-        return (bool) get_post_meta($this->post->ID, '_elementor_edit_mode', true);
-    }
+    // public function isBuiltWithElementor()
 
     // public function getEditUrl()
 
@@ -584,17 +563,7 @@ abstract class CoreXBaseXDocument extends ControlsStack
      */
     public function getJsonMeta($key)
     {
-        $meta = get_post_meta($this->post->ID, $key, true);
-
-        // if (is_string($meta) && !empty($meta)) {
-        //     $meta = json_decode($meta, true);
-        // }
-
-        if (empty($meta)) {
-            $meta = [];
-        }
-
-        return $meta;
+        return get_post_meta($this->post->ID, $key, true) ?: [];
     }
 
     /**
@@ -705,6 +674,9 @@ abstract class CoreXBaseXDocument extends ControlsStack
                                 'widgetType' => $widget_type->getName(),
                                 'settings' => $settings,
                             ],
+                        ],
+                        'settings' => [
+                            'widgets_space' => 'gap',
                         ],
                     ],
                 ],
@@ -860,18 +832,7 @@ abstract class CoreXBaseXDocument extends ControlsStack
                 $this->updateMeta('_ce_date_upd', date('Y-m-d H:i:s'));
             }
 
-            /*
-             * Document version save.
-             *
-             * Fires when document version is saved on Elementor.
-             * Will not fire during Elementor Upgrade.
-             *
-             * @since 2.5.12
-             *
-             * @param \Elementor\Core\Base\Document $this The current document
-             *
-             */
-            do_action('elementor/document/save_version', $this);
+            // do_action('elementor/document/save_version', $this);
         }
     }
 
@@ -1018,12 +979,13 @@ abstract class CoreXBaseXDocument extends ControlsStack
     {
         if ($data) {
             if (empty($data['post_id'])) {
-                $this->post = new WPPost((object) []);
+                // $this->post = new WPPost((object) []);
+                throw new \Exception('Document does not exist', Exceptions::NOT_FOUND);
             } else {
                 $this->post = get_post($data['post_id']);
 
                 if (!$this->post) {
-                    throw new \Exception(sprintf('Post ID #%s does not exist.', $data['post_id']), Exceptions::NOT_FOUND);
+                    throw new \Exception("Document ID #{$data['post_id']} does not exist.", Exceptions::NOT_FOUND);
                 }
             }
 
@@ -1034,7 +996,7 @@ abstract class CoreXBaseXDocument extends ControlsStack
                 $data['settings'] = [];
             }
 
-            $saved_settings = get_post_meta($this->post->ID, '_elementor_page_settings', true);
+            $saved_settings = get_post_meta($this->post->ID, static::PAGE_META_KEY, true);
             if (!empty($saved_settings) && is_array($saved_settings)) {
                 $data['settings'] += $saved_settings;
             }
@@ -1072,15 +1034,96 @@ abstract class CoreXBaseXDocument extends ControlsStack
      */
     protected function printElements($elements_data)
     {
-        foreach ($elements_data as $element_data) {
-            $element = Plugin::$instance->elements_manager->createElementInstance($element_data);
+        if (!\Configuration::get('elementor_element_cache_ttl')) {
+            return $this->doPrintElements($elements_data);
+        }
 
-            if (!$element) {
-                continue;
+        $cached_data = $this->getDocumentCache();
+
+        if (!$cached_data) {
+            add_filter('elementor/element/should_render_shortcode', '__return_true');
+
+            \CEAssetManager::instance()->resetLog();
+
+            ob_start();
+
+            $this->doPrintElements($elements_data);
+
+            $content = ob_get_clean();
+
+            $cached_data = \CEAssetManager::instance()->getLog();
+            $cached_data['content'] = Helper::minifyHtml($content);
+
+            if ($this->shouldStoreCacheElements()) {
+                $this->setDocumentCache($cached_data);
             }
 
-            $element->printElement();
+            remove_filter('elementor/element/should_render_shortcode', '__return_true');
+        } else {
+            foreach ($cached_data['scripts'] as $script_handle) {
+                wp_enqueue_script($script_handle);
+            }
+
+            foreach ($cached_data['styles'] as $style_handle) {
+                if (strpos($style_handle, 'elementor-post-') === 0) {
+                    $post_id = substr($style_handle, 15);
+                    PostCSS::create($post_id)->enqueue();
+                } elseif (strpos($style_handle, 'ce-miniature-') === 0) {
+                    $post_id = substr($style_handle, 13);
+                    MiniatureCSS::create($post_id)->enqueue();
+                } else {
+                    wp_enqueue_style($style_handle);
+                }
+            }
         }
+
+        echo do_shortcode($cached_data['content']);
+    }
+
+    protected function doPrintElements(&$elements_data)
+    {
+        foreach ($elements_data as &$element_data) {
+            if ($element = Plugin::$instance->elements_manager->createElementInstance($element_data)) {
+                $element->printElement();
+            }
+        }
+    }
+
+    public function setDocumentCache(array $value)
+    {
+        $expiration = (int) get_option('elementor_element_cache_ttl', 24);
+
+        $value['timeout'] = strtotime("+$expiration hours");
+
+        update_post_meta($this->post->ID, static::CACHE_META_KEY, $value);
+    }
+
+    private function getDocumentCache()
+    {
+        $cache = get_post_meta($this->post->ID, static::CACHE_META_KEY, true);
+
+        if (empty($cache['timeout']) || time() > $cache['timeout']) {
+            return false;
+        }
+        unset($cache['timeout']);
+
+        return $cache;
+    }
+
+    protected function deleteCache()
+    {
+        $this->deleteMeta(static::CACHE_META_KEY);
+    }
+
+    private function shouldStoreCacheElements()
+    {
+        static $should_store = null;
+
+        if (null === $should_store) {
+            $should_store = !_CE_ADMIN_ && !Plugin::$instance->preview->isPreviewMode();
+        }
+
+        return $should_store;
     }
 
     protected function registerDocumentControls()

@@ -20,15 +20,12 @@
 
 namespace PrestaShop\Module\PsAccounts\Service;
 
-use PrestaShop\Module\PsAccounts\Account\Command\MigrateAndLinkV4ShopCommand;
-use PrestaShop\Module\PsAccounts\Account\Command\UnlinkShopCommand;
 use PrestaShop\Module\PsAccounts\Account\LinkShop;
 use PrestaShop\Module\PsAccounts\Account\Session\Firebase\OwnerSession;
 use PrestaShop\Module\PsAccounts\Account\Session\Firebase\ShopSession;
 use PrestaShop\Module\PsAccounts\Adapter\Link;
-use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
 use PrestaShop\Module\PsAccounts\Entity\EmployeeAccount;
-use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
+use PrestaShop\Module\PsAccounts\Exception\RefreshTokenException;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Repository\EmployeeAccountRepository;
 
@@ -104,12 +101,14 @@ class PsAccountsService
 
     /**
      * @return string
-     *
-     * @throws \Exception
      */
     public function getOrRefreshToken()
     {
-        return (string) $this->shopSession->getOrRefreshToken();
+        try {
+            return (string) $this->shopSession->getValidToken()->getJwt();
+        } catch (RefreshTokenException $e) {
+            return '';
+        }
     }
 
     /**
@@ -121,25 +120,25 @@ class PsAccountsService
     }
 
     /**
-     * @return string|null
-     *
-     * @throws \Exception
+     * @return string
      */
     public function getToken()
     {
-        return (string) $this->shopSession->getOrRefreshToken();
+        return $this->getOrRefreshToken();
     }
 
     /**
-     * @return string|null
-     *
-     * @throws \Exception
+     * @return string
      *
      * @deprecated
      */
     public function getUserToken()
     {
-        return (string) $this->ownerSession->getOrRefreshToken();
+        try {
+            return (string) $this->ownerSession->getValidToken()->getJwt();
+        } catch (RefreshTokenException $e) {
+            return '';
+        }
     }
 
     /**
@@ -235,63 +234,6 @@ class PsAccountsService
     }
 
     /**
-     * @return void
-     *
-     * @throws \PrestaShopException
-     * @throws \Exception
-     */
-    public function autoReonboardOnV5()
-    {
-        /** @var ShopProvider $shopProvider */
-        $shopProvider = $this->module->getService(ShopProvider::class);
-
-        /** @var ConfigurationRepository $conf */
-        $conf = $this->module->getService(ConfigurationRepository::class);
-
-        /** @var LinkShop $linkShop */
-        $linkShop = $this->module->getService(LinkShop::class);
-
-        /** @var CommandBus $commandBus */
-        $commandBus = $this->module->getService(CommandBus::class);
-
-        $allShops = $shopProvider->getShopsTree((string) $this->module->name);
-
-        $flattenShops = [];
-
-        foreach ($allShops as $shopGroup) {
-            foreach ($shopGroup['shops'] as $shop) {
-                $shop['multishop'] = (bool) $shopGroup['multishop'];
-                $flattenShops[] = $shop;
-            }
-        }
-
-        $isAlreadyReonboard = false;
-
-        usort($flattenShops, function ($firstShop, $secondShop) {
-            return (int) $firstShop['id'] - (int) $secondShop['id'];
-        });
-
-        foreach ($flattenShops as $shop) {
-            if ($shop['isLinkedV4']) {
-                $id = $conf->getShopId();
-                if ($isAlreadyReonboard) {
-                    $conf->setShopId((int) $shop['id']);
-
-                    $commandBus->handle(new UnlinkShopCommand($shop['id']));
-
-                    $conf->setShopId($id);
-                } else {
-                    $shop['employeeId'] = null;
-
-                    $commandBus->handle(new MigrateAndLinkV4ShopCommand($id, $shop));
-
-                    $isAlreadyReonboard = true;
-                }
-            }
-        }
-    }
-
-    /**
      * @return bool
      *
      * @throws \Exception
@@ -327,12 +269,12 @@ class PsAccountsService
     public function getEmployeeAccount()
     {
         $repository = new EmployeeAccountRepository();
-        if ($repository->isCompatPs16()) {
+        try {
             return $repository->findByEmployeeId(
                 $this->module->getContext()->employee->id
             );
+        } catch (\Exception $e) {
+            return null;
         }
-
-        return null;
     }
 }

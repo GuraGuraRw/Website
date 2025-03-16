@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of the ramsey/uuid library
  *
@@ -11,12 +12,10 @@
  * @link https://packagist.org/packages/ramsey/uuid Packagist
  * @link https://github.com/ramsey/uuid GitHub
  */
-
-namespace Ramsey\Uuid\Provider\Node;
+namespace PrestaShop\Module\PsAccounts\Vendor\Ramsey\Uuid\Provider\Node;
 
 use Exception;
-use Ramsey\Uuid\Provider\NodeProviderInterface;
-
+use PrestaShop\Module\PsAccounts\Vendor\Ramsey\Uuid\Provider\NodeProviderInterface;
 /**
  * FallbackNodeProvider attempts to gain the system host ID from an array of
  * providers, falling back to the next in line in the event a host ID can not be
@@ -28,7 +27,6 @@ class FallbackNodeProvider implements NodeProviderInterface
      * @var NodeProviderInterface[]
      */
     private $nodeProviders;
-
     /**
      * Constructs a `FallbackNodeProvider` using an array of node providers
      *
@@ -38,7 +36,6 @@ class FallbackNodeProvider implements NodeProviderInterface
     {
         $this->nodeProviders = $providers;
     }
-
     /**
      * Returns the system node ID by iterating over an array of node providers
      * and returning the first non-empty value found
@@ -53,7 +50,6 @@ class FallbackNodeProvider implements NodeProviderInterface
                 return $node;
             }
         }
-
         return null;
     }
 }

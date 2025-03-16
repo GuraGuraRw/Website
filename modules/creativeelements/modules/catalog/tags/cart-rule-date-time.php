@@ -13,7 +13,7 @@ if (!defined('_PS_VERSION_')) {
 }
 
 use CE\CoreXDynamicTagsXDataTag as DataTag;
-use CE\ModulesXDynamicTagsXModule as Module;
+use CE\ModulesXDynamicTagsXModule as TagsModule;
 
 class ModulesXCatalogXTagsXCartRuleDateTime extends DataTag
 {
@@ -29,12 +29,12 @@ class ModulesXCatalogXTagsXCartRuleDateTime extends DataTag
 
     public function getGroup()
     {
-        return Module::CATALOG_GROUP;
+        return TagsModule::CATALOG_GROUP;
     }
 
     public function getCategories()
     {
-        return [Module::DATE_TIME_CATEGORY];
+        return [TagsModule::DATE_TIME_CATEGORY];
     }
 
     public function getPanelTemplateSettingKey()
@@ -45,14 +45,13 @@ class ModulesXCatalogXTagsXCartRuleDateTime extends DataTag
     protected function getCartRuleOptions()
     {
         $opts = [];
-        $ps = _DB_PREFIX_;
-        $id_lang = (int) \Context::getContext()->language->id;
-        $rows = \Db::getInstance(_PS_USE_SQL_SLAVE_)->executeS("
-            SELECT a.`id_cart_rule`, b.`name` FROM `{$ps}cart_rule` a " .
-            \Shop::addSqlAssociation('cart_rule', 'a') . "
-            LEFT JOIN `{$ps}cart_rule_lang` b ON b.`id_cart_rule` = a.`id_cart_rule` AND b.`id_lang` = $id_lang
+        $id_lang = $GLOBALS['language']->id;
+        $rows = \Db::getInstance(_PS_USE_SQL_SLAVE_)->executeS('
+            SELECT a.`id_cart_rule`, b.`name` FROM ' . _DB_PREFIX_ . 'cart_rule a ' .
+            \Shop::addSqlAssociation('cart_rule', 'a') . '
+            LEFT JOIN ' . _DB_PREFIX_ . 'cart_rule_lang b ON b.`id_cart_rule` = a.`id_cart_rule` AND b.`id_lang` = ' . (int) $id_lang . '
             WHERE a.`active` = 1 AND a.`date_to` > NOW()
-        ");
+        ');
         if ($rows) {
             foreach ($rows as &$row) {
                 $opts[$row['id_cart_rule']] = "#{$row['id_cart_rule']} {$row['name']}";
@@ -73,7 +72,7 @@ class ModulesXCatalogXTagsXCartRuleDateTime extends DataTag
                 'select2options' => [
                     'placeholder' => __('Select...'),
                 ],
-                'options' => is_admin() ? $this->getCartRuleOptions() : [],
+                'options' => _CE_ADMIN_ ? $this->getCartRuleOptions() : [],
             ]
         );
 
@@ -94,7 +93,7 @@ class ModulesXCatalogXTagsXCartRuleDateTime extends DataTag
     public function getValue(array $options = [])
     {
         $settings = $this->getSettings();
-        $cr = new \CartRule($settings['id_cart_rule'], \Context::getContext()->language->id);
+        $cr = new \CartRule($settings['id_cart_rule'], $GLOBALS['language']->id);
 
         return $cr->{"date_{$settings['date']}"};
     }

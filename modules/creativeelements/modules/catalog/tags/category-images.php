@@ -14,7 +14,7 @@ if (!defined('_PS_VERSION_')) {
 
 use CE\CoreXDynamicTagsXDataTag as DataTag;
 use CE\ModulesXCatalogXControlsXSelectCategory as SelectCategory;
-use CE\ModulesXDynamicTagsXModule as Module;
+use CE\ModulesXDynamicTagsXModule as TagsModule;
 
 class ModulesXCatalogXTagsXCategoryImages extends DataTag
 {
@@ -32,12 +32,12 @@ class ModulesXCatalogXTagsXCategoryImages extends DataTag
 
     public function getGroup()
     {
-        return Module::CATALOG_GROUP;
+        return TagsModule::CATALOG_GROUP;
     }
 
     public function getCategories()
     {
-        return [Module::GALLERY_CATEGORY];
+        return [TagsModule::GALLERY_CATEGORY];
     }
 
     public function getPanelTemplateSettingKey()
@@ -45,26 +45,29 @@ class ModulesXCatalogXTagsXCategoryImages extends DataTag
         return 'image_size';
     }
 
-    public static function getSubCategories($id_category, $caption, $description, \Context $context)
+    public static function getSubCategories($id_category, $caption, $description)
     {
+        $controller = $GLOBALS['context']->controller;
+
         if ($id_category > 1) {
             $id = $id_category;
-        } elseif (!empty($context->smarty->tpl_vars['subcategories']->value)) {
-            return $context->smarty->tpl_vars['subcategories']->value;
-        } elseif ($id_category > 0 && $context->controller instanceof \CategoryController) {
-            $id = $context->smarty->tpl_vars['category']->value['id_parent'];
-        } elseif ($context->controller instanceof \ProductController) {
-            $id = $context->controller->getProduct()->id_category_default;
+        } elseif ($controller instanceof \CategoryController) {
+            if (!$id_category || $GLOBALS['smarty']->tpl_vars['subcategories']->value) {
+                return $GLOBALS['smarty']->tpl_vars['subcategories']->value;
+            }
+            $id = $GLOBALS['smarty']->tpl_vars['category']->value['id_parent'];
+        } elseif ($controller instanceof \ProductController) {
+            $id = $controller->getProduct()->id_category_default;
         } else {
-            $id = $context->shop->id_category;
+            $id = $GLOBALS['context']->shop->id_category;
         }
 
         if (array_intersect([$caption, $description], ['description', 'additional_description', 'meta_title', 'meta_description'])) {
             $category = new \Category();
             $category->id = $id;
-            $subcategories = $category->getSubCategories($context->language->id);
+            $subcategories = $category->getSubCategories($GLOBALS['language']->id);
         } else {
-            $subcategories = \Category::getChildren($id, $context->language->id, true, $context->shop->id);
+            $subcategories = \Category::getChildren($id, $GLOBALS['language']->id, true, $GLOBALS['context']->shop->id);
         }
 
         return $subcategories;
@@ -91,7 +94,7 @@ class ModulesXCatalogXTagsXCategoryImages extends DataTag
                 'select2options' => [
                     'allowClear' => false,
                 ],
-                'extend' => [
+                'options' => [
                     '0' => __('Current Category') . ' / ' . __('Default'),
                     '1' => __('Current Category') . ' / ' . __('Parent Category'),
                 ],
@@ -164,13 +167,15 @@ class ModulesXCatalogXTagsXCategoryImages extends DataTag
         $cats = self::getSubCategories(
             $settings['id_category'],
             $caption = $settings['caption'],
-            $description = $settings['description'],
-            $context = \Context::getContext()
+            $description = $settings['description']
         );
         $image_size = $settings['image_size'];
-        $image_type = $this->getControls('image_size')['options'][$image_size];
-        $width = (int) substr($image_type, strrpos($image_type, '(') + 1);
-        $height = (int) substr($image_type, strrpos($image_type, '×') + 2);
+        $image_types = array_column(\ImageType::getImagesTypes('categories'), null, 'name');
+        $image_sizes = isset($image_types[$image_size]) ? [
+            'width' => $image_types[$image_size]['width'],
+            'height' => $image_types[$image_size]['height'],
+        ] : [];
+        $image_sizes || $image_size = '';
         $items = [];
 
         foreach ($cats as &$cat) {
@@ -178,14 +183,11 @@ class ModulesXCatalogXTagsXCategoryImages extends DataTag
                 || $cat['id_image'] = \Tools::file_exists_cache(_PS_CAT_IMG_DIR_ . $cat['id_category'] . '.jpg') ? $cat['id_category'] : '';
             $items[] = [
                 'image' => [
-                    'id' => '',
-                    'url' => $context->link->getCatImageLink($cat['link_rewrite'], (int) $cat['id_image'] ?: $context->language->iso_code, $image_size),
+                    'url' => Helper::$link->getCatImageLink($cat['link_rewrite'], (int) $cat['id_image'] ?: $GLOBALS['language']->iso_code, $image_size),
                     'alt' => $cat['name'],
-                    'width' => $width,
-                    'height' => $height,
-                ],
+                ] + $image_sizes,
                 'link' => [
-                    'url' => isset($cat['url']) ? $cat['url'] : $context->link->getCategoryLink($cat['id_category'], $cat['link_rewrite'], $context->language->id, null, $context->shop->id),
+                    'url' => isset($cat['url']) ? $cat['url'] : Helper::$link->getCategoryLink($cat['id_category'], $cat['link_rewrite'], $GLOBALS['language']->id, null, $GLOBALS['context']->shop->id),
                 ],
                 'caption' => $caption ? (
                     'custom' === $caption ? $settings['caption_text'] : strip_tags($cat[$caption])

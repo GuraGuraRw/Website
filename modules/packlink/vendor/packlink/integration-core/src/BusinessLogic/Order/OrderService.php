@@ -7,7 +7,10 @@ if (!defined('_PS_VERSION_')) {
 }
 
 use Exception;
+use Logeecom\Infrastructure\Http\Exceptions\HttpAuthenticationException;
 use Logeecom\Infrastructure\Http\Exceptions\HttpBaseException;
+use Logeecom\Infrastructure\Http\Exceptions\HttpCommunicationException;
+use Logeecom\Infrastructure\Http\Exceptions\HttpRequestException;
 use Logeecom\Infrastructure\Logger\Logger;
 use Logeecom\Infrastructure\ServiceRegister;
 use Packlink\BusinessLogic\BaseService;
@@ -107,6 +110,10 @@ class OrderService extends BaseService
      * @param Shipment $shipment
      * @param string $customsId
      *
+     * @throws HttpAuthenticationException
+     * @throws HttpBaseException
+     * @throws HttpCommunicationException
+     * @throws HttpRequestException
      * @throws OrderShipmentDetailsNotFound
      */
     public function updateShipmentData(Shipment $shipment, $customsId = '')
@@ -187,6 +194,11 @@ class OrderService extends BaseService
      * Updates tracking info from API for order with given shipment reference.
      *
      * @param Shipment $shipment Shipment DTO for given reference number.
+     *
+     * @throws HttpBaseException
+     * @throws HttpAuthenticationException
+     * @throws HttpCommunicationException
+     * @throws HttpRequestException
      */
     public function updateTrackingInfo(Shipment $shipment)
     {
@@ -214,6 +226,10 @@ class OrderService extends BaseService
                 $trackingHistory
             );
         } catch (HttpBaseException $e) {
+            if ($e->getCode() === 429) {
+                throw $e;
+            }
+
             Logger::logWarning($e->getMessage(), 'Core', array(
                 'referenceId' => $shipment->reference,
                 'trace' => $e->getTraceAsString(),

@@ -23,21 +23,13 @@ class ModulesXFontsManagerXIconSetsXFontastic extends IconSetBase
 
     protected function prepare()
     {
-        $this->data = call_user_func('file_get_contents', $this->directory . $this->stylesheet_file);
+        $this->data = @call_user_func('file_get_contents', $this->directory . $this->stylesheet_file);
+        $this->dir_name = $this->getUniqueName();
     }
 
     public function getType()
     {
-        return __('Fontastic');
-    }
-
-    public function isValid()
-    {
-        if (!file_exists($this->directory . $this->data_file)) {
-            return false; // missing data file
-        }
-
-        return true;
+        return 'Fontastic';
     }
 
     protected function extractIconList()

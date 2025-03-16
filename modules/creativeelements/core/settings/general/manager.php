@@ -196,7 +196,7 @@ class CoreXSettingsXGeneralXManager extends CSSManager
      */
     protected function getCssFileForUpdate($id)
     {
-        $id_shop = (int) \Context::getContext()->shop->id;
+        $id_shop = (int) $GLOBALS['context']->shop->id;
 
         return GlobalCSS::create("$id_shop-global.css");
     }

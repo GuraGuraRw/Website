@@ -2,7 +2,7 @@
 <module>
     <name>sendinblue</name>
     <displayName><![CDATA[Brevo]]></displayName>
-    <version><![CDATA[5.0.25]]></version>
+    <version><![CDATA[5.0.26]]></version>
     <description><![CDATA[Synchronize your PrestaShop subscribers with Brevo,
             create beautifully designed emails, and automatically follow up with customers who abandon their
             cart with a personalized message -- all from a single platform.]]></description>

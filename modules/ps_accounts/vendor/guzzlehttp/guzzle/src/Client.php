@@ -6,9 +6,9 @@ use PrestaShop\Module\PsAccounts\Vendor\GuzzleHttp\Cookie\CookieJar;
 use PrestaShop\Module\PsAccounts\Vendor\GuzzleHttp\Exception\GuzzleException;
 use PrestaShop\Module\PsAccounts\Vendor\GuzzleHttp\Promise;
 use PrestaShop\Module\PsAccounts\Vendor\GuzzleHttp\Psr7;
-use Psr\Http\Message\RequestInterface;
-use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\UriInterface;
+use PrestaShop\Module\PsAccounts\Vendor\Psr\Http\Message\RequestInterface;
+use PrestaShop\Module\PsAccounts\Vendor\Psr\Http\Message\ResponseInterface;
+use PrestaShop\Module\PsAccounts\Vendor\Psr\Http\Message\UriInterface;
 /**
  * @method ResponseInterface get(string|UriInterface $uri, array $options = [])
  * @method ResponseInterface head(string|UriInterface $uri, array $options = [])

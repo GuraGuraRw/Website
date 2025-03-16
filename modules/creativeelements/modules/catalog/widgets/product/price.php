@@ -67,7 +67,7 @@ class ModulesXCatalogXWidgetsXProductXPrice extends WidgetBase
         $this->addControl(
             'regular',
             [
-                'label' => __('Regular Price'),
+                'label' => __('Regular Price', 'Shop.Theme.Catalog'),
                 'type' => ControlsManager::SWITCHER,
                 'label_on' => __('Show'),
                 'label_off' => __('Hide'),
@@ -91,7 +91,7 @@ class ModulesXCatalogXWidgetsXProductXPrice extends WidgetBase
         $this->addControl(
             'unit_price',
             [
-                'label' => __('Unit Price'),
+                'label' => __('Unit Price', 'Shop.Theme.Catalog'),
                 'type' => ControlsManager::SWITCHER,
                 'label_on' => __('Show'),
                 'label_off' => __('Hide'),
@@ -176,10 +176,8 @@ class ModulesXCatalogXWidgetsXProductXPrice extends WidgetBase
                     'size' => 10,
                 ],
                 'selectors' => [
-                    'body:not(.lang-rtl) {{WRAPPER}} .ce-product-prices > div' => 'margin: 0 {{SIZE}}{{UNIT}} {{SIZE}}{{UNIT}} 0',
-                    'body:not(.lang-rtl) {{WRAPPER}} .ce-product-prices' => 'margin: 0 -{{SIZE}}{{UNIT}} -{{SIZE}}{{UNIT}} 0',
-                    'body.lang-rtl {{WRAPPER}} .ce-product-prices > div' => 'margin: 0 0 {{SIZE}}{{UNIT}} {{SIZE}}{{UNIT}}',
-                    'body.lang-rtl {{WRAPPER}} .ce-product-prices' => 'margin: 0 0 -{{SIZE}}{{UNIT}} -{{SIZE}}{{UNIT}}',
+                    '{{WRAPPER}} .ce-product-prices' => 'margin: 0 0 -{{SIZE}}{{UNIT}}; margin-inline-end: -{{SIZE}}{{UNIT}};',
+                    '{{WRAPPER}} .ce-product-prices > div' => 'margin: 0 0 {{SIZE}}{{UNIT}}; margin-inline-end: {{SIZE}}{{UNIT}};',
                 ],
             ]
         );
@@ -309,7 +307,7 @@ class ModulesXCatalogXWidgetsXProductXPrice extends WidgetBase
             $this->startControlsTab(
                 'tab_pack',
                 [
-                    'label' => __('Pack'),
+                    'label' => __('Pack', 'Shop.Theme.Catalog'),
                 ]
             );
 
@@ -421,8 +419,7 @@ class ModulesXCatalogXWidgetsXProductXPrice extends WidgetBase
                     'size' => 10,
                 ],
                 'selectors' => [
-                    'body:not(.lang-rtl) {{WRAPPER}} .ce-product-badge-sale' => 'margin-left: {{SIZE}}{{UNIT}}',
-                    'body.lang-rtl {{WRAPPER}} .ce-product-badge-sale' => 'margin-right: {{SIZE}}{{UNIT}}',
+                    '{{WRAPPER}} .ce-product-badge-sale' => 'margin-inline-start: {{SIZE}}{{UNIT}}',
                 ],
             ]
         );
@@ -516,9 +513,8 @@ class ModulesXCatalogXWidgetsXProductXPrice extends WidgetBase
 
     protected function render()
     {
-        $context = \Context::getContext();
-        $vars = &$context->smarty->tpl_vars;
-        $product = &$vars['product']->value;
+        $vars = &$GLOBALS['smarty']->tpl_vars;
+        $product = $vars['product']->value;
 
         if (!$product['show_price']) {
             return;
@@ -529,7 +525,6 @@ class ModulesXCatalogXWidgetsXProductXPrice extends WidgetBase
         $displayPackPrice = $vars['displayPackPrice']->value;
         $noPackPrice = $vars['noPackPrice']->value;
         $configuration = &$vars['configuration']->value;
-        $t = $context->getTranslator();
         ?>
         <div class="ce-product-prices">
         <?php if ($settings['regular'] && $product['has_discount']) { ?>
@@ -541,42 +536,42 @@ class ModulesXCatalogXWidgetsXProductXPrice extends WidgetBase
         <?php if ($settings['discount'] && $product['has_discount']) { ?>
             <?php if ('percentage' === $product['discount_type']) { ?>
                 <span class="ce-product-badge ce-product-badge-sale ce-product-badge-sale-percentage">
-                    <?php echo $t->trans('Save %percentage%', ['%percentage%' => $product['discount_percentage_absolute']], 'Shop.Theme.Catalog'); ?>
+                    <?php _e('Save %percentage%', 'Shop.Theme.Catalog', ['%percentage%' => $product['discount_percentage_absolute']]); ?>
                 </span>
             <?php } else { ?>
                 <span class="ce-product-badge ce-product-badge-sale ce-product-badge-sale-amount">
-                    <?php echo $t->trans('Save %amount%', ['%amount%' => $product['discount_to_display']], 'Shop.Theme.Catalog'); ?>
+                    <?php _e('Save %amount%', 'Shop.Theme.Catalog', ['%amount%' => $product['discount_to_display']]); ?>
                 </span>
             <?php } ?>
         <?php } ?>
             </div>
         <?php if ($displayUnitPrice) { ?>
             <div class="ce-product-price-unit">
-                <?php echo $t->trans('(%unit_price%)', ['%unit_price%' => $product['unit_price_full']], 'Shop.Theme.Catalog'); ?>
+                <?php _e('(%unit_price%)', 'Shop.Theme.Catalog', ['%unit_price%' => $product['unit_price_full']]); ?>
             </div>
         <?php } ?>
         <?php if (2 == $priceDisplay) { ?>
             <div class="ce-product-price-without-taxes">
-                <?php echo $t->trans('%price% tax excl.', ['%price%' => $product['price_tax_exc']], 'Shop.Theme.Catalog'); ?>
+                <?php _e('%price% tax excl.', 'Shop.Theme.Catalog', ['%price%' => $product['price_tax_exc']]); ?>
             </div>
         <?php } ?>
         <?php if ($displayPackPrice) { ?>
             <div class="ce-product-price-pack">
-                <?php echo $t->trans('Instead of %price%', ['%price%' => $noPackPrice], 'Shop.Theme.Catalog'); ?>
+                <?php _e('Instead of %price%', 'Shop.Theme.Catalog', ['%price%' => $noPackPrice]); ?>
             </div>
         <?php } ?>
         <?php if ($product['ecotax']['amount'] > 0) { ?>
             <div class="ce-product-price-ecotax">
-                <?php echo $t->trans('Including %amount% for ecotax', ['%amount%' => $product['ecotax']['value']], 'Shop.Theme.Catalog'); ?>
+                <?php _e('Including %amount% for ecotax', 'Shop.Theme.Catalog', ['%amount%' => $product['ecotax']['value']]); ?>
             <?php if ($product['has_discount']) { ?>
-                <?php echo $t->trans('(not impacted by the discount)', [], 'Shop.Theme.Catalog'); ?>
+                <?php _e('(not impacted by the discount)', 'Shop.Theme.Catalog'); ?>
             <?php } ?>
             </div>
         <?php } ?>
             <?php echo \Hook::exec('displayProductPriceBlock', ['product' => $product, 'type' => 'weight', 'hook_origin' => 'product_sheet']); ?>
         <?php ob_start(); ?>
         <?php if (isset($configuration['taxes_enabled']) && !$configuration['taxes_enabled']) { ?>
-            <?php echo $t->trans('No tax', [], 'Shop.Theme.Catalog'); ?>
+            <?php _e('No tax', 'Shop.Theme.Catalog'); ?>
         <?php } elseif ($configuration['display_taxes_label']) { ?>
             <?php echo $product['labels']['tax_long']; ?>
         <?php } ?>

@@ -82,7 +82,7 @@ class Sendinblue extends Module
     {
         $this->name = 'sendinblue';
         $this->tab = 'advertising_marketing';
-        $this->version = '5.0.25';
+        $this->version = '5.0.26';
         $this->module_key = 'fa4c321492032ab1bdeea359aa1e4e3d';
         $this->author = 'Brevo';
         $this->need_instance = 1;

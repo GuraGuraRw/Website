@@ -3,8 +3,8 @@
 namespace PrestaShop\Module\PsAccounts\Vendor\GuzzleHttp\Psr7;
 
 use InvalidArgumentException;
-use Psr\Http\Message\StreamInterface;
-use Psr\Http\Message\UploadedFileInterface;
+use PrestaShop\Module\PsAccounts\Vendor\Psr\Http\Message\StreamInterface;
+use PrestaShop\Module\PsAccounts\Vendor\Psr\Http\Message\UploadedFileInterface;
 use RuntimeException;
 class UploadedFile implements UploadedFileInterface
 {

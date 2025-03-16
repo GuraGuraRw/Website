@@ -58,6 +58,8 @@ abstract class CoreXFilesXCSSXBase extends BaseFile
 
     private $icons_fonts = [];
 
+    private $preloads = [];
+
     /**
      * Stylesheet object.
      *
@@ -195,22 +197,17 @@ abstract class CoreXFilesXCSSXBase extends BaseFile
         }
 
         if (self::CSS_STATUS_INLINE === $meta['status']) {
-            /*
-            $dep = $this->get_inline_dependency();
-            // If the dependency has already been printed ( like a template in footer )
-            if ( wp_styles()->query( $dep, 'done' ) ) {
-                printf( '<style id="%1$s">%2$s</style>', $this->get_file_handle_id(), $meta['css'] ); // XSS ok.
-            } else {
-                wp_add_inline_style( $dep, $meta['css'] );
-            }
-            */
+            // $dep = $this->get_inline_dependency();
             $handle = method_exists($this, 'getPostId') && $this->getPostId() == (string) \CreativeElements::getPreviewUId()
                 ? $this->getFileHandleId()
                 : $this->getInlineDependency();
             wp_add_inline_style($handle, $meta['css']);
         } elseif (self::CSS_STATUS_FILE === $meta['status']) {
-            // Re-check if it's not empty after CSS update.
-            wp_enqueue_style($this->getFileHandleId(), $this->getUrl(), $this->getEnqueueDependencies(), null);
+            $handle = $this->getFileHandleId();
+            // Force inline post CSS in preview to ignore CCC
+            'elementor-post-' . \CreativeElements::getPreviewUId(false) === $handle
+                ? wp_add_inline_style($this->getInlineDependency(), @call_user_func('file_get_contents', $this->getPath()))
+                : wp_enqueue_style($handle, $this->getUrl(), $this->getEnqueueDependencies(), $meta['time']);
         }
 
         // Handle fonts.
@@ -228,6 +225,14 @@ abstract class CoreXFilesXCSSXBase extends BaseFile
                 }
                 Plugin::$instance->frontend->enqueueFont($icon_font);
             }
+        }
+
+        if (!empty($meta['preloads'])) {
+            add_action('wp_head', function () use (&$meta) {
+                foreach ($meta['preloads'] as &$preload) {
+                    echo '<link rel="preload" ' . Utils::renderHtmlAttributes($preload) . '>';
+                }
+            });
         }
 
         $name = $this->getName();
@@ -464,13 +469,62 @@ abstract class CoreXFilesXCSSXBase extends BaseFile
             }
 
             if (ControlsManager::ICONS === $control['type']) {
-                $this->icons_fonts[] = $values[$control['name']]['library'];
+                // $this->icons_fonts[] = $values[$control['name']]['library'];
+                if (isset($control['fa4compatibility'], $values[$fa4 = $control['fa4compatibility']]) && !isset($values['__fa4_migrated'][$control['name']])) {
+                    $values[$fa4] && $this->icons_fonts += [
+                        'fa-solid' => true,
+                        'fa-regular' => true,
+                        'fa-brands' => true,
+                    ];
+                } elseif ($library = $values[$control['name']]['library']) {
+                    $this->icons_fonts[$library] = true;
+                }
+            } elseif (ControlsManager::SELECT === $control['type'] && 'preload' === $values[$control['name']]) {
+                $prefix = substr($control['name'], 0, -8);
+
+                if ('classic' === $control['of_type']) {
+                    $preload = [
+                        'as' => 'image',
+                        'href' => Helper::getMediaLink($values[$prefix . '_image']['url']),
+                    ];
+                    $this->preloads[] = &$preload;
+
+                    if (!empty($values[$prefix . '_image_tablet']['url'])) {
+                        $min = \Configuration::get('elementor_viewport_lg');
+                        $preload['media'] = "(min-width:{$min}px)";
+
+                        $max = $min - 1;
+                        $preload_tablet = [
+                            'as' => 'image',
+                            'href' => Helper::getMediaLink($values[$prefix . '_image_tablet']['url']),
+                            'media' => "(max-width:{$max}px)",
+                        ];
+                        $this->preloads[] = &$preload_tablet;
+                    }
+                    if (!empty($values[$prefix . '_image_mobile']['url'])) {
+                        $min = \Configuration::get('elementor_viewport_md');
+                        isset($preload['media']) || $preload['media'] = "(min-width:{$min}px)";
+                        isset($preload_tablet) && $preload_tablet['media'] .= " and (min-width:{$min}px)";
+
+                        $max = $min - 1;
+                        $preload_mobile = [
+                            'as' => 'image',
+                            'href' => Helper::getMediaLink($values[$prefix . '_image_mobile']['url']),
+                            'media' => "(max-width:{$max}px)",
+                        ];
+                        $this->preloads[] = &$preload_mobile;
+                    }
+                } elseif (!empty($values[$prefix . '_gallery'][0]['image']['url'])) {
+                    $this->preloads[] = [
+                        'as' => 'image',
+                        'href' => Helper::getMediaLink($values[$prefix . '_gallery'][0]['image']['url']),
+                    ];
+                }
             }
 
             if (!empty($parsed_dynamic_settings['__dynamic__'][$control['name']])) {
                 // Dynamic CSS should not be added to the CSS files.
-                // Instead it's handled by CE\CoreXDynamicTagsXDynamicCSS
-                // and printed in a style tag.
+                // Instead it's handled by CE\CoreXDynamicTagsXDynamicCSS and printed in a style tag.
                 unset($parsed_dynamic_settings[$control['name']]);
                 continue;
             }
@@ -509,7 +563,9 @@ abstract class CoreXFilesXCSSXBase extends BaseFile
     {
         return array_merge(parent::getDefaultMeta(), [
             'fonts' => array_unique($this->fonts),
-            'icons' => array_unique($this->icons_fonts),
+            // 'icons' => array_unique($this->icons_fonts),
+            'icons' => array_keys($this->icons_fonts),
+            'preloads' => $this->preloads,
             'status' => '',
         ]);
     }

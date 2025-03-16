@@ -556,7 +556,7 @@ class ModulesXCatalogXWidgetsXProductXCustomization extends WidgetBase
             GroupControlTypography::getType(),
             [
                 'name' => 'field_typography',
-                'selector' => '{{WRAPPER}} .elementor-field-group .elementor-field',
+                'selector' => '{{WRAPPER}} .elementor-field',
             ]
         );
 
@@ -566,7 +566,7 @@ class ModulesXCatalogXWidgetsXProductXCustomization extends WidgetBase
                 'label' => __('Text Color'),
                 'type' => ControlsManager::COLOR,
                 'selectors' => [
-                    '{{WRAPPER}} .elementor-field-group .elementor-field' => 'color: {{VALUE}};',
+                    '{{WRAPPER}} .elementor-field' => 'color: {{VALUE}};',
                 ],
             ]
         );
@@ -577,7 +577,7 @@ class ModulesXCatalogXWidgetsXProductXCustomization extends WidgetBase
                 'label' => __('Background Color'),
                 'type' => ControlsManager::COLOR,
                 'selectors' => [
-                    '{{WRAPPER}} .elementor-field-group .elementor-field-textual' => 'background-color: {{VALUE}};',
+                    '{{WRAPPER}} .elementor-field-textual' => 'background-color: {{VALUE}};',
                 ],
             ]
         );
@@ -588,7 +588,7 @@ class ModulesXCatalogXWidgetsXProductXCustomization extends WidgetBase
                 'label' => __('Border Color'),
                 'type' => ControlsManager::COLOR,
                 'selectors' => [
-                    '{{WRAPPER}} .elementor-field-group .elementor-field-textual' => 'border-color: {{VALUE}};',
+                    '{{WRAPPER}} .elementor-field-textual' => 'border-color: {{VALUE}};',
                 ],
             ]
         );
@@ -599,7 +599,7 @@ class ModulesXCatalogXWidgetsXProductXCustomization extends WidgetBase
                 'label' => __('Border Width'),
                 'type' => ControlsManager::DIMENSIONS,
                 'selectors' => [
-                    '{{WRAPPER}} .elementor-field-group .elementor-field-textual' => 'border-width: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+                    '{{WRAPPER}} .elementor-field-textual' => 'border-width: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
                 ],
             ]
         );
@@ -611,7 +611,7 @@ class ModulesXCatalogXWidgetsXProductXCustomization extends WidgetBase
                 'type' => ControlsManager::DIMENSIONS,
                 'size_units' => ['px', '%'],
                 'selectors' => [
-                    '{{WRAPPER}} .elementor-field-group .elementor-field-textual' => 'border-radius: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+                    '{{WRAPPER}} .elementor-field-textual' => 'border-radius: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
                 ],
             ]
         );
@@ -765,24 +765,22 @@ class ModulesXCatalogXWidgetsXProductXCustomization extends WidgetBase
 
     protected function render()
     {
-        $context = \Context::getContext();
-        $configuration = &$context->smarty->tpl_vars['configuration']->value;
-        $product = $context->smarty->tpl_vars['product']->value;
+        $vars = &$GLOBALS['smarty']->tpl_vars;
+        $product = $vars['product']->value;
 
-        if ($configuration['is_catalog'] || !$product['customizations']['fields']) {
+        if ($vars['configuration']->value['is_catalog'] || !$product['customizations']['fields']) {
             return;
         }
-        $t = $context->getTranslator();
         $settings = $this->getSettings();
 
-        if ('' !== $title = trim($settings['title_text'] ?: $t->trans('Product customization', [], 'Shop.Theme.Catalog'))) {
+        if ($title = trim($settings['title_text'] ?: __('Product customization', 'Shop.Theme.Catalog'))) {
             $this->addRenderAttribute('title_text', 'class', 'elementor-heading-title');
             $settings['title_display'] && $this->addRenderAttribute('title_text', 'class', 'ce-display-' . $settings['title_display']);
             $settings['title_text'] && $this->addInlineEditingAttributes('title_text', 'none');
 
             echo "<{$settings['title_tag']} {$this->getRenderAttributeString('title_text')}>$title</{$settings['title_tag']}>";
         }
-        if ($description = trim($settings['description_text'] ?: $t->trans("Don't forget to save your customization to be able to add to cart", [], 'Shop.Forms.Help'))) {
+        if ($description = trim($settings['description_text'] ?: __("Don't forget to save your customization to be able to add to cart", 'Shop.Forms.Help'))) {
             $this->addRenderAttribute('description_text', 'class', 'elementor-text-editor');
             $settings['description_text'] && $this->addInlineEditingAttributes('description_text');
 
@@ -808,7 +806,7 @@ class ModulesXCatalogXWidgetsXProductXCustomization extends WidgetBase
                         <a href="<?php echo esc_attr(Plugin::$instance->frontend->createActionHash('lightbox', ['type' => 'image', 'url' => $field['image']['large']['url']])); ?>">
                             <img src="<?php echo esc_attr($field['image']['small']['url']); ?>" alt="" loading="lazy">
                         </a>
-                        <a href="<?php echo esc_attr($field['remove_image_url']); ?>" rel="nofollow"><?php echo $t->trans('Remove Image', [], 'Shop.Theme.Actions'); ?></a>
+                        <a href="<?php echo esc_attr($field['remove_image_url']); ?>" rel="nofollow"><?php _e('Remove Image', 'Shop.Theme.Actions'); ?></a>
                     <?php } ?>
                     </label>
                 <?php } ?>
@@ -818,9 +816,9 @@ class ModulesXCatalogXWidgetsXProductXCustomization extends WidgetBase
                     <button type="submit" name="submitCustomizedData" <?php $this->printRenderAttributeString('button'); ?>>
                         <span class="elementor-button-content-wrapper">
                         <?php if ($settings['selected_icon']['value']) { ?>
-                            <span class="elementor-align-icon-<?php echo esc_attr($this->getSettings('icon_align')); ?>"><?php IconsManager::renderIcon($settings['selected_icon']); ?></span>
+                            <span class="elementor-align-icon-<?php echo esc_attr($settings['icon_align']); ?>"><?php IconsManager::renderIcon($settings['selected_icon']); ?></span>
                         <?php } ?>
-                            <span class="elementor-button-text"><?php echo $settings['button_text'] ?: $t->trans('Save Customization', [], 'Shop.Theme.Actions'); ?></span>
+                            <span class="elementor-button-text"><?php echo $settings['button_text'] ?: __('Save Customization', 'Shop.Theme.Actions'); ?></span>
                         </span>
                     </button>
                 </div>

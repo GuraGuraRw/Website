@@ -1,6 +1,6 @@
 <?php
 /**
- * Creative Elements - live PageBuilder
+ * Creative Elements - live Theme & Page Builder
  *
  * @author    WebshopWorks
  * @copyright 2019-2024 WebshopWorks.com
@@ -44,16 +44,16 @@ class ModulesXCatalogXDocumentsXProductMiniature extends ProductDocument
         return '.elementor.elementor-' . uidval($this->getMainId())->toDefault();
     }
 
-    protected function getPermalinkUrl(\Link $link, $id_lang, $id_shop, array $args, $relative = true)
+    protected function getPermalinkUrl($id_lang, $id_shop, array $args, $relative = true)
     {
-        $category = new \Category(\Context::getContext()->shop->id_category, $id_lang);
+        $category = new \Category($GLOBALS['context']->shop->id_category, $id_lang);
 
         if (isset($args['preview_id'])) {
             $args = ['id_miniature' => UId::parse($args['preview_id'])->id] + $args;
             unset($args['preview_id']);
         }
 
-        return add_query_arg($args, $link->getCategoryLink($category));
+        return add_query_arg($args, Helper::$link->getCategoryLink($category));
     }
 
     public function getPreviewUrl()
@@ -61,18 +61,17 @@ class ModulesXCatalogXDocumentsXProductMiniature extends ProductDocument
         static $url;
 
         if (null === $url) {
-            $context = \Context::getContext();
             $settings = $this->getData('settings');
             $main_post_id = $this->getMainId();
             $uid = UId::parse($main_post_id);
 
             empty($settings['preview_id'])
-                || $product = new \Product($settings['preview_id'], false, $uid->id_lang ?: $context->language->id);
+                || $product = new \Product($settings['preview_id'], false, $uid->id_lang ?: $GLOBALS['language']->id);
 
-            $url = $context->link->getModuleLink('creativeelements', 'preview', [
-                'id_product' => !empty($product->id) ? $product->id : Helper::getLastUpdatedProductId($uid->getDefaultShopId() ?: $context->shop->id),
+            $url = Helper::$link->getModuleLink('creativeelements', 'preview', [
+                'id_product' => !empty($product->id) ? $product->id : Helper::getLastUpdatedProductId($uid->getDefaultShopId() ?: $GLOBALS['context']->shop->id),
                 'preview_id' => $main_post_id,
-                'id_employee' => $context->employee->id,
+                'id_employee' => $GLOBALS['employee']->id,
                 'cetoken' => \Tools::getAdminTokenLite($uid->getAdminController()),
                 'ctx' => \Shop::getContext(),
                 'ver' => time(),
@@ -183,7 +182,7 @@ class ModulesXCatalogXDocumentsXProductMiniature extends ProductDocument
                         'step' => 0.1,
                     ],
                 ],
-                'separator' => [
+                'selectors' => [
                     '{{WRAPPER}} .elementor-section-wrap' => '--e-background-transition-duration: {{SIZE}}s;',
                 ],
                 'condition' => [
@@ -401,6 +400,18 @@ class ModulesXCatalogXDocumentsXProductMiniature extends ProductDocument
         $this->endControlsSection();
 
         Plugin::$instance->controls_manager->addCustomCssControls($this);
+
+        if ($motionFx = Plugin::$instance->modules_manager->getModules('motion-effects')) {
+            remove_action('elementor/element/section/section_effects/after_section_start', [$motionFx, 'addFxControls']);
+            remove_action('elementor/element/column/section_effects/after_section_start', [$motionFx, 'addFxControls']);
+            remove_action('elementor/element/common/section_effects/after_section_start', [$motionFx, 'addFxControls']);
+
+            remove_action('elementor/element/section/section_background/before_section_end', [$motionFx, 'addBackgroundFxControls']);
+            remove_action('elementor/element/column/section_style/before_section_end', [$motionFx, 'addBackgroundFxControls']);
+
+            remove_action('elementor/element/section/section_effects/after_section_start', [$motionFx, 'addStickyControls']);
+            remove_action('elementor/element/common/section_effects/after_section_start', [$motionFx, 'addStickyControls']);
+        }
     }
 
     public static function filterSmartyCallback($match)
@@ -456,7 +467,7 @@ class ModulesXCatalogXDocumentsXProductMiniature extends ProductDocument
             Plugin::$instance->widgets_manager->getWidgetTypes('heading');
         }
 
-        if ($elements_data && UID::THEME === uidval($this->post->ID)->id_type) {
+        if ($elements_data && UId::THEME === uidval($this->post->ID)->id_type) {
             self::filterElementsData($elements_data);
 
             // Multishop compatibility
@@ -478,9 +489,10 @@ class ModulesXCatalogXDocumentsXProductMiniature extends ProductDocument
 
                 ob_start();
                 $this->printSmartyElementsWithWrapper($elements_data);
-                $result = file_put_contents(
+                $result = @call_user_func(
+                    'file_put_contents',
                     _CE_TEMPLATES_ . "front/theme/catalog/_partials/miniatures/product-$main_id.tpl",
-                    ob_get_clean()
+                    preg_replace('/\s\s+/', "\n", Helper::minifyHtml(ob_get_clean()))
                 );
                 $post_css = new PostCSS($uid);
                 $post_css->update();
@@ -532,14 +544,14 @@ class ModulesXCatalogXDocumentsXProductMiniature extends ProductDocument
     {
         parent::registerTags($dynamic_tags);
 
-        is_admin() && $dynamic_tags->unregisterTag('shortcode');
+        _CE_ADMIN_ && $dynamic_tags->unregisterTag('shortcode');
     }
 
     public static function registerWidgets($widgets_manager)
     {
         parent::registerWidgets($widgets_manager);
 
-        if (is_admin()) {
+        if (_CE_ADMIN_) {
             $widgets_manager->unregisterWidgetType('breadcrumb');
             $widgets_manager->unregisterWidgetType('product-box');
             $widgets_manager->unregisterWidgetType('product-grid');
@@ -552,20 +564,44 @@ class ModulesXCatalogXDocumentsXProductMiniature extends ProductDocument
         parent::__construct($data);
 
         add_action('elementor/element/common/_section_transform/after_section_end', function (ControlsStack $element) {
-            $element->updateControl(
-                '_transform_trigger_hover',
-                [
-                    'options' => [
-                        '' => __('Widget'),
-                        'column' => __('Column'),
-                        'section' => __('Section'),
-                        'miniature' => __('Miniature'),
-                    ],
-                ]
-            );
+            $element->updateControl('_transform_trigger_hover', [
+                'options' => [
+                    '' => __('Widget'),
+                    'column' => __('Column'),
+                    'section' => __('Section'),
+                    'miniature' => __('Miniature'),
+                ],
+            ]);
+
+            $devices = ['', '_tablet', '_mobile'];
+            $methods = ['perspective', 'rotateZ', 'rotateX', 'rotateY', 'translateX', 'translateY', 'scale', 'scaleX', 'scaleY', 'skewX', 'skewY'];
+
+            foreach (['', '_hover'] as $tab) {
+                foreach ($methods as $method) {
+                    foreach ($devices as $device) {
+                        $element->updateControl("_transform_{$method}_effect{$tab}{$device}", [
+                            'frontend_available' => null,
+                        ]);
+                    }
+
+                    $element->updateControl("_transform_flipX_effect$tab", [
+                        'frontend_available' => null,
+                    ]);
+
+                    $element->updateControl("_transform_flipY_effect$tab", [
+                        'frontend_available' => null,
+                    ]);
+                }
+            }
+
+            $element->updateControl('_position', [
+                'frontend_available' => null,
+            ]);
+
+            \Configuration::get('elementor_element_cache_ttl') && $element->removeControl('_element_cache');
         });
 
-        if ($this->getMainId() == \CreativeElements::getPreviewUId(false)) {
+        if (\CreativeElements::getPreviewUId(false) == (string) $this->getMainId()) {
             add_action('wp_footer', [__CLASS__, 'printPreviewFooter']);
 
             add_filter('template_include', function () {

@@ -434,7 +434,7 @@ class ModulesXCatalogXWidgetsXListingXPagination extends WidgetBase
         $this->addControl(
             'prev_text',
             [
-                'label' => __('Previous'),
+                'label' => __('Previous', 'Shop.Theme.Global'),
                 'classes' => 'elementor-control-type-heading',
                 'type' => ControlsManager::TEXT,
                 'placeholder' => __('Label'),
@@ -509,7 +509,7 @@ class ModulesXCatalogXWidgetsXListingXPagination extends WidgetBase
         $this->addControl(
             'next_text',
             [
-                'label' => __('Next'),
+                'label' => __('Next', 'Shop.Theme.Global'),
                 'classes' => 'elementor-control-type-heading',
                 'type' => ControlsManager::TEXT,
                 'placeholder' => __('Label'),
@@ -643,8 +643,7 @@ class ModulesXCatalogXWidgetsXListingXPagination extends WidgetBase
                 'selectors' => [
                     '{{WRAPPER}} .ce-pagination' => 'margin: 0 calc(-{{SIZE}}{{UNIT}}/2)',
                     '{{WRAPPER}} .ce-pagination .elementor-icon-list-item' => 'margin: 0 calc({{SIZE}}{{UNIT}}/2)',
-                    'body.lang-rtl {{WRAPPER}} .elementor-icon-list-item:after' => 'left: calc(-{{SIZE}}{{UNIT}}/2)',
-                    'body:not(.lang-rtl) {{WRAPPER}} .elementor-icon-list-item:after' => 'right: calc(-{{SIZE}}{{UNIT}}/2)',
+                    '{{WRAPPER}} .elementor-icon-list-item:after' => 'inset-inline-end: calc(-{{SIZE}}{{UNIT}}/2)',
                 ],
             ]
         );
@@ -1076,6 +1075,14 @@ class ModulesXCatalogXWidgetsXListingXPagination extends WidgetBase
             ]
         );
 
+        $this->addGroupControl(
+            GroupControlTextShadow::getType(),
+            [
+                'name' => 'button_text_shadow',
+                'selector' => '{{WRAPPER}} .elementor-button',
+            ]
+        );
+
         $this->startControlsTabs(
             'button_tabs',
             [
@@ -1256,6 +1263,14 @@ class ModulesXCatalogXWidgetsXListingXPagination extends WidgetBase
                 'selectors' => [
                     '{{WRAPPER}} .elementor-button' => 'border-radius: {{SIZE}}{{UNIT}};',
                 ],
+            ]
+        );
+
+        $this->addGroupControl(
+            GroupControlBoxShadow::getType(),
+            [
+                'name' => 'button_box_shadow',
+                'selector' => '{{WRAPPER}} .elementor-button',
             ]
         );
 
@@ -1510,7 +1525,7 @@ class ModulesXCatalogXWidgetsXListingXPagination extends WidgetBase
 
     protected function render()
     {
-        $listing = \Context::getContext()->smarty->tpl_vars['listing']->value;
+        $listing = $GLOBALS['smarty']->tpl_vars['listing']->value;
         $pagination = &$listing['pagination'];
 
         if (!$listing['products'] && empty(${'_GET'}['q'])) {
@@ -1549,7 +1564,7 @@ class ModulesXCatalogXWidgetsXListingXPagination extends WidgetBase
             <?php if ($show_pages) { ?>
                 <div class="elementor-row elementor-icon-list-items elementor-inline-items">
                 <?php foreach ($pagination['pages'] as &$page) { ?>
-                    <a<?php $page['clickable'] && print ' href="' . esc_attr($page['url']) . '"'; ?> class="js-search-link elementor-icon-list-item<?php $page['current'] && print ' elementor-active'; ?>">
+                    <a<?php $page['clickable'] && print ' href="' . esc_attr($page['url']) . '" rel="nofollow"'; ?> class="js-search-link elementor-icon-list-item<?php $page['current'] && print ' elementor-active'; ?>">
                         <span class="elementor-icon-list-text"><?php echo $page['page'] ?: '…'; ?></span>
                     </a>
                 <?php } ?>

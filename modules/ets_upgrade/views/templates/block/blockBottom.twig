@@ -1,0 +1,11 @@
+{#--- Block bottom ---#}
+<div class="ets_autoup_bottom_block {% if intro is defined and intro %} has_intro{% endif %}">
+    <ul>
+        {% if rollBackLink is defined %}
+            <li><a class="ets_autoup_rollback_link" href="{{ rollBackLink|raw }}">{{ 'Rollback'|trans }}</a></li>
+        {% endif %}
+        <li><a class="" target="_blank" href="https://drive.google.com/file/d/18sDVofC9EHGm6gbIyZBASiG8dnIG5phf/view">{{ 'Document'|trans }}</a></li>
+        <li><a class="" target="_blank" href="https://youtu.be/v5yDU3h2yH0">{{ 'Video tutorial'|trans }}</a></li>
+    </ul>
+</div>
+{#--- End block bottom ---#}

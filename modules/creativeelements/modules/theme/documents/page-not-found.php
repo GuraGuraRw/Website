@@ -26,9 +26,9 @@ class ModulesXThemeXDocumentsXPageNotFound extends ThemePageDocument
         return __('404 Page');
     }
 
-    protected function getPermalinkUrl(\Link $link, $id_lang, $id_shop, array $args, $relative = true)
+    protected function getPermalinkUrl($id_lang, $id_shop, array $args, $relative = true)
     {
-        return $link->getPageLink('pagenotfound', null, $id_lang, $args, false, $id_shop, $relative);
+        return Helper::$link->getPageLink('pagenotfound', null, $id_lang, $args, false, $id_shop, $relative);
     }
 
     protected function getRemoteLibraryConfig()

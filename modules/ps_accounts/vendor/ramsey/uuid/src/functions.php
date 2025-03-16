@@ -9,14 +9,12 @@
  * @copyright Copyright (c) Ben Ramsey <ben@benramsey.com>
  * @license http://opensource.org/licenses/MIT MIT
  */
-
-namespace Ramsey\Uuid;
+namespace PrestaShop\Module\PsAccounts\Vendor\Ramsey\Uuid;
 
 use Exception;
 use InvalidArgumentException;
-use Ramsey\Uuid\Exception\InvalidUuidStringException;
-use Ramsey\Uuid\Exception\UnsatisfiedDependencyException;
-
+use PrestaShop\Module\PsAccounts\Vendor\Ramsey\Uuid\Exception\InvalidUuidStringException;
+use PrestaShop\Module\PsAccounts\Vendor\Ramsey\Uuid\Exception\UnsatisfiedDependencyException;
 /**
  * Generate a version 1 UUID from a host ID, sequence number, and the current time.
  *
@@ -35,7 +33,6 @@ function v1($node = null, $clockSeq = null)
 {
     return Uuid::uuid1($node, $clockSeq)->toString();
 }
-
 /**
  * Generate a version 3 UUID based on the MD5 hash of a namespace identifier
  * (which is a UUID) and a name (which is a string).
@@ -49,7 +46,6 @@ function v3($ns, $name)
 {
     return Uuid::uuid3($ns, $name)->toString();
 }
-
 /**
  * Generate a version 4 (random) UUID.
  *
@@ -62,7 +58,6 @@ function v4()
 {
     return Uuid::uuid4()->toString();
 }
-
 /**
  * Generate a version 5 UUID based on the SHA-1 hash of a namespace
  * identifier (which is a UUID) and a name (which is a string).

@@ -1,0 +1,80 @@
+.chat-window {
+    bottom: 80px;
+    position:fixed;
+    left: 40px;
+}
+
+
+.cant-submit{
+	opacity: 0.4;
+}
+
+#chat_window_1 .ochat-footer {
+    width: 100%;
+    position: relative;
+}
+#chat_window_1 time{
+    font-size: 11px;
+}
+
+#open_ochat_conversion {
+    position: fixed;
+    bottom: 20px;
+}
+
+/**
+    Offline
+*/
+#chat_window_2 {
+    display: none;
+}
+
+#send-offline-form{ 
+    margin-top: 15px;
+    padding: 0;
+}
+
+#send-offline-form:disabled {
+    cursor:not-allowed;
+}
+
+.offline-form form, .msg_container_base{ 
+    font-size: 13px;
+    margin-bottom: 0;
+}
+.offline-form form {
+    margin-bottom: 0;
+}
+
+/**
+    Online
+*/
+
+textarea.chat-input { 
+    resize: none; 
+}
+.ochat-footer button#btn-chat {
+    position: absolute;
+    top: 8px;
+    left: 5px;
+}
+.ochat_advisor_default_img img{ 
+    width: 60px;
+    height: 60px;
+    border-radius: 50%; 
+}
+
+#error-message.ochat-alert-warning {
+    font-size: 14px;
+    padding: 10px;
+    border-bottom: 1px solid #fff;
+    border-top: 1px solid #fff;
+}
+
+#open_ochat_conversion{
+    z-index: 999;
+}
+
+.gdprochat {
+    padding: 5px 22px;
+}

@@ -39,8 +39,12 @@ div.elementor-loader-box {
 .elementor-editor-product-miniature .elementor-control-repeater > label > .elementor-control-dynamic-switcher,
 .elementor-control-heading_buttons.elementor-hidden-control ~ .elementor-control-plus_icon,
 .elementor-control-heading_buttons.elementor-hidden-control ~ .elementor-control-minus_icon,
+.elementor-editor-kit.ce-initial-kit:not(.e-routes-has-history) #elementor-panel-header-kit-back,
+.elementor-editor-kit.ce-initial-kit.e-routes-has-history #elementor-panel-header-menu-button,
+.ce-initial-kit #elementor-panel-page-settings .elementor-tab-control-style,
+.ce-initial-kit .elementor-panel-menu-item-view-page,
+.ce-initial-kit #elementor-panel-footer-saver-preview,
 .elementor-editor-kit #elementor-panel-footer-lang,
-.elementor-editor-kit #elementor-panel-footer-saver-preview,
 .elementor-panel-navigation-tab[data-tab=categories],
 .elementor-panel-navigation-tab[data-tab=global] {
 	display: none !important; }

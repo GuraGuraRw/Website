@@ -35,9 +35,9 @@ class ModulesXCatalogXDocumentsXListingXNoResults extends ThemeDocument
         return $config;
     }
 
-    protected function getPermalinkUrl(\Link $link, $id_lang, $id_shop, array $args, $relative = true)
+    protected function getPermalinkUrl($id_lang, $id_shop, array $args, $relative = true)
     {
-        return $link->getPageLink('search', null, $id_lang, $args, false, $id_shop, $relative);
+        return Helper::$link->getPageLink('search', null, $id_lang, $args, false, $id_shop, $relative);
     }
 
     public static function registerTags($dynamic_tags)

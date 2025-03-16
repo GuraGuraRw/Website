@@ -13,7 +13,7 @@ if (!defined('_PS_VERSION_')) {
 }
 
 use CE\CoreXDynamicTagsXDataTag as DataTag;
-use CE\ModulesXDynamicTagsXModule as Module;
+use CE\ModulesXDynamicTagsXModule as TagsModule;
 
 class ModulesXCatalogXTagsXSpecificPriceRuleDateTime extends DataTag
 {
@@ -29,12 +29,12 @@ class ModulesXCatalogXTagsXSpecificPriceRuleDateTime extends DataTag
 
     public function getGroup()
     {
-        return Module::CATALOG_GROUP;
+        return TagsModule::CATALOG_GROUP;
     }
 
     public function getCategories()
     {
-        return [Module::DATE_TIME_CATEGORY];
+        return [TagsModule::DATE_TIME_CATEGORY];
     }
 
     public function getPanelTemplateSettingKey()
@@ -45,12 +45,11 @@ class ModulesXCatalogXTagsXSpecificPriceRuleDateTime extends DataTag
     protected function getSpecificPriceRuleOptions()
     {
         $opts = [];
-        $table = _DB_PREFIX_ . 'specific_price_rule';
-        $ctx_ids = implode(', ', \Shop::getContextListShopID());
-        $rows = \Db::getInstance(_PS_USE_SQL_SLAVE_)->executeS("
-            SELECT `id_specific_price_rule`, `name` FROM `$table`
-            WHERE `id_shop` IN ($ctx_ids) AND (`to` > NOW() OR `to` = '0000-00-00 00:00:00')
-        ");
+        $shops = \Shop::getContextListShopID();
+        $rows = \Db::getInstance(_PS_USE_SQL_SLAVE_)->executeS('
+            SELECT `id_specific_price_rule`, `name` FROM ' . _DB_PREFIX_ . 'specific_price_rule
+            WHERE `id_shop` IN (' . implode(',', array_map('intval', $shops)) . ') AND (`to` > NOW() OR `to` = "0000-00-00 00:00:00")
+        ');
         if ($rows) {
             foreach ($rows as &$row) {
                 $opts[$row['id_specific_price_rule']] = "#{$row['id_specific_price_rule']} {$row['name']}";
@@ -71,7 +70,7 @@ class ModulesXCatalogXTagsXSpecificPriceRuleDateTime extends DataTag
                 'select2options' => [
                     'placeholder' => __('Select...'),
                 ],
-                'options' => is_admin() ? $this->getSpecificPriceRuleOptions() : [],
+                'options' => _CE_ADMIN_ ? $this->getSpecificPriceRuleOptions() : [],
             ]
         );
 

@@ -18,6 +18,8 @@ class ModulesXCatalogXWidgetsXCategoryXList extends WidgetBase
 {
     const REMOTE_RENDER = true;
 
+    private $properties;
+
     public function getName()
     {
         return 'category-list';
@@ -126,7 +128,7 @@ class ModulesXCatalogXWidgetsXCategoryXList extends WidgetBase
                 'select2options' => [
                     'allowClear' => false,
                 ],
-                'extend' => [
+                'options' => [
                     '0' => __('Current Category') . ' / ' . __('Default'),
                 ],
                 'default' => 0,
@@ -167,6 +169,7 @@ class ModulesXCatalogXWidgetsXCategoryXList extends WidgetBase
                 'label_block' => false,
                 'type' => ControlsManager::ICONS,
                 'skin' => 'inline',
+                'exclude_inline_options' => ['svg'],
                 'recommended' => [
                     'ce-icons' => [
                         'minus',
@@ -441,12 +444,11 @@ class ModulesXCatalogXWidgetsXCategoryXList extends WidgetBase
                     ],
                 ],
                 'selectors' => [
-                    '{{WRAPPER}} .elementor-icon-list-items:not(.elementor-inline-items) .elementor-icon-list-item:not(:last-child)' => 'padding-bottom: calc({{SIZE}}{{UNIT}}/2)',
                     '{{WRAPPER}} .elementor-icon-list-items:not(.elementor-inline-items) .elementor-icon-list-item:not(:first-child)' => 'margin-top: calc({{SIZE}}{{UNIT}}/2)',
-                    '{{WRAPPER}} .elementor-icon-list-items.elementor-inline-items .elementor-icon-list-item' => 'margin: 0 calc({{SIZE}}{{UNIT}}/2)',
+                    '{{WRAPPER}} .elementor-icon-list-items:not(.elementor-inline-items) .elementor-icon-list-item:not(:last-child)' => 'padding-bottom: calc({{SIZE}}{{UNIT}}/2)',
                     '{{WRAPPER}} .elementor-icon-list-items.elementor-inline-items' => 'margin: 0 calc(-{{SIZE}}{{UNIT}}/2)',
-                    'body.lang-rtl {{WRAPPER}} .elementor-icon-list-items.elementor-inline-items .elementor-icon-list-item:after' => 'left: calc(-{{SIZE}}{{UNIT}}/2)',
-                    'body:not(.lang-rtl) {{WRAPPER}} .elementor-icon-list-items.elementor-inline-items .elementor-icon-list-item:after' => 'right: calc(-{{SIZE}}{{UNIT}}/2)',
+                    '{{WRAPPER}} .elementor-icon-list-items.elementor-inline-items .elementor-icon-list-item' => 'margin: 0 calc({{SIZE}}{{UNIT}}/2)',
+                    '{{WRAPPER}} .elementor-icon-list-items.elementor-inline-items .elementor-icon-list-item:after' => 'inset-inline-end: calc(-{{SIZE}}{{UNIT}}/2)',
                 ],
             ]
         );
@@ -509,7 +511,7 @@ class ModulesXCatalogXWidgetsXCategoryXList extends WidgetBase
                     ],
                 ],
                 'selectors' => [
-                    '{{WRAPPER}} .elementor-icon-list-text' => is_rtl() ? 'padding-right: {{SIZE}}{{UNIT}};' : 'padding-left: {{SIZE}}{{UNIT}};',
+                    '{{WRAPPER}} .elementor-icon-list-text' => 'padding-inline-start: {{SIZE}}{{UNIT}};',
                 ],
             ]
         );
@@ -769,6 +771,14 @@ class ModulesXCatalogXWidgetsXCategoryXList extends WidgetBase
             ]
         );
 
+        $this->addGroupControl(
+            GroupControlTextShadow::getType(),
+            [
+                'name' => 'button_text_shadow',
+                'selector' => '{{WRAPPER}} .elementor-button',
+            ]
+        );
+
         $this->startControlsTabs('button_tabs');
 
         $this->startControlsTab(
@@ -885,6 +895,14 @@ class ModulesXCatalogXWidgetsXCategoryXList extends WidgetBase
             ]
         );
 
+        $this->addGroupControl(
+            GroupControlBoxShadow::getType(),
+            [
+                'name' => 'button_box_shadow',
+                'selector' => '{{WRAPPER}} .elementor-button',
+            ]
+        );
+
         $this->addResponsiveControl(
             'button_padding',
             [
@@ -906,7 +924,7 @@ class ModulesXCatalogXWidgetsXCategoryXList extends WidgetBase
 
     protected function render()
     {
-        $context = \Context::getContext();
+        $context = $GLOBALS['context'];
         $settings = $this->getSettingsForDisplay();
 
         if (!$settings['id_category'] && isset($context->smarty->tpl_vars['subcategories'])) {
@@ -916,7 +934,7 @@ class ModulesXCatalogXWidgetsXCategoryXList extends WidgetBase
                 $context->controller instanceof \ProductController ? $context->controller->getProduct()->id_category_default : $context->shop->id_category
             );
             foreach ($subcategories = \Category::getChildren($id_category, $context->language->id, true, $context->shop->id) as $i => $cat) {
-                $subcategories[$i]['url'] = $context->link->getCategoryLink($cat['id_category'], $cat['link_rewrite'], $context->language->id, null, $context->shop->id);
+                $subcategories[$i]['url'] = Helper::$link->getCategoryLink($cat['id_category'], $cat['link_rewrite'], $context->language->id, null, $context->shop->id);
             }
         }
 

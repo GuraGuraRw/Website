@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of the ramsey/uuid library
  *
@@ -11,11 +12,9 @@
  * @link https://packagist.org/packages/ramsey/uuid Packagist
  * @link https://github.com/ramsey/uuid GitHub
  */
-
-namespace Ramsey\Uuid\Exception;
+namespace PrestaShop\Module\PsAccounts\Vendor\Ramsey\Uuid\Exception;
 
 use InvalidArgumentException;
-
 /**
  * Thrown to indicate that the parsed UUID string is invalid.
  */

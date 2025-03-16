@@ -22,6 +22,8 @@ if (!defined('_PS_VERSION_')) {
  */
 class WidgetTextEditor extends WidgetBase
 {
+    const HELP_URL = 'http://docs.webshopworks.com/creative-elements/85-widgets/basic-widgets/295-text-editor-widget';
+
     /**
      * Get widget name.
      *
@@ -92,6 +94,11 @@ class WidgetTextEditor extends WidgetBase
     public function getKeywords()
     {
         return ['text', 'editor'];
+    }
+
+    protected function isDynamicContent()
+    {
+        return false;
     }
 
     /**
@@ -336,8 +343,7 @@ class WidgetTextEditor extends WidgetBase
                     ],
                 ],
                 'selectors' => [
-                    'body:not(.lang-rtl) {{WRAPPER}} .elementor-drop-cap' => 'margin-right: {{SIZE}}{{UNIT}};',
-                    'body.lang-rtl {{WRAPPER}} .elementor-drop-cap' => 'margin-left: {{SIZE}}{{UNIT}};',
+                    '{{WRAPPER}} .elementor-drop-cap' => 'margin-inline-end: {{SIZE}}{{UNIT}};',
                 ],
             ]
         );

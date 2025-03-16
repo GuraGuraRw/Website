@@ -729,7 +729,6 @@ html.elementor-html {
 [data-elementor-device-mode="desktop"] .elementor-edit-area-active .elementor-hidden-desktop,
 [data-elementor-device-mode="tablet"] .elementor-edit-area-active .elementor-hidden-tablet,
 [data-elementor-device-mode="mobile"] .elementor-edit-area-active .elementor-hidden-phone {
-	display: inherit;
 	background: repeating-linear-gradient(125deg, rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 0.05) 1px, transparent 2px, transparent 9px);
 	border: 1px solid rgba(0, 0, 0, 0.02); }
 	[data-elementor-device-mode="desktop"] .elementor-edit-area-active .elementor-hidden-desktop.elementor-section > .elementor-element-overlay,
@@ -755,6 +754,8 @@ html.elementor-html {
 	[data-elementor-device-mode="tablet"] .elementor-edit-area-active .elementor-hidden-tablet > .elementor-column-wrap,
 	[data-elementor-device-mode="mobile"] .elementor-edit-area-active .elementor-hidden-phone > .elementor-widget-container,
 	[data-elementor-device-mode="mobile"] .elementor-edit-area-active .elementor-hidden-phone > .elementor-column-wrap {
+		overflow: hidden;
+		pointer-events: none;
 		filter: opacity(0.4) saturate(0); }
 
 .elementor-edit-area-active .elementor .elementor-inline-editing {
@@ -767,5 +768,18 @@ html.elementor-html {
 [data-elementor-type$=miniature] .elementor-preset[data-structure="50"],
 [data-elementor-type$=miniature] .elementor-preset[data-structure="60"],
 .elementor-section-tabbed > .elementor-container > .elementor-row > .elementor-column > .ui-resizable-handle,
-.elementor-widget-listing-active-filters .elementor-widget-container:not(:empty) + .elementor-widget-empty-icon {
+.elementor-widget-listing-active-filters .elementor-widget-container:not(:empty) + .elementor-widget-empty-icon,
+.elementor-widget-password-form.ce-password--change form:nth-of-type(1),
+.elementor-widget-password-form:not(.ce-password--change) form:nth-of-type(2) {
 	display: none !important; }
+
+html.elementor-editor-preview > :not(.elementor-editor-preview) [data-elementor-type=kit]
+	:is(img, p,h1,h2,h3,h4,h5,h6, [class*="ce-display-"], .elementor-icon, .elementor-field-textual, .elementor-button, .btn,.btn-primary,.btn-secondary):hover {
+	outline: 1px solid #4ab7f4;
+	outline-offset: 5px;
+	cursor: help;
+}
+
+.elementor pre.sf-dump,
+.elementor pre.sf-dump .sf-dump-default {
+	z-index: auto; }

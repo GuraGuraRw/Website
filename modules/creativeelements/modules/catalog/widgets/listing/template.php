@@ -44,15 +44,15 @@ class ModulesXCatalogXWidgetsXListingXTemplate extends WidgetBase
     protected function getListingOptions()
     {
         $options = [];
-        $ps = _DB_PREFIX_;
-        $id_lang = (int) $this->context->language->id;
-        $id_shop = (int) $this->context->shop->id;
-
-        if ($rows = \Db::getInstance()->executeS("
-            SELECT t.`id_ce_theme` AS id, tl.`title` FROM `{$ps}ce_theme` t
-            INNER JOIN `{$ps}ce_theme_lang` tl ON tl.`id_ce_theme` = t.`id_ce_theme` AND tl.`id_lang` = $id_lang AND tl.`id_shop` = $id_shop
-            WHERE t.`active` = 1 AND t.`type` = 'listing-page'
-        ")) {
+        $id_lang = $GLOBALS['language']->id;
+        $id_shop = $GLOBALS['context']->shop->id;
+        $rows = \Db::getInstance()->executeS('
+            SELECT t.`id_ce_theme` AS id, tl.`title` FROM ' . _DB_PREFIX_ . 'ce_theme t
+            INNER JOIN ' . _DB_PREFIX_ . 'ce_theme_lang tl
+                ON tl.`id_ce_theme` = t.`id_ce_theme` AND tl.`id_lang` = ' . (int) $id_lang . ' AND tl.`id_shop` = ' . (int) $id_shop . '
+            WHERE t.`active` = 1 AND t.`type` = "listing-page"
+        ');
+        if ($rows) {
             $type = __('Listing Page');
 
             foreach ($rows as &$row) {
@@ -81,7 +81,7 @@ class ModulesXCatalogXWidgetsXListingXTemplate extends WidgetBase
                 'select2options' => [
                     'placeholder' => __('Select...'),
                 ],
-                'options' => $this->context->controller instanceof \AdminCEEditorController ? $this->getListingOptions() : [],
+                'options' => $GLOBALS['context']->controller instanceof \AdminCEEditorController ? $this->getListingOptions() : [],
             ]
         );
 
@@ -91,7 +91,7 @@ class ModulesXCatalogXWidgetsXListingXTemplate extends WidgetBase
     protected function render()
     {
         if ($id = $this->getSettings('theme_id')) {
-            $uid = new UId($id, UId::THEME, $this->context->language->id, $this->context->shop->id);
+            $uid = new UId($id, UId::THEME, $GLOBALS['language']->id, $GLOBALS['context']->shop->id);
 
             echo Plugin::$instance->frontend->getBuilderContentForDisplay($uid);
         }
@@ -99,12 +99,5 @@ class ModulesXCatalogXWidgetsXListingXTemplate extends WidgetBase
 
     public function renderPlainContent()
     {
-    }
-
-    public function __construct($data = [], $args = [])
-    {
-        $this->context = \Context::getContext();
-
-        parent::__construct($data, $args);
     }
 }

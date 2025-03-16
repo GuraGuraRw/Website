@@ -43,7 +43,7 @@ class InstalledModule
     private $version;
 
     /**
-     * @var string|null
+     * @var string
      */
     private $configUrl;
 
@@ -52,7 +52,7 @@ class InstalledModule
         string $name,
         string $status,
         string $version,
-        string $configUrl = null
+        ?string $configUrl = null
     ) {
         $this->id = $id;
         $this->name = $name;
@@ -61,7 +61,7 @@ class InstalledModule
         $this->configUrl = $configUrl;
     }
 
-    public function toArray()
+    public function toArray(): array
     {
         return [
             'id' => $this->id,

@@ -25,25 +25,13 @@ class ModulesXCatalogXControlsXSelectCategory extends ControlSelect2
 
     public static function getCategories()
     {
-        if (is_admin() && !self::$_categories) {
-            $context = \Context::getContext();
-
-            foreach (\Category::getAllCategoriesName($context->shop->getCategory(), $context->language->id) as &$category) {
+        if (_CE_ADMIN_ && !self::$_categories) {
+            foreach (\Category::getAllCategoriesName($GLOBALS['context']->shop->getCategory(), $GLOBALS['language']->id) as &$category) {
                 self::$_categories[$category['id_category']] = "#{$category['id_category']} {$category['name']}";
             }
         }
 
         return self::$_categories;
-    }
-
-    protected function getDefaultSettings()
-    {
-        return [
-            'options' => self::getCategories(),
-            'multiple' => false,
-            'select2options' => [],
-            'extend' => [],
-        ];
     }
 
     public function onImport($id_category, array $control_data)
@@ -53,7 +41,9 @@ class ModulesXCatalogXControlsXSelectCategory extends ControlSelect2
 
     public function contentTemplate()
     {
-        echo '<# $.extend( data.options, data.extend ) #>';
+        $categories = json_encode(self::getCategories());
+
+        echo "<# data.options = $.extend( $categories, data.options ) #>";
 
         parent::contentTemplate();
     }

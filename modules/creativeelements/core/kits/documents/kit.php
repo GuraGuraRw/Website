@@ -35,12 +35,8 @@ class CoreXKitsXDocumentsXKit extends PageBase
 
     public function isEditableByCurrentUser()
     {
-        return parent::isEditableByCurrentUser() && (
-            !is_admin() || \Profile::getProfileAccess(
-                \Context::getContext()->employee->id_profile,
-                \Tab::getIdFromClassName('AdminCEThemes')
-            )['edit'] === '1'
-        );
+        return parent::isEditableByCurrentUser()
+            && (!_CE_ADMIN_ || '1' === \Profile::getProfileAccess($GLOBALS['employee']->id_profile, \Tab::getIdFromClassName('AdminCEThemes'))['edit']);
     }
 
     public static function getProperties()
@@ -49,9 +45,9 @@ class CoreXKitsXDocumentsXKit extends PageBase
         $uid = \Tools::getValue('uid');
 
         $properties['has_elements'] = $uid && UId::TEMPLATE === UId::parse($uid)->id_type || self::isInitialDocument() || Helper::isAdminImport();
-        $properties['show_in_finder'] = false;
+        // $properties['show_in_finder'] = false;
         // $properties['show_on_admin_bar'] = false;
-        $properties['edit_capability'] = 'edit_theme_options';
+        // $properties['edit_capability'] = 'edit_theme_options';
         $properties['support_kit'] = true;
 
         return $properties;
@@ -69,7 +65,7 @@ class CoreXKitsXDocumentsXKit extends PageBase
 
     public function getPermalink()
     {
-        return \Context::getContext()->link->getModuleLink('creativeelements', 'preview', [], null, null, null, true);
+        return Helper::$link->getModuleLink('creativeelements', 'preview', [], null, null, null, true);
     }
 
     public static function getEditorPanelConfig()
@@ -94,11 +90,10 @@ class CoreXKitsXDocumentsXKit extends PageBase
     public function getExitToDashboardUrl()
     {
         $uid = uidval($this->getMainId());
-        $url = \Context::getContext()->link->getAdminLink('AdminCEThemes', true, [], [
+        $url = Helper::$link->getAdminLink('AdminCEThemes', true, [], [
             'id_ce_template' => $uid->id,
             'updatece_template' => 1,
         ]);
-        $url = apply_filters('elementor/document/urls/exit_to_dashboard', $url, $this);
 
         return $url;
     }
@@ -133,25 +128,25 @@ class CoreXKitsXDocumentsXKit extends PageBase
 
     private function addSchemesNotice()
     {
+        if (!_CE_ADMIN_ || $this->custom_colors_disabled && $this->typography_schemes_disabled) {
+            return;
+        }
+
         // Get the current section config (array - section id and tab) to use for creating a unique control ID and name
         $current_section = $this->getCurrentSection();
 
-        if (!$this->custom_colors_disabled || !$this->typography_schemes_disabled) {
-            $this->addControl(
-                $current_section['section'] . '_schemes_notice',
-                [
-                    'name' => $current_section['section'] . '_schemes_notice',
-                    'type' => ControlsManager::RAW_HTML,
-                    'raw' => sprintf(
-                        __('In order for Theme Style to affect all relevant elements, please disable Default Colors ' .
-                            'and Fonts from the <a href="%s" target="_blank">Settings Page</a>.'),
-                        \Context::getContext()->link->getAdminLink('AdminCESettings')
-                    ),
-                    'content_classes' => 'elementor-panel-alert elementor-panel-alert-warning',
-                    'render_type' => 'ui',
-                ]
-            );
-        }
+        $this->addControl(
+            $current_section['section'] . '_schemes_notice',
+            [
+                'type' => ControlsManager::RAW_HTML,
+                'raw' => sprintf(
+                    __('In order for Theme Style to affect all relevant elements, please disable Default Colors and Fonts from the <a href="%s" target="_blank">Settings Page</a>.'),
+                    Helper::$link->getAdminLink('AdminCESettings')
+                ),
+                'content_classes' => 'elementor-panel-alert elementor-panel-alert-warning',
+                'render_type' => 'ui',
+            ]
+        );
     }
 
     private function addTypographySection()
@@ -1020,7 +1015,7 @@ class CoreXKitsXDocumentsXKit extends PageBase
                 'type' => ControlsManager::DIMENSIONS,
                 'size_units' => ['px', '%'],
                 'selectors' => [
-                    $image_selector => 'border-radius: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+                    "$image_selector, {{WRAPPER}} .elementor-image-carousel .swiper-slide > *" => 'border-radius: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
                 ],
             ]
         );
@@ -1163,6 +1158,7 @@ class CoreXKitsXDocumentsXKit extends PageBase
         $label_selector = '{{WRAPPER}} label';
         $input_selector = '{{WRAPPER}} .form-control, {{WRAPPER}} .elementor-field-textual';
         $input_focus_selector = '{{WRAPPER}} .form-control:focus, {{WRAPPER}} .elementor-field-textual:focus';
+        $input_autofill_selector = '{{WRAPPER}} .form-control:-webkit-autofill, {{WRAPPER}} .elementor-field-textual:-webkit-autofill';
 
         $this->startControlsSection(
             'section_form_fields',
@@ -1252,6 +1248,52 @@ class CoreXKitsXDocumentsXKit extends PageBase
                 'range' => [
                     'px' => [
                         'max' => 3000,
+                    ],
+                ],
+            ]
+        );
+
+        $this->endControlsTab();
+
+        $this->startControlsTab(
+            'tab_form_field_autofill',
+            [
+                'label' => __('Autofill'),
+            ]
+        );
+
+        $this->addControl(
+            'form_field_autofill_text_color',
+            [
+                'label' => __('Text Color'),
+                'type' => ControlsManager::COLOR,
+                'dynamic' => [],
+                'selectors' => [
+                    $input_autofill_selector => '-webkit-text-fill-color: {{VALUE}};',
+                ],
+            ]
+        );
+
+        $this->addControl(
+            'form_field_autofill_background_color',
+            [
+                'label' => __('Background Color'),
+                'type' => ControlsManager::COLOR,
+                'dynamic' => [],
+                'selectors' => [
+                    $input_autofill_selector => 'box-shadow: 0 0 0 500px {{VALUE}} inset;',
+                ],
+            ]
+        );
+
+        $this->addGroupControl(
+            GroupControlBorder::getType(),
+            [
+                'name' => 'form_field_autofill_border',
+                'selector' => $input_autofill_selector,
+                'fields_options' => [
+                    'color' => [
+                        'dynamic' => [],
                     ],
                 ],
             ]
@@ -1407,7 +1449,7 @@ class CoreXKitsXDocumentsXKit extends PageBase
                 ],
                 'description' => __('Sets the default space between widgets (Default: 20)'),
                 'selectors' => [
-                    '.elementor-widget:not(:last-child)' => 'margin-bottom: {{SIZE}}{{UNIT}}',
+                    '{{WRAPPER}}' => '--ce-widgets-space: {{SIZE}}{{UNIT}}',
                 ],
             ]
         );
@@ -1489,7 +1531,7 @@ class CoreXKitsXDocumentsXKit extends PageBase
                     ],
                 ],
                 'selectors' => [
-                    '{{WRAPPER}} .breadcrumb:not(#e), {{WRAPPER}} .elementor-row' => 'text-align: {{VALUE}}; justify-content: {{VALUE}};',
+                    '{{WRAPPER}} .breadcrumb:not(#e), {{WRAPPER}} .ce-breadcrumb .elementor-row' => 'text-align: {{VALUE}}; justify-content: {{VALUE}};',
                 ],
             ]
         );

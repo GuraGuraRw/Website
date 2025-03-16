@@ -1,6 +1,6 @@
 <?php
 
-namespace Ramsey\Uuid;
+namespace PrestaShop\Module\PsAccounts\Vendor\Ramsey\Uuid;
 
 /**
  * Provides binary math utilities
@@ -19,10 +19,8 @@ class BinaryUtils
         // Set the variant to RFC 4122
         $clockSeqHi = $clockSeqHi & 0x3f;
         $clockSeqHi |= 0x80;
-
         return $clockSeqHi;
     }
-
     /**
      * Applies the RFC 4122 version number to the `time_hi_and_version` field
      *
@@ -33,9 +31,8 @@ class BinaryUtils
      */
     public static function applyVersion($timeHi, $version)
     {
-        $timeHi = hexdec($timeHi) & 0x0fff;
+        $timeHi = \hexdec($timeHi) & 0xfff;
         $timeHi |= $version << 12;
-
         return $timeHi;
     }
 }

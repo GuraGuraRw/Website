@@ -179,10 +179,16 @@ abstract class CoreXBaseXPageBase extends Document
                     'label' => __('Featured Image'),
                     'type' => ControlsManager::MEDIA,
                     'default' => [
-                        'url' => is_admin() ? $document->getMeta('_og_image') : '',
+                        'url' => $og_image = $document->getMeta('_og_image'),
                     ],
                 ]
             );
+
+            _CE_ADMIN_ || $og_image && add_action('wp_head', function () use ($og_image) {
+                $og_image_url = Helper::getMediaLink($og_image, true);
+
+                echo '<meta property="og:image" content="' . esc_attr($og_image_url) . '">' . PHP_EOL;
+            });
         }
 
         $document->endInjection();

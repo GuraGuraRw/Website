@@ -72,7 +72,7 @@ abstract class ModulesXLibraryXDocumentsXLibraryDocument extends Document
 
     public function getPermalink()
     {
-        return \Context::getContext()->link->getModuleLink('creativeelements', 'preview', [], null, null, null, true);
+        return Helper::$link->getModuleLink('creativeelements', 'preview', [], null, null, null, true);
     }
 
     // public function printAdminColumnType()

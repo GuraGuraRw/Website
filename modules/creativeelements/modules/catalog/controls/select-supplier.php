@@ -25,31 +25,18 @@ class ModulesXCatalogXControlsXSelectSupplier extends ControlSelect2
 
     public static function getSuppliers()
     {
-        if (is_admin() && null === self::$_suppliers) {
+        if (null === self::$_suppliers) {
             self::$_suppliers = [];
-            $ps = _DB_PREFIX_;
-            $id_lang = (int) \Context::getContext()->language->id;
+            $rows = \Db::getInstance()->executeS(
+                'SELECT `id_supplier` AS `id`, `name` FROM ' . _DB_PREFIX_ . 'supplier WHERE `active` = 1 ORDER BY `name`'
+            ) ?: [];
 
-            if ($rows = \Db::getInstance()->executeS(
-                "SELECT `id_supplier` AS `id`, `name` FROM `{$ps}supplier` WHERE `active` = 1 ORDER BY `name`"
-            )) {
-                foreach ($rows as &$row) {
-                    self::$_suppliers[$row['id']] = "#{$row['id']} {$row['name']}";
-                }
+            foreach ($rows as &$row) {
+                self::$_suppliers[$row['id']] = "#{$row['id']} {$row['name']}";
             }
         }
 
-        return self::$_suppliers ?: [];
-    }
-
-    protected function getDefaultSettings()
-    {
-        return [
-            'options' => self::getSuppliers(),
-            'multiple' => false,
-            'select2options' => [],
-            'extend' => [],
-        ];
+        return self::$_suppliers;
     }
 
     public function onImport($id_supplier, array $control_data)
@@ -59,7 +46,9 @@ class ModulesXCatalogXControlsXSelectSupplier extends ControlSelect2
 
     public function contentTemplate()
     {
-        echo '<# $.extend( data.options, data.extend ) #>';
+        $suppliers = json_encode(self::getSuppliers());
+
+        echo "<# data.options = $.extend( $suppliers, data.options ) #>";
 
         parent::contentTemplate();
     }

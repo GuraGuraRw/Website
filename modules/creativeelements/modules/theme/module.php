@@ -39,9 +39,9 @@ class ModulesXThemeXModule extends BaseModule
             'SiteTitle',
             // 'PageTitle',
             'NavMenu',
+            'SignIn',
             'ShoppingCart',
             'AjaxSearch',
-            'SignIn',
             'LanguageSelector',
             'CurrencySelector',
             'Breadcrumb',
@@ -56,5 +56,10 @@ class ModulesXThemeXModule extends BaseModule
     {
         add_action('elementor/documents/register', [$this, 'registerDocuments']);
         add_action('elementor/widgets/widgets_registered', [$this, 'registerWidgets']);
+
+        $filter = 'filter';
+        $GLOBALS['smarty']->registerPlugin('modifier', 'ce' . $filter, function ($str) {
+            echo $str;
+        });
     }
 }

@@ -22,6 +22,8 @@ class AdminCETemplatesController extends ModuleAdminController
 
     public $multishop_context = Shop::CONTEXT_ALL;
 
+    protected $action_link;
+
     protected $_defaultOrderBy = 'title';
 
     protected $_where = "AND a.type != 'kit'";
@@ -78,12 +80,15 @@ class AdminCETemplatesController extends ModuleAdminController
                 'class' => 'fixed-width-lg',
                 'type' => 'select',
                 'list' => [
-                    'page' => $this->l('Page'),
+                    'page' => $this->trans('Page', [], 'Admin.Global'),
                     'section' => $this->l('Section'),
                     'header' => $this->l('Header'),
                     'footer' => $this->l('Footer'),
                     'page-index' => $this->l('Home Page'),
                     'page-contact' => $this->l('Contact Page'),
+                    'page-authentication' => $this->l('Login Page'),
+                    'page-password' => $this->l('Password Page'),
+                    'page-registration' => $this->l('Registration Page'),
                     'page-not-found' => $this->l('404 Page'),
                     'product' => $this->l('Product Page'),
                     'product-quick-view' => $this->l('Quick View'),
@@ -133,7 +138,7 @@ class AdminCETemplatesController extends ModuleAdminController
                 'text' => 'divider',
             ],
             'delete' => [
-                'text' => $this->l('Delete'),
+                'text' => $this->trans('Delete', [], 'Admin.Actions'),
                 'icon' => 'icon-trash text-danger',
                 'confirm' => $this->trans('Delete selected items?', [], 'Admin.Notifications.Info'),
             ],
@@ -223,12 +228,12 @@ class AdminCETemplatesController extends ModuleAdminController
                     $sub_tabs = &$tab2['sub_tabs'];
                     $tab = Tab::getTab($id_lang, Tab::getIdFromClassName('AdminCETemplates'));
 
-                    $tab['name'] = $this->l('Template');
+                    $tab['name'] = $this->trans('Template', [], 'Admin.Global');
                     $tab['current'] = $new || (!in_array($type, ['section', 'page']) || !$type) && !$this->object;
                     $tab['href'] = "$link&type=all";
                     $sub_tabs[] = $tab;
 
-                    $tab['name'] = $this->l('Page');
+                    $tab['name'] = $this->trans('Page', [], 'Admin.Global');
                     $tab['current'] = !$new && ($this->object ? !in_array($this->object->type, $sections) : 'page' === $type);
                     $tab['href'] = "$link&type=page";
                     $sub_tabs[] = $tab;
@@ -247,7 +252,7 @@ class AdminCETemplatesController extends ModuleAdminController
     public function initToolBarTitle()
     {
         if ('add' === $this->display) {
-            $this->page_header_toolbar_title = $this->l('Add New');
+            $this->page_header_toolbar_title = $this->trans('Add New', [], 'Admin.Actions');
         } elseif ('edit' === $this->display) {
             $this->page_header_toolbar_title = $this->l('Edit Template');
         } else {
@@ -264,7 +269,7 @@ class AdminCETemplatesController extends ModuleAdminController
         if ('add' !== $this->display && 'edit' !== $this->display) {
             $this->page_header_toolbar_btn['addce_template'] = [
                 'icon' => 'process-icon-new',
-                'desc' => $this->trans('Add new', [], 'Admin.Actions'),
+                'desc' => $this->trans('Add New', [], 'Admin.Actions'),
                 'href' => self::$currentIndex . '&addce_template&token=' . $this->token,
             ];
             $this->page_header_toolbar_btn['importce_template'] = [
@@ -344,7 +349,7 @@ class AdminCETemplatesController extends ModuleAdminController
 
         $this->fields_form = [
             'legend' => [
-                'title' => $this->l('Template'),
+                'title' => $this->trans('Template', [], 'Admin.Global'),
                 'icon' => 'icon-edit',
             ],
             'input' => [
@@ -364,7 +369,7 @@ class AdminCETemplatesController extends ModuleAdminController
                         'query' => $disabled ? [
                             ['value' => $this->object->type, 'label' => $this->fields_list['type']['list'][$this->object->type]],
                         ] : [
-                            ['value' => 'page', 'label' => $this->l('Page')],
+                            ['value' => 'page', 'label' => $this->trans('Page', [], 'Admin.Global')],
                             ['value' => 'section', 'label' => $this->l('Section')],
                         ],
                         'id' => 'value',
@@ -416,11 +421,8 @@ class AdminCETemplatesController extends ModuleAdminController
         return parent::renderForm();
     }
 
-    protected function l($string, $module = 'creativeelements', $addslashes = false, $htmlentities = true)
+    protected function l($string, $ctx = '', $addslashes = false, $htmlentities = true)
     {
-        $js = $addslashes || !$htmlentities;
-        $str = Translate::getModuleTranslation($module, $string, '', null, $js, _CE_LOCALE_);
-
-        return $htmlentities ? $str : stripslashes($str);
+        return Translate::getModuleTranslation($this->module, $string, $ctx, null, $addslashes, _CE_LOCALE_, false, $htmlentities);
     }
 }

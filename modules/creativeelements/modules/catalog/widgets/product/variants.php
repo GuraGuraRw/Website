@@ -69,6 +69,14 @@ class ModulesXCatalogXWidgetsXProductXVariants extends WidgetBase
         );
 
         $this->addControl(
+            'hide_signle_options',
+            [
+                'label' => __('Hide Single Option'),
+                'type' => ControlsManager::SWITCHER,
+            ]
+        );
+
+        $this->addControl(
             'show_value',
             [
                 'label' => __('Value'),
@@ -119,14 +127,14 @@ class ModulesXCatalogXWidgetsXProductXVariants extends WidgetBase
             ]
         );
 
-        $this->addControl(
+        _CE_ADMIN_ && $this->addControl(
             'configure',
             [
                 'label' => __('Product Attributes'),
                 'type' => ControlsManager::BUTTON,
                 'text' => '<i class="eicon-external-link-square"></i>' . __('Configure'),
                 'link' => [
-                    'url' => $this->context->link->getAdminLink('AdminAttributesGroups'),
+                    'url' => Helper::$link->getAdminLink('AdminAttributesGroups'),
                     'is_external' => true,
                 ],
                 'separator' => 'before',
@@ -220,8 +228,7 @@ class ModulesXCatalogXWidgetsXProductXVariants extends WidgetBase
                 'selectors' => [
                     '{{WRAPPER}}.ce-product-variants--layout-stacked .ce-product-variants__label' => 'display: inline-block; margin-bottom: {{SIZE}}{{UNIT}}',
                     '{{WRAPPER}}.ce-product-variants--layout-inline:not(.ce-product-variants--label-inline) .ce-product-variants__label' => 'margin-bottom: {{SIZE}}{{UNIT}}',
-                    'body:not(.lang-rtl) {{WRAPPER}}.ce-product-variants--label-inline .ce-product-variants__label' => 'margin-right: {{SIZE}}{{UNIT}}',
-                    'body.lang-rtl {{WRAPPER}}.ce-product-variants--label-inline .ce-product-variants__label' => 'margin-left: {{SIZE}}{{UNIT}}',
+                    '{{WRAPPER}}.ce-product-variants--label-inline .ce-product-variants__label' => 'margin-inline-end: {{SIZE}}{{UNIT}}',
                 ],
                 'condition' => [
                     'layout!' => 'table',
@@ -516,10 +523,8 @@ class ModulesXCatalogXWidgetsXProductXVariants extends WidgetBase
                     'size' => 10,
                 ],
                 'selectors' => [
-                    'body:not(.lang-rtl) {{WRAPPER}} .ce-product-variants__options label' => 'margin: 0 {{SIZE}}{{UNIT}} {{SIZE}}{{UNIT}} 0',
-                    'body:not(.lang-rtl) {{WRAPPER}} .ce-product-variants__options' => 'margin: 0 -{{SIZE}}{{UNIT}} -{{SIZE}}{{UNIT}} 0',
-                    'body.lang-rtl {{WRAPPER}} .ce-product-variants__options label' => 'margin: 0 0 {{SIZE}}{{UNIT}} {{SIZE}}{{UNIT}}',
-                    'body.lang-rtl {{WRAPPER}} .ce-product-variants__options' => 'margin: 0 0 -{{SIZE}}{{UNIT}} -{{SIZE}}{{UNIT}}',
+                    '{{WRAPPER}} .ce-product-variants__options' => 'margin: 0 0 -{{SIZE}}{{UNIT}}; margin-inline-end: -{{SIZE}}{{UNIT}};',
+                    '{{WRAPPER}} .ce-product-variants__options label' => 'margin: 0 0 {{SIZE}}{{UNIT}}; margin-inline-end: {{SIZE}}{{UNIT}};',
                 ],
             ]
         );
@@ -752,10 +757,8 @@ class ModulesXCatalogXWidgetsXProductXVariants extends WidgetBase
                     'size' => 10,
                 ],
                 'selectors' => [
-                    'body:not(.lang-rtl) {{WRAPPER}} .ce-product-variants__patterns label' => 'margin: 0 {{SIZE}}{{UNIT}} {{SIZE}}{{UNIT}} 0',
-                    'body:not(.lang-rtl) {{WRAPPER}} .ce-product-variants__patterns' => 'margin: 0 -{{SIZE}}{{UNIT}} -{{SIZE}}{{UNIT}} 0',
-                    'body.lang-rtl {{WRAPPER}} .ce-product-variants__patterns label' => 'margin: 0 0 {{SIZE}}{{UNIT}} {{SIZE}}{{UNIT}}',
-                    'body.lang-rtl {{WRAPPER}} .ce-product-variants__patterns' => 'margin: 0 0 -{{SIZE}}{{UNIT}} -{{SIZE}}{{UNIT}}',
+                    '{{WRAPPER}} .ce-product-variants__patterns' => 'margin: 0 0 -{{SIZE}}{{UNIT}}; margin-inline-end: -{{SIZE}}{{UNIT}};',
+                    '{{WRAPPER}} .ce-product-variants__patterns label' => 'margin: 0 0 {{SIZE}}{{UNIT}}; margin-inline-end: {{SIZE}}{{UNIT}};',
                 ],
             ]
         );
@@ -974,10 +977,10 @@ class ModulesXCatalogXWidgetsXProductXVariants extends WidgetBase
 
     protected function getImageByColor($id_attr_group, $color, $size)
     {
-        $combinations = &$this->context->smarty->tpl_vars['combinations']->value;
+        $combinations = &$GLOBALS['smarty']->tpl_vars['combinations']->value;
 
         foreach ($combinations as &$combination) {
-            if ($combination['attributes_values'][$id_attr_group] === $color && $combination['id_image']) {
+            if ($combination['attributes_values'][$id_attr_group] === $color && $combination['id_image'] > 0) {
                 return Helper::getProductImageLink($combination, $size);
             }
         }
@@ -990,14 +993,18 @@ class ModulesXCatalogXWidgetsXProductXVariants extends WidgetBase
 
     protected function render()
     {
-        if (!$groups = &$this->context->smarty->tpl_vars['groups']->value) {
+        if (empty($GLOBALS['smarty']->tpl_vars['groups']) || !$groups = &$GLOBALS['smarty']->tpl_vars['groups']->value) {
             return;
         }
         $settings = $this->getSettingsForDisplay();
         $image_size = isset($settings['image_size']) ? $settings['image_size'] : '';
+        $hide_single_options = (bool) $settings['hide_signle_options'];
         ?>
         <div class="ce-product-variants">
-        <?php foreach ($groups as $id_attr_group => $group) { ?>
+        <?php foreach ($groups as $id_attr_group => $group) {
+            if (empty($group['attributes']) || $hide_single_options && count($group['attributes']) === 1) {
+                continue;
+            } ?>
             <div class="ce-product-variants__item elementor-field-group">
                 <span class="ce-product-variants__label"><?php echo esc_html($group['name']); ?></span>
             <?php if ('stacked' === $settings['layout'] && $settings['show_value']) { ?>
@@ -1051,12 +1058,5 @@ class ModulesXCatalogXWidgetsXProductXVariants extends WidgetBase
 
     public function renderPlainContent()
     {
-    }
-
-    public function __construct($data = [], $args = [])
-    {
-        parent::__construct($data, $args);
-
-        $this->context = \Context::getContext();
     }
 }

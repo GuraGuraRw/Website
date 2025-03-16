@@ -3,8 +3,8 @@
 namespace PrestaShop\Module\PsAccounts\Vendor\GuzzleHttp;
 
 use PrestaShop\Module\PsAccounts\Vendor\GuzzleHttp\Exception\InvalidArgumentException;
-use Psr\Http\Message\UriInterface;
-use Symfony\Polyfill\Intl\Idn\Idn;
+use PrestaShop\Module\PsAccounts\Vendor\Psr\Http\Message\UriInterface;
+use PrestaShop\Module\PsAccounts\Vendor\Symfony\Polyfill\Intl\Idn\Idn;
 final class Utils
 {
     /**

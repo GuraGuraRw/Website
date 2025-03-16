@@ -3,9 +3,9 @@
 namespace PrestaShop\Module\PsAccounts\Vendor\GuzzleHttp\Psr7;
 
 use InvalidArgumentException;
-use Psr\Http\Message\RequestInterface;
-use Psr\Http\Message\StreamInterface;
-use Psr\Http\Message\UriInterface;
+use PrestaShop\Module\PsAccounts\Vendor\Psr\Http\Message\RequestInterface;
+use PrestaShop\Module\PsAccounts\Vendor\Psr\Http\Message\StreamInterface;
+use PrestaShop\Module\PsAccounts\Vendor\Psr\Http\Message\UriInterface;
 /**
  * PSR-7 request implementation.
  */

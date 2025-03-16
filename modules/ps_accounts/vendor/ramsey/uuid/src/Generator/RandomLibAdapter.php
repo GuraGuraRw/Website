@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of the ramsey/uuid library
  *
@@ -11,12 +12,10 @@
  * @link https://packagist.org/packages/ramsey/uuid Packagist
  * @link https://github.com/ramsey/uuid GitHub
  */
+namespace PrestaShop\Module\PsAccounts\Vendor\Ramsey\Uuid\Generator;
 
-namespace Ramsey\Uuid\Generator;
-
-use RandomLib\Generator;
-use RandomLib\Factory;
-
+use PrestaShop\Module\PsAccounts\Vendor\RandomLib\Generator;
+use PrestaShop\Module\PsAccounts\Vendor\RandomLib\Factory;
 /**
  * RandomLibAdapter provides functionality to generate strings of random
  * binary data using the paragonie/random-lib library
@@ -29,7 +28,6 @@ class RandomLibAdapter implements RandomGeneratorInterface
      * @var Generator
      */
     private $generator;
-
     /**
      * Constructs a `RandomLibAdapter` using a `RandomLib\Generator`
      *
@@ -41,14 +39,11 @@ class RandomLibAdapter implements RandomGeneratorInterface
     public function __construct(Generator $generator = null)
     {
         $this->generator = $generator;
-
         if ($this->generator === null) {
             $factory = new Factory();
-
             $this->generator = $factory->getHighStrengthGenerator();
         }
     }
-
     /**
      * Generates a string of random binary data of the specified length
      *

@@ -2,7 +2,7 @@
 
 namespace PrestaShop\Module\PsAccounts\Vendor\GuzzleHttp\Exception;
 
-use Psr\Http\Message\StreamInterface;
+use PrestaShop\Module\PsAccounts\Vendor\Psr\Http\Message\StreamInterface;
 /**
  * Exception thrown when a seek fails on a stream.
  */

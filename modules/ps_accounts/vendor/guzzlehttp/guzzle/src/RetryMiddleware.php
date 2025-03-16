@@ -5,8 +5,8 @@ namespace PrestaShop\Module\PsAccounts\Vendor\GuzzleHttp;
 use PrestaShop\Module\PsAccounts\Vendor\GuzzleHttp\Promise\PromiseInterface;
 use PrestaShop\Module\PsAccounts\Vendor\GuzzleHttp\Promise\RejectedPromise;
 use PrestaShop\Module\PsAccounts\Vendor\GuzzleHttp\Psr7;
-use Psr\Http\Message\RequestInterface;
-use Psr\Http\Message\ResponseInterface;
+use PrestaShop\Module\PsAccounts\Vendor\Psr\Http\Message\RequestInterface;
+use PrestaShop\Module\PsAccounts\Vendor\Psr\Http\Message\ResponseInterface;
 /**
  * Middleware that retries requests based on the boolean result of
  * invoking the provided "decider" function.

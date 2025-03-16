@@ -13,7 +13,7 @@ if (!defined('_PS_VERSION_')) {
 }
 
 use CE\CoreXDynamicTagsXDataTag as DataTag;
-use CE\ModulesXDynamicTagsXModule as Module;
+use CE\ModulesXDynamicTagsXModule as TagsModule;
 
 class ModulesXCatalogXTagsXProductImage extends DataTag
 {
@@ -31,12 +31,12 @@ class ModulesXCatalogXTagsXProductImage extends DataTag
 
     public function getGroup()
     {
-        return Module::CATALOG_GROUP;
+        return TagsModule::CATALOG_GROUP;
     }
 
     public function getCategories()
     {
-        return [Module::IMAGE_CATEGORY];
+        return [TagsModule::IMAGE_CATEGORY];
     }
 
     public function getPanelTemplateSettingKey()
@@ -99,7 +99,7 @@ class ModulesXCatalogXTagsXProductImage extends DataTag
     public function getValue(array $options = [])
     {
         $settings = $this->getSettings();
-        $vars = &\Context::getContext()->smarty->tpl_vars;
+        $vars = &$GLOBALS['smarty']->tpl_vars;
 
         if (empty($vars['product']->value['images'])) {
             return $settings['fallback_image'];
@@ -117,7 +117,6 @@ class ModulesXCatalogXTagsXProductImage extends DataTag
         }
 
         return [
-            'id' => '',
             'url' => $image['bySize'][$size]['url'],
             'width' => $image['bySize'][$size]['width'],
             'height' => $image['bySize'][$size]['height'],
@@ -134,7 +133,6 @@ class ModulesXCatalogXTagsXProductImage extends DataTag
 
         if ($index < 0) {
             return [
-                'id' => '',
                 // Tmp fix: Absolute URLs need to contain "://"
                 'url' => '{*://*}' .
                     "{if \$product.cover}{\$product.cover.bySize.$size.url}" . (empty($fi['url']) ? '' :
@@ -148,7 +146,6 @@ class ModulesXCatalogXTagsXProductImage extends DataTag
         }
 
         return [
-            'id' => '',
             // Tmp fix: Absolute URLs need to contain "://"
             'url' => "{*://*}{if isset(\$product.images.$index)}{\$pi=\$product.images.$index}{else}{\$pi=[]}{/if}" .
                 "{if \$pi}{\$pi.bySize.$size.url}" . (!empty($fi['url']) ?

@@ -38,6 +38,6 @@ class CoreXDebugXClassesXMaintenance extends InspectionBase
 
     public function getHelpDocUrl()
     {
-        return \Context::getContext()->link->getAdminLink('AdminMaintenance');
+        return Helper::$link->getAdminLink('AdminMaintenance');
     }
 }

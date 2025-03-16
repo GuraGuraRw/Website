@@ -3,7 +3,7 @@
         'name' => 'prestashop/sendinblue',
         'pretty_version' => 'dev-master',
         'version' => 'dev-master',
-        'reference' => '5e4c8e120dcad3072b9e4057f053783b488ff6cf',
+        'reference' => 'e29cedf8af8f41429d176a1a2effd1cb38311aa3',
         'type' => 'prestashop-module',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -13,7 +13,7 @@
         'prestashop/sendinblue' => array(
             'pretty_version' => 'dev-master',
             'version' => 'dev-master',
-            'reference' => '5e4c8e120dcad3072b9e4057f053783b488ff6cf',
+            'reference' => 'e29cedf8af8f41429d176a1a2effd1cb38311aa3',
             'type' => 'prestashop-module',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),

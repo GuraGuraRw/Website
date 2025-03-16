@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of the ramsey/uuid library
  *
@@ -11,14 +12,12 @@
  * @link https://packagist.org/packages/ramsey/uuid Packagist
  * @link https://github.com/ramsey/uuid GitHub
  */
-
-namespace Ramsey\Uuid;
+namespace PrestaShop\Module\PsAccounts\Vendor\Ramsey\Uuid;
 
 use Exception;
 use InvalidArgumentException;
-use Ramsey\Uuid\Exception\InvalidUuidStringException;
-use Ramsey\Uuid\Exception\UnsatisfiedDependencyException;
-
+use PrestaShop\Module\PsAccounts\Vendor\Ramsey\Uuid\Exception\InvalidUuidStringException;
+use PrestaShop\Module\PsAccounts\Vendor\Ramsey\Uuid\Exception\UnsatisfiedDependencyException;
 /**
  * UuidFactoryInterface defines common functionality all `UuidFactory` instances
  * must implement
@@ -40,7 +39,6 @@ interface UuidFactoryInterface
      * @throws Exception if it was not possible to gather sufficient entropy
      */
     public function uuid1($node = null, $clockSeq = null);
-
     /**
      * Generate a version 3 UUID based on the MD5 hash of a namespace identifier
      * (which is a UUID) and a name (which is a string).
@@ -51,7 +49,6 @@ interface UuidFactoryInterface
      * @throws InvalidUuidStringException
      */
     public function uuid3($ns, $name);
-
     /**
      * Generate a version 4 (random) UUID.
      *
@@ -61,7 +58,6 @@ interface UuidFactoryInterface
      * @throws Exception
      */
     public function uuid4();
-
     /**
      * Generate a version 5 UUID based on the SHA-1 hash of a namespace
      * identifier (which is a UUID) and a name (which is a string).
@@ -72,7 +68,6 @@ interface UuidFactoryInterface
      * @throws InvalidUuidStringException
      */
     public function uuid5($ns, $name);
-
     /**
      * Creates a UUID from a byte string.
      *
@@ -82,7 +77,6 @@ interface UuidFactoryInterface
      * @throws InvalidArgumentException if string has not 16 characters
      */
     public function fromBytes($bytes);
-
     /**
      * Creates a UUID from the string standard representation
      *
@@ -91,7 +85,6 @@ interface UuidFactoryInterface
      * @throws InvalidUuidStringException
      */
     public function fromString($uuid);
-
     /**
      * Creates a `Uuid` from an integer representation
      *

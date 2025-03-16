@@ -79,6 +79,12 @@ class IconsManager
                 $icon_type['ver']
             );
         }
+        wp_register_style(
+            'font-awesome-4-shim',
+            self::getFaAssetUrl('v4-shims'),
+            [],
+            '6.2.0'
+        );
     }
 
     /**
@@ -157,32 +163,29 @@ class IconsManager
         if ($enqueued) {
             return;
         }
-        // wp_enqueue_script(
-        //     'font-awesome-4-shim',
-        //     self::getFaAssetUrl('v4-shims', 'js'),
-        //     [],
-        //     _CE_VERSION_
-        // );
+        /*
+        wp_enqueue_script(
+            'font-awesome-4-shim',
+            self::getFaAssetUrl('v4-shims', 'js'),
+            [],
+            _CE_VERSION_
+        );
         // Make sure that the CSS in the 'all' file does not override FA Pro's CSS
-        // if (!wp_script_is('font-awesome-pro')) {
-        //     wp_enqueue_style(
-        //         'font-awesome-5-all',
-        //         self::getFaAssetUrl('all'),
-        //         [],
-        //         _CE_VERSION_
-        //     );
-        // }
+        if (!wp_script_is('font-awesome-pro')) {
+            wp_enqueue_style(
+                'font-awesome-5-all',
+                self::getFaAssetUrl('all'),
+                [],
+                _CE_VERSION_
+            );
+        }
         $frontend = Plugin::$instance->frontend;
         $frontend->maybeEnqueueIconFont('fa-regular');
         $frontend->maybeEnqueueIconFont('fa-solid');
         $frontend->maybeEnqueueIconFont('fa-brands');
+        */
+        wp_enqueue_style('font-awesome-4-shim');
 
-        wp_enqueue_style(
-            'font-awesome-4-shim',
-            self::getFaAssetUrl('v4-shims'),
-            [],
-            '6.2.0'
-        );
         $enqueued = true;
     }
 
@@ -346,7 +349,7 @@ class IconsManager
         }
         if (false === $migration_dictionary) {
             $migration_dictionary = json_decode(
-                call_user_func('file_get_contents', _CE_ASSETS_PATH_ . 'lib/font-awesome/migration/mapping.js'),
+                @call_user_func('file_get_contents', _CE_ASSETS_PATH_ . 'lib/font-awesome/migration/mapping.js'),
                 true
             );
         }
@@ -440,7 +443,7 @@ class IconsManager
     public function __construct()
     {
         /*
-        if (is_admin()) {
+        if (_CE_ADMIN_) {
             // @todo: remove once we deprecate fa4
             add_action('elementor/admin/after_create_settings/' . Settings::PAGE_ID, [$this, 'registerAdminSettings'], 100);
             add_action('elementor/admin/localize_settings', [$this, 'addAdminStrings']);

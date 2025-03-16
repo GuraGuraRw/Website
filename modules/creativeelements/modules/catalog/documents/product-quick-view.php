@@ -436,7 +436,7 @@ class ModulesXCatalogXDocumentsXProductQuickView extends ProductDocument
                     'unit' => '%',
                 ],
                 'selectors' => [
-                    '{{WRAPPER}} .dialog-close-button' => is_rtl() ? 'left: {{SIZE}}{{UNIT}}' : 'right: {{SIZE}}{{UNIT}}',
+                    '{{WRAPPER}} .dialog-close-button' => 'inset-inline-end: {{SIZE}}{{UNIT}}',
                 ],
                 'separator' => 'after',
             ]
@@ -576,7 +576,7 @@ class ModulesXCatalogXDocumentsXProductQuickView extends ProductDocument
     {
         parent::__construct($data);
 
-        if ($this->getMainId() == \CreativeElements::getPreviewUId(false)) {
+        if (\CreativeElements::getPreviewUId(false) == (string) $this->getMainId()) {
             add_action('wp_footer', [__CLASS__, 'printPreviewFooter']);
 
             add_filter('template_include', function () {

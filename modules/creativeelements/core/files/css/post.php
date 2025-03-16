@@ -38,7 +38,7 @@ class CoreXFilesXCSSXPost extends Base
      *
      * @var int
      */
-    private $post_id;
+    protected $post_id;
 
     /**
      * Post CSS file constructor.
@@ -187,16 +187,14 @@ class CoreXFilesXCSSXPost extends Base
     {
         $data = $this->getData();
 
-        if (!empty($data)) {
-            foreach ($data as $element_data) {
-                $element = Plugin::$instance->elements_manager->createElementInstance($element_data);
+        foreach ($data as &$element_data) {
+            $element = Plugin::$instance->elements_manager->createElementInstance($element_data);
 
-                if (!$element) {
-                    continue;
-                }
-
-                $this->renderStyles($element);
+            if (!$element) {
+                continue;
             }
+
+            $this->renderStyles($element);
         }
     }
 
@@ -299,17 +297,7 @@ class CoreXFilesXCSSXPost extends Base
      */
     protected function renderStyles(ElementBase $element)
     {
-        /*
-         * Before element parse CSS.
-         *
-         * Fires before the CSS of the element is parsed.
-         *
-         * @since 1.2.0
-         *
-         * @param Post         $this    The post CSS file
-         * @param ElementBase $element The element
-         */
-        do_action('elementor/element/before_parse_css', $this, $element);
+        // do_action('elementor/element/before_parse_css', $this, $element);
 
         $element_settings = $element->getSettings();
 

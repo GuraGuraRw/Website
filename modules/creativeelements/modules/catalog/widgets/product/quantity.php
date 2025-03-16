@@ -430,8 +430,7 @@ class ModulesXCatalogXWidgetsXProductXQuantity extends WidgetBase
                 'type' => ControlsManager::SLIDER,
                 'selectors' => [
                     '{{WRAPPER}}.ce-product-quantity--view-inline input[type=number]' => 'margin: 0 {{SIZE}}{{UNIT}}',
-                    'body:not(.lang-rtl) {{WRAPPER}}.ce-product-quantity--view-stacked .ce-product-quantity__btn' => 'right: {{SIZE}}{{UNIT}}',
-                    'body.lang-rtl {{WRAPPER}}.ce-product-quantity--view-stacked .ce-product-quantity__btn' => 'left: {{SIZE}}{{UNIT}}',
+                    '{{WRAPPER}}.ce-product-quantity--view-stacked .ce-product-quantity__btn' => 'inset-inline-end: {{SIZE}}{{UNIT}}',
                 ],
             ]
         );
@@ -732,7 +731,7 @@ class ModulesXCatalogXWidgetsXProductXQuantity extends WidgetBase
     protected function render()
     {
         $settings = $this->getSettingsForDisplay();
-        $product = &\Context::getContext()->smarty->tpl_vars['product']->value;
+        $product = $GLOBALS['smarty']->tpl_vars['product']->value;
         $min_qty = !empty($product['product_attribute_minimal_quantity'])
             ? 'product_attribute_minimal_quantity'
             : 'minimal_quantity';
@@ -748,8 +747,8 @@ class ModulesXCatalogXWidgetsXProductXQuantity extends WidgetBase
             'type' => 'number',
             'form' => 'add-to-cart-or-refresh',
             'name' => 'qty',
-            'value' => $product['quantity_wanted'],
-            'min' => max(1, $product[$min_qty]),
+            'value' => $product['quantity_wanted'] ?: 1,
+            'min' => $product[$min_qty] ?: 1,
             'inputmode' => 'decimal',
             'oninput' => '$(this.form.qty).val(this.value)',
         ]);

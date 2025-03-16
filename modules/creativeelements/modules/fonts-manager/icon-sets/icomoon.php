@@ -22,26 +22,17 @@ class ModulesXFontsManagerXIconSetsXIcomoon extends IconSetBase
 
     protected function prepare()
     {
-        return [];
+        $this->dir_name = $this->getUniqueName();
     }
 
     public function getType()
     {
-        return __('Icomoon');
-    }
-
-    public function isValid()
-    {
-        if (!file_exists($this->directory . $this->data_file)) {
-            return false; // missing data file
-        }
-
-        return true;
+        return 'Icomoon';
     }
 
     private function getJson()
     {
-        return json_decode(call_user_func('file_get_contents', $this->directory . $this->data_file));
+        return json_decode(@call_user_func('file_get_contents', $this->directory . $this->data_file));
     }
 
     protected function extractIconList()

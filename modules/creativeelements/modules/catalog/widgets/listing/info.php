@@ -149,8 +149,7 @@ class ModulesXCatalogXWidgetsXListingXInfo extends WidgetBase
 
     protected function render()
     {
-        $context = \Context::getContext();
-        $listing = &$context->smarty->tpl_vars['listing']->value;
+        $listing = &$GLOBALS['smarty']->tpl_vars['listing']->value;
         $info = $this->getSettings('info');
 
         if ('items_shown' === $info && !$listing['products'] && empty(${'_GET'}['q'])) {
@@ -164,19 +163,19 @@ class ModulesXCatalogXWidgetsXListingXInfo extends WidgetBase
         if ('label' === $info) {
             echo $listing[$info];
         } elseif ('total_items' === $info) {
-            echo $context->getTranslator()->trans(1 === $pagination['total_items'] ? 'There is 1 product.' : 'There are %product_count% products.', [
+            _e(1 === $pagination['total_items'] ? 'There is 1 product.' : 'There are %product_count% products.', 'Shop.Theme.Catalog', [
                 '%product_count%' => $pagination['total_items'],
-            ], 'Shop.Theme.Catalog');
+            ]);
         } elseif ('items_shown' === $info) {
             if (isset($_SERVER['HTTP_X_CE_PAGINATION'])) {
                 $pagination['items_shown_from'] = 1;
                 $pagination['items_shown_to'] = ($pagination['current_page'] - 1) * \Configuration::get('PS_PRODUCTS_PER_PAGE') + count($listing['products']);
             }
-            echo $context->getTranslator()->trans('Showing %from%-%to% of %total% item(s)', [
+            _e('Showing %from%-%to% of %total% item(s)', 'Shop.Theme.Catalog', [
                 '%from%' => $pagination['items_shown_from'],
                 '%to%' => $pagination['items_shown_to'],
                 '%total%' => $pagination['total_items'],
-            ], 'Shop.Theme.Catalog');
+            ]);
         }
         echo '</div>';
     }

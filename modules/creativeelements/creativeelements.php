@@ -10,9 +10,10 @@ if (!defined('_PS_VERSION_')) {
     exit;
 }
 
-define('_CE_VERSION_', '2.10.1');
+define('_CE_VERSION_', '2.12.0.2a');
+define('_CE_ADMIN_', defined('_PS_BO_ALL_THEMES_DIR_'));
 define('_CE_PATH_', _PS_MODULE_DIR_ . 'creativeelements/');
-define('_CE_URL_', (defined('_PS_BO_ALL_THEMES_DIR_') ? _MODULE_DIR_ : 'modules/') . 'creativeelements/');
+define('_CE_URL_', (_CE_ADMIN_ ? _MODULE_DIR_ : 'modules/') . 'creativeelements/');
 define('_CE_ASSETS_PATH_', _CE_PATH_ . 'views/');
 define('_CE_ASSETS_URL_', _CE_URL_ . 'views/');
 define('_CE_TEMPLATES_', _CE_PATH_ . 'views/templates/');
@@ -51,7 +52,7 @@ class CreativeElements extends Module
     {
         $this->name = 'creativeelements';
         $this->tab = 'content_management';
-        $this->version = '2.10.1';
+        $this->version = '2.12.0.2';
         $this->author = 'WebshopWorks';
         $this->module_key = '7a5ebcc21c1764675f1db5d0f0eacfe5';
         $this->ps_versions_compliancy = ['min' => '1.7.4', 'max' => _PS_VERSION_];
@@ -98,20 +99,14 @@ class CreativeElements extends Module
 
     public function enable($force_all = false)
     {
-        return parent::enable($force_all) && Db::getInstance()->update(
-            'tab',
-            ['active' => 1],
-            "module = 'creativeelements' AND class_name != 'AdminCEEditor'"
-        );
+        return parent::enable($force_all)
+            && Db::getInstance()->update('tab', ['active' => 1], "`module` = 'creativeelements' AND `class_name` != 'AdminCEEditor'");
     }
 
     public function disable($force_all = false)
     {
-        return Db::getInstance()->update(
-            'tab',
-            ['active' => 0],
-            "module = 'creativeelements'"
-        ) && parent::disable($force_all);
+        return Db::getInstance()->update('tab', ['active' => 0], "`module` = 'creativeelements'")
+            && parent::disable($force_all);
     }
 
     public function addOverride($classname)
@@ -137,6 +132,10 @@ class CreativeElements extends Module
         if ((Configuration::getGlobalValue('ce_migrate') || Tools::getIsset('CEMigrate')) && Db::getInstance()->executeS("SHOW TABLES LIKE '%_ce_meta'")) {
             require_once _CE_PATH_ . 'classes/CEMigrate.php';
             CEMigrate::registerJavascripts();
+        } elseif (Tools::getIsset('CEUpgrade') && ($this->installed = (int) $this->database_version = Tools::getValue('CEUpgrade')) && Module::initUpgradeModule($this)) {
+            $this->runUpgradeModule();
+            $this->context->controller->errors = $this->_errors;
+            $this->context->controller->confirmations = $this->_confirmations;
         }
 
         $footer_product = '';
@@ -263,8 +262,8 @@ class CreativeElements extends Module
                     'hideEditor' => $hideEditor,
                     'footerProduct' => "$footer_product",
                     'i18n' => [
-                        'edit' => str_replace("'", '’', $this->l('Edit with Creative Elements')),
-                        'save' => str_replace("'", '’', $this->l('Please save the form before editing with Creative Elements')),
+                        'edit' => CE\__('Edit with Creative Elements'),
+                        'save' => CE\__('Please save the form before editing with Creative Elements'),
                     ],
                     'editorUrl' => Tools::safeOutput($this->context->link->getAdminLink('AdminCEEditor') . '&uid='),
                     'languages' => Language::getLanguages(true, $uid->id_shop),
@@ -284,10 +283,56 @@ class CreativeElements extends Module
         return $this->context->smarty->fetch(_CE_TEMPLATES_ . 'hook/backoffice_header.tpl');
     }
 
-    public function hookActionFrontControllerAfterInit($params = [])
+    public function hookDashboardZoneOne($params)
     {
-        // BC Fix for PS 1.7.3 - 1.7.6
-        $this->hookActionFrontControllerInitAfter($params);
+        require_once _CE_PATH_ . 'includes/api.php';
+
+        $recent_items = [];
+        $time_formatter = new IntlDateFormatter($this->context->language->locale, IntlDateFormatter::NONE, IntlDateFormatter::SHORT);
+        $date_formatter = new IntlDateFormatter($this->context->language->locale, IntlDateFormatter::MEDIUM, IntlDateFormatter::NONE);
+        $date_formatter->setPattern(str_replace(['y', 'Y'], '', $date_formatter->getPattern()));
+        $employee = $this->context->employee;
+        $shops = Shop::getContextListShopID();
+        $rows = Db::getInstance()->executeS('
+            SELECT `id`, RIGHT(`id`, 2) + 0 AS `id_shop`, `value` FROM ' . _DB_PREFIX_ . 'ce_meta
+            WHERE `name` = "_edit_lock" AND `value` LIKE "%:' . (int) $employee->id . '"
+            HAVING `id_shop` IN (0,' . implode(',', array_map('intval', $shops)) . ')
+            ORDER BY `value` DESC LIMIT 3
+        ') ?: [];
+
+        foreach ($rows as &$row) {
+            $uid = CE\UId::parse($row['id']);
+            $post = CE\WPPost::getInstance($uid);
+            $datetime = explode(':', $row['value'])[0];
+            $recent_items[] = [
+                'id' => $row['id'],
+                'title' => "#{$uid->id} {$post->post_title}",
+                'lang' => strtoupper(Language::getIsoById($uid->id_lang)),
+                'type' => CE\__($uid->id_type < 9 || $uid->id_type == 17 ? str_replace('CE', '', get_class($post->_obj)) : 'Post'),
+                'date' => $date_formatter->format($datetime) . ' ' . $time_formatter->format($datetime),
+            ];
+        }
+
+        return $this->context->smarty->fetch(_CE_TEMPLATES_ . 'hook/dashboard_zone_one.tpl', null, null, [
+            'recent_items' => &$recent_items,
+            'multilang' => count(Language::getLanguages(true, false, true)) > 1,
+            'feed_data' => CE\Api::getFeedData(),
+            'current_version' => $this->version,
+            'latest_version' => $latest = Configuration::getGlobalValue('CE_LATEST_VERSION'),
+            'version_status' => $status = version_compare($this->ps_versions_compliancy['max'], _PS_VERSION_, '<') ? 'danger' : (
+                version_compare($this->version, $latest, '<') ? 'warning' : 'success'
+            ),
+            'version_status_label' => CE\__([
+                'success' => 'Up-to-date',
+                'warning' => 'Update Available',
+                'danger' => 'Update Required',
+            ][$status]),
+            'addcms_url' => Profile::getProfileAccess($employee->id_profile, Tab::getIdFromClassName('AdminCmsContent'))['add']
+                ? $this->context->link->getAdminLink('AdminCmsContent', true, ['addcms' => 1]) : '',
+            'editor_url' => $this->context->link->getAdminLink('AdminCEEditor'),
+            'update_url' => Profile::getProfileAccess($employee->id_profile, Tab::getIdFromClassName('AdminModulesUpdates'))['view']
+                && 'success' !== $status ? $this->context->link->getAdminLink('AdminModulesUpdates') : '',
+        ]);
     }
 
     public function hookActionFrontControllerInitAfter($params = [])
@@ -296,6 +341,19 @@ class CreativeElements extends Module
             return;
         }
         self::$controller = $this->context->controller;
+
+        if (('authentication' === self::$controller->php_self || 'registration' === self::$controller->php_self)
+            && !self::$controller->ajax && $this->context->customer->logged && self::getPreviewUId(false)
+        ) { // Login & Registration page Preview fix
+            self::$controller->ajax = true;
+
+            CE\add_action('template_redirect', function () {
+                self::$controller->ajax = false;
+            });
+        } elseif (isset(self::$controller->cms_category) && !self::$controller->cms_category->active && self::getPreviewUId(false)) {
+            // CMS Category description Preview fix
+            self::$controller->cms_category->active = 1;
+        }
 
         $tpl_dir = $this->context->smarty->getTemplateDir();
         array_unshift($tpl_dir, _CE_TEMPLATES_ . 'front/theme/');
@@ -307,30 +365,25 @@ class CreativeElements extends Module
             }, $this->templateFinder, 'TemplateFinderCore')->__invoke();
         }, self::$controller, 'FrontControllerCore')->__invoke();
 
-        $id_miniature = Tools::getIsset('id_miniature') && self::hasAdminToken('AdminCEThemes')
-            ? (int) Tools::getValue('id_miniature')
-            : Configuration::get('CE_PRODUCT_MINIATURE');
+        if (Tools::getIsset('id_miniature') && self::hasAdminToken('AdminCEThemes')) {
+            Configuration::set('elementor_element_cache_ttl', 0);
 
-        if ($id_miniature) {
-            $this->context->smarty->assign(
-                'CE_PRODUCT_MINIATURE_UID',
-                new CE\UId($id_miniature, CE\UId::THEME, $this->context->language->id, $this->context->shop->id)
-            );
-            CE\Plugin::instance()->frontend->hasElementorInPage(true);
+            $id_miniature = (int) Tools::getValue('id_miniature');
+        } else {
+            $id_miniature = Configuration::get('CE_PRODUCT_MINIATURE');
         }
-    }
 
-    public function hookHeader()
-    {
-        // Compatibility fix for PS 1.7.7.x upgrade
-        return $this->hookDisplayHeader();
+        $id_miniature && $this->context->smarty->assign(
+            'CE_PRODUCT_MINIATURE_UID',
+            new CE\UId($id_miniature, CE\UId::THEME, $this->context->language->id, $this->context->shop->id)
+        );
     }
 
     public function hookDisplayHeader()
     {
         $this->hookActionFrontControllerInitAfter();
 
-        $plugin = CE\Plugin::instance();
+        CE\Plugin::instance();
         CE\did_action('template_redirect') || CE\do_action('template_redirect');
 
         if (self::$controller instanceof ProductController) {
@@ -342,14 +395,18 @@ class CreativeElements extends Module
                 // Compatibility fix with Alysum theme
                 unset(${'_GET'}['preview_id']);
             }
-            if (CE\UId::CONTENT === $uid_preview->id_type && Tools::getIsset('maintenance')) {
+            if (CE\UId::CONTENT === $uid_preview->id_type && Tools::getIsset('maintenance') && !Tools::getIsset('render')) {
                 // Preview Maintenance
                 $this->displayMaintenancePage();
             }
         }
 
         // PS fix: OverrideLayoutTemplate hook doesn't exec on 403/404 page
-        http_response_code() !== 200 && $this->hookOverrideLayoutTemplate();
+        if (200 !== $resp_code = http_response_code()) {
+            404 === $resp_code && self::$template = 'errors/404';
+
+            $this->hookOverrideLayoutTemplate();
+        }
     }
 
     protected function addViewedProduct($id_product)
@@ -385,31 +442,24 @@ class CreativeElements extends Module
 
     public function hookOverrideLayoutTemplate($params = [])
     {
-        if (null !== self::$layout || !self::$template && !self::$controller instanceof ModuleFrontController || !CE\did_action('template_redirect')) {
+        if (null !== self::$layout || !CE\did_action('template_redirect') || !self::$template && 'front' === self::$controller->controller_type) {
             return self::$layout;
         }
         self::$layout = '';
-
-        if ($id_kit = (int) Configuration::get('elementor_active_kit')) {
-            isset($this->context->smarty->tpl_vars['page'])
-                && $this->context->smarty->tpl_vars['page']->value['body_classes']["ce-kit-$id_kit"] = 1;
-
-            CE\Plugin::instance()->frontend->hasElementorInPage(true);
-        }
+        $ce = CE\Plugin::$instance;
+        $ce->kits_manager->frontendBeforeEnqueueStyles();
 
         if (self::isMaintenance()) {
             return self::$layout;
         }
 
         // Page Content
+        $vars = &$this->context->smarty->tpl_vars;
         $uid_preview = self::getPreviewUId(false);
         $controller = self::$controller;
-        $vars = &$this->context->smarty->tpl_vars;
-        $errors = [
-            403 => 'forbidden',
-            404 => 'pagenotfound',
-        ];
-        $front = isset($errors[$resp_code = http_response_code()]) ? $errors[$resp_code] : strtolower(
+        $id_lang = $this->context->language->id;
+        $id_shop = $this->context->shop->id;
+        $front = http_response_code() !== 200 ? '' : strtolower(
             preg_replace('/(ModuleFront)?Controller(Override)?$/i', '', get_class($controller))
         );
         switch ($front) {
@@ -436,8 +486,6 @@ class CreativeElements extends Module
                 if (isset($vars[$model]->value['id'])) {
                     $id = $vars[$model]->value['id'];
                     $desc = ['description' => &$vars[$model]->value['content']];
-
-                    CE\add_action('wp_head', 'print_og_image');
                 }
                 break;
             case 'product':
@@ -516,7 +564,7 @@ class CreativeElements extends Module
                 }
                 break;
             case 'prestablogblog':
-            case 'prestablog' . Configuration::get('prestablog_urlblog') === $front:
+            case 'prestablog' . strtolower(Configuration::get('prestablog_urlblog')) === $front:
                 $model = 'NewsClass';
                 $news = Closure::bind(function () {
                     return $this->news;
@@ -565,28 +613,25 @@ class CreativeElements extends Module
 
         if (isset($id)) {
             // Init the ID
-            if (Tools::getIsset('ver') && $uid_preview && $uid_preview->id == $id && $uid_preview->id_type === CE\UId::getTypeId($model)) {
+            if ($uid_preview && $uid_preview->id == $id && $uid_preview->id_type === CE\UId::getTypeId($model)) {
                 CE\UId::$_ID = $uid_preview;
-            } elseif (!CE\UId::$_ID || in_array(CE\UId::$_ID->id_type, [CE\UId::CONTENT, CE\UId::THEME, CE\UId::TEMPLATE])) {
-                CE\UId::$_ID = new CE\UId($id, CE\UId::getTypeId($model), $this->context->language->id, $this->context->shop->id);
-            }
-
-            if (CE\UId::$_ID) {
-                $this->addBodyClasses('elementor-page', CE\UId::$_ID->toDefault());
-
                 $desc['description'] = CE\apply_filters('the_content', $desc['description']);
+            } elseif (!CE\UId::$_ID || in_array(CE\UId::$_ID->id_type, [CE\UId::CONTENT, CE\UId::THEME, CE\UId::TEMPLATE])) {
+                CE\UId::$_ID = new CE\UId($id, CE\UId::getTypeId($model), $id_lang, $id_shop);
+                $desc['description'] = $ce->frontend->getBuilderContent(CE\UId::$_ID) ?: $desc['description'];
             }
+            CE\UId::$_ID && $this->addBodyClasses('elementor-page', CE\UId::$_ID->toDefault());
             // ets_blog & ybc_blog 4.4.9+ fix
             isset($blog_content) && $blog_content = str_replace('<!--CE-POST-->', $desc['description'], $blog_content);
         }
 
         // Ajax render widgets & tags
         if ($uid_preview && $render = Tools::getValue('render')) {
-            $response = 'widget' === $render
-                ? CE\Plugin::$instance->widgets_manager->ajaxRenderWidget()
-                : CE\Plugin::$instance->dynamic_tags->ajaxRenderTags()
-            ;
-            $response && http_response_code(200);
+            ($response = 'widget' === $render
+                ? $ce->widgets_manager->ajaxRenderWidget()
+                : $ce->dynamic_tags->ajaxRenderTags()
+            ) && http_response_code(200);
+
             exit(json_encode($response));
         }
 
@@ -594,12 +639,10 @@ class CreativeElements extends Module
         $theme = [
             'header' => Configuration::get('CE_HEADER'),
             'footer' => Configuration::get('CE_FOOTER'),
-            'listing-no-results' => $controller instanceof ProductListingFrontController ? Configuration::get('CE_LISTING_NO_RESULTS') : 0,
         ];
         $pages = [
             'index' => 'page-index',
             'contact' => 'page-contact',
-            'errors/404' => 'page-not-found',
             'catalog/product' => 'product',
             'catalog/listing/category' => 'listing-category',
             'catalog/listing/manufacturer' => 'listing-manufacturer',
@@ -607,6 +650,12 @@ class CreativeElements extends Module
             'catalog/listing/new-products' => 'listing-new-products',
             'catalog/listing/best-sales' => 'listing-best-sales',
             'catalog/listing/search' => 'listing-search',
+            'customer/authentication' => 'page-authentication',
+            'customer/registration' => 'page-registration',
+            'customer/password-email' => 'page-password',
+            'customer/password-infos' => 'page-password',
+            'customer/password-new' => 'page-password',
+            'errors/404' => 'page-not-found',
         ];
         foreach ($pages as $tpl => $doc_type) {
             if (self::$template === $tpl) {
@@ -617,10 +666,11 @@ class CreativeElements extends Module
         $uid = CE\UId::$_ID;
 
         if ($uid_preview && (CE\UId::THEME === $uid_preview->id_type || CE\UId::TEMPLATE === $uid_preview->id_type)) {
-            $preview = self::renderTheme($uid_preview);
-            $type_preview = CE\Plugin::$instance->documents->getDocForFrontend($uid_preview)->getTemplateType();
-            'listing-page' === $type_preview
-                && $type_preview = "listing-{$controller->php_self}";
+            CE\UId::$_ID = $uid_preview;
+            $preview = CE\apply_filters('the_content', '');
+            $type_preview = $ce->documents->getDocForFrontend($uid_preview)->getTemplateType();
+            'listing-no-results' === $type_preview && Configuration::set('CE_LISTING_NO_RESULTS', $uid_preview->id);
+            'listing-page' === $type_preview && $type_preview = "listing-{$controller->php_self}";
             $this->context->smarty->assign(self::getThemeVarName($type_preview), $preview);
             unset($desc);
 
@@ -628,35 +678,27 @@ class CreativeElements extends Module
                 // Static pages
                 $uid = CE\UId::$_ID;
                 $desc = ['description' => &$preview];
-
-                CE\add_action('wp_head', 'print_og_image');
             } elseif ('header' !== $type_preview && 'footer' !== $type_preview) {
                 // Product or Listing templates
                 $desc = ['description' => &$preview];
-
-                if ('product-quick-view' === $type_preview) {
-                    $this->context->smarty->assign('CE_PRODUCT_QUICK_VIEW_ID', $uid_preview->id);
-                }
             }
-            array_search($type_preview, $pages) && $this->addBodyClasses('ce-theme', $uid_preview->id);
+            in_array($type_preview, $pages) && $this->addBodyClasses('ce-theme', $uid_preview->id);
             unset($theme[$type_preview]);
         }
-        if (isset($pages[self::$template]) && !empty($theme[$pages[self::$template]])) {
+
+        if (isset($pages[self::$template]) && !empty($theme[$pages[self::$template]]) && (new CETheme($theme[$doc_type], $id_lang, $id_shop))->active) {
             $doc_type = $pages[self::$template];
-            $uid_theme = new CE\UId($theme[$doc_type], CE\UId::THEME, $this->context->language->id, $this->context->shop->id);
-            $this->context->smarty->assign($theme_var = self::getThemeVarName($doc_type), self::renderTheme($uid_theme));
+            CE\UId::$_ID = new CE\UId($theme[$doc_type], CE\UId::THEME, $id_lang, $id_shop);
+            $this->context->smarty->assign($theme_var = self::getThemeVarName($doc_type), $ce->frontend->getBuilderContent(CE\UId::$_ID));
             // Set $desc only if not product miniature / quickview
             if (empty($type_preview) || strpos($type_preview, 'product-') !== 0) {
                 unset($desc);
                 $desc = ['description' => &$vars[$theme_var]->value];
             }
-
-            if ('product' !== $front) {
+            if (strpos($doc_type, 'page-') === 0) {
                 $uid = CE\UId::$_ID;
-
-                CE\add_action('wp_head', 'print_og_image');
             }
-            $this->addBodyClasses('ce-theme', $uid_theme->id);
+            $this->addBodyClasses('ce-theme', CE\UId::$_ID->id);
             unset($theme[$doc_type]);
         }
 
@@ -673,16 +715,16 @@ class CreativeElements extends Module
             isset($desc) && $this->context->smarty->assign('ce_desc', $desc);
         } else {
             foreach ($theme as $doc_type => $id_ce_theme) {
+                if (!(new CETheme($id_ce_theme, $id_lang, $id_shop))->active) {
+                    continue;
+                }
+                CE\UId::$_ID = new CE\UId($id_ce_theme, CE\UId::THEME, $id_lang, $id_shop);
+                $id_ce_theme && $this->context->smarty->assign(self::getThemeVarName($doc_type), $ce->frontend->getBuilderContent(CE\UId::$_ID));
+
                 if ('footer' === $doc_type && $id_ce_theme && method_exists($wishlist = Module::getInstanceByName('blockwishlist') ?: '', 'hookDisplayFooter') && $wishlist->active) {
                     // Wishlist fix for missing displayFooter hook
-                    CE\add_filter('the_content', function ($content) use ($wishlist) {
-                        return $content . (empty($wishlist->smarty->tpl_vars['addUrl']) ? $wishlist->hookDisplayFooter([]) : '');
-                    });
+                    empty($wishlist->smarty->tpl_vars['addUrl']) && $vars['CE_FOOTER']->value .= $wishlist->hookDisplayFooter([]);
                 }
-                $id_ce_theme && $this->context->smarty->assign(
-                    self::getThemeVarName($doc_type),
-                    self::renderTheme(new CE\UId($id_ce_theme, CE\UId::THEME, $this->context->language->id, $this->context->shop->id))
-                );
             }
         }
         CE\UId::$_ID = $uid;
@@ -722,7 +764,7 @@ class CreativeElements extends Module
             CE\remove_all_filters('the_content');
         }, 0);
 
-        if (!$maintenance = $this->renderContent('displayMaintenance', $params)) {
+        if (!$maintenance = $this->renderContent('displayMaintenance')) {
             return;
         }
         self::$controller->registerJavascript('jquery', 'js/jquery/jquery-1.11.0.min.js');
@@ -738,15 +780,12 @@ class CreativeElements extends Module
 
     public function hookDisplayHome()
     {
-        // Do not render hook if home page is overriden
-        if (!Configuration::get('CE_PAGE_INDEX')) {
-            return $this->renderContent('displayHome');
-        }
+        return $this->renderContent('displayHome');
     }
 
     public function hookDisplayFooterProduct($params = [])
     {
-        return $this->renderContent('displayFooterProduct', $params);
+        return $this->renderContent('displayFooterProduct');
     }
 
     public function __call($method, $args)
@@ -754,16 +793,24 @@ class CreativeElements extends Module
         if (stripos($method, 'hookActionObject') === 0 && stripos($method, 'DeleteAfter') !== false) {
             $this->hookActionObjectDeleteAfter(...$args);
         } elseif (stripos($method, 'hook') === 0) {
+            // BC Fix for PS 1.7.3 - 1.7.6
+            if (!strcmp($method, 'hookActionFrontControllerAfterInit')) {
+                return $this->hookActionFrontControllerInitAfter();
+            }
+            // Compatibility fix for PS 1.7.7.x upgrade
+            if (!strcmp($method, 'hookHeader')) {
+                return $this->hookDisplayHeader();
+            }
             // render hook only after Header init
             if (null !== self::$layout) {
-                return $this->renderContent(substr($method, 4), $args);
+                return $this->renderContent(substr($method, 4));
             }
         } else {
             throw new Exception('Can not find method: ' . $method);
         }
     }
 
-    public function renderContent($hook_name = null)
+    public function renderContent($hook_name)
     {
         if (!$hook_name) {
             return;
@@ -797,13 +844,6 @@ class CreativeElements extends Module
         return $out;
     }
 
-    public static function renderTheme($uid)
-    {
-        CE\UId::$_ID = $uid;
-
-        return CE\apply_filters('the_content', '');
-    }
-
     public function registerHook($hook_name, $shop_list = null, $position = null)
     {
         $res = parent::registerHook($hook_name, $shop_list);
@@ -833,15 +873,16 @@ class CreativeElements extends Module
 
     public function hookCETemplate($params = [])
     {
-        if (empty($params['id']) || !Validate::isLoadedObject($tpl = new CETemplate($params['id'])) || !$tpl->active) {
-            return;
-        }
-        $uid = CE\UId::$_ID;
-        CE\UId::$_ID = new CE\UId($params['id'], CE\UId::TEMPLATE);
-        $out = CE\apply_filters('the_content', '');
-        CE\UId::$_ID = $uid;
+        if (!empty($params['id'])) {
+            $uid = new CE\UId($params['id'], CE\UId::TEMPLATE);
 
-        return $out;
+            return CE\Plugin::$instance->frontend->getBuilderContentForDisplay($uid);
+        }
+    }
+
+    public function hookActionClearCompileCache()
+    {
+        Db::getInstance()->delete('ce_meta', "`name` = '_ce_element_cache'");
     }
 
     public function hookActionObjectDeleteAfter($params = [])
@@ -851,7 +892,7 @@ class CreativeElements extends Module
         $id_start = sprintf('%d%02d', $params['object']->id, $id_type);
 
         // Delete meta data
-        Db::getInstance()->delete('ce_meta', "id LIKE '{$id_start}____'");
+        Db::getInstance()->delete('ce_meta', "`id` LIKE '{$id_start}____'");
 
         // Delete CSS files
         array_map('unlink', glob(_CE_PATH_ . "views/css/ce/$id_start????.css", GLOB_NOSORT));
@@ -862,7 +903,7 @@ class CreativeElements extends Module
 
     public function hookActionObjectProductDeleteAfter($params = [])
     {
-        $id_product = (int) $params['object']->id;
+        $id_product = $params['object']->id;
         $this->hookActionObjectDeleteAfter($params);
 
         // Delete displayFooterProduct content
@@ -871,23 +912,22 @@ class CreativeElements extends Module
             Validate::isLoadedObject($content) && $content->delete();
         }
         // Remove deleted product ID from page settings
-        $ps = _DB_PREFIX_;
-        Db::getInstance()->execute("
-            UPDATE `{$ps}ce_meta`
-            SET `value` = REPLACE(`value`, '\"preview_id\":\"$id_product\"', '\"preview_id\":\"\"')
-            WHERE `name` = '_elementor_page_settings' AND `value` LIKE '%\"preview_id\":\"$id_product\"%'
-        ");
+        Db::getInstance()->execute(
+            'UPDATE ' . _DB_PREFIX_ . 'ce_meta ' .
+            'SET `value` = REPLACE(`value`, \'"preview_id":"' . (int) $id_product . '"\', \'"preview_id":""\') ' .
+            'WHERE `name` = "_elementor_page_settings" AND `value` LIKE \'%"preview_id":"' . (int) $id_product . '"%\''
+        );
     }
 
     public function hookActionProductAdd($params = [])
     {
-        if (isset($params['request']) && $params['request']->attributes->get('action') === 'duplicate') {
-            $id_product_duplicate = (int) $params['request']->attributes->get('id');
+        if (!empty($params['id_product_old'])) {
+            $id_product_old = (int) $params['id_product_old'];
         } elseif (Tools::getIsset('duplicateproduct')) {
-            $id_product_duplicate = (int) Tools::getValue('id_product');
+            $id_product_old = (int) Tools::getValue('id_product');
         }
 
-        if (isset($id_product_duplicate, $params['id_product']) && $built_list = CE\UId::getBuiltList($id_product_duplicate, CE\UId::PRODUCT)) {
+        if (isset($id_product_old, $params['id_product']) && $built_list = CE\UId::getBuiltList($id_product_old, CE\UId::PRODUCT)) {
             $db = CE\Plugin::instance()->db;
             $uid = new CE\UId($params['id_product'], CE\UId::PRODUCT, 0);
 
@@ -941,7 +981,7 @@ class CreativeElements extends Module
 
     public static function getPreviewUId($embed = true)
     {
-        static $res = null;
+        static $res;
 
         if (null === $res && $res = isset($_REQUEST['preview_id']) && $uid = CE\UId::parse($_REQUEST['preview_id'])) {
             $res = self::hasAdminToken($uid->getAdminController()) ? $uid : false;
@@ -955,9 +995,9 @@ class CreativeElements extends Module
         $key = 'AdminBlogPosts' === $tab ? 'blogtoken' : (strpos($tab, 'AdminCE') === 0 ? 'cetoken' : 'adtoken');
 
         return (int) _PS_VERSION_ < 9
-            ? Tools::getValue($key) === Tools::getAdminToken($tab . Tab::getIdFromClassName($tab) . (int) Tools::getValue('id_employee'))
+            ? Tools::getValue($key) === Tools::getAdminToken($tab . (int) Tab::getIdFromClassName($tab) . (int) Tools::getValue('id_employee'))
             : self::$controller->getContainer()->get('PrestaShopBundle\Security\Admin\LegacyAdminTokenValidator')
-                ->isTokenValid($tab, (int) Tools::getValue('id_employee'), Tools::getValue($key));
+                ->isTokenValid((int) Tools::getValue('id_employee'), Tools::getValue($key));
     }
 
     public static function getThemeVarName($doc_type)

@@ -7,7 +7,7 @@
  *}
 {if file_exists("{$smarty.const._PS_THEME_DIR_}templates/_partials/helpers.tpl")}
 	{include '[1]_partials/helpers.tpl'}
-{elseif $smarty.const._PARENT_THEME_NAME_ && file_exists("{$smarty.const._PARENT_THEME_NAME_}templates/_partials/helpers.tpl")}
+{elseif $smarty.const._PARENT_THEME_NAME_ && file_exists("{$smarty.const._PS_PARENT_THEME_DIR_}templates/_partials/helpers.tpl")}
 	{include 'parent:_partials/helpers.tpl'}
 {/if}
 <!doctype html>
@@ -25,7 +25,7 @@
 		{block name='product_activation'}
 			{include file='catalog/_partials/product-activation.tpl'}
 		{/block}
-		<header id="header">
+		<header id="header" class="header">
 			{block name='header'}
 				{include file='_partials/header.tpl'}
 			{/block}
@@ -33,15 +33,20 @@
 		{block name='notifications'}
 			{include file='_partials/notifications.tpl'}
 		{/block}
-		{block name="content"}{/block}
-		<footer id="footer">
-			{block name="footer"}
+		{block name='content_wrapper'}
+			{block name='content'}{/block}
+		{/block}
+		<footer id="footer" class="footer">
+			{block name='footer'}
 				{include file="_partials/footer.tpl"}
 			{/block}
 		</footer>
 	</main>
 	{block name='javascript_bottom'}
-		{include file="_partials/javascript.tpl" javascript=$javascript.bottom}
+	{if $smarty.const._PS_VERSION_|intval >= 8 && ('registration' === $page.page_name || 'password' === $page.page_name)}
+		{include file='_partials/password-policy-template.tpl'}
+	{/if}
+		{include file='_partials/javascript.tpl' javascript=$javascript.bottom}
 	{/block}
 	{block name='hook_before_body_closing_tag'}
 		{hook h='displayBeforeBodyClosingTag'}

@@ -56,6 +56,38 @@ class ControlIcons extends ControlBaseMultiple
         ];
     }
 
+    public function onImport($settings)
+    {
+        if (empty($settings['value']['url'])) {
+            return $settings;
+        }
+
+        // add_filter('upload_mimes', [$this, 'supportSvgImport'], 100);
+        $imported = Plugin::$instance->templates_manager->getImportImagesInstance()->import($settings['value']);
+        // remove_filter('upload_mimes', [$this, 'supportSvgImport'], 100);
+
+        if (!$imported) {
+            $settings['value'] = '';
+            $settings['library'] = '';
+        } else {
+            $settings['value'] = $imported;
+        }
+
+        return $settings;
+    }
+
+    public function onExport($settings, &$control)
+    {
+        if ($settings === $control['default']) {
+            return $control['export'] = false;
+        }
+
+        empty($settings['value']['url'])
+            || $settings['value']['url'] = Helper::getMediaLink($settings['value']['url'], true);
+
+        return $settings;
+    }
+
     /**
      * Render Icons control output in the editor.
      *
@@ -173,26 +205,4 @@ class ControlIcons extends ControlBaseMultiple
     }
 
     // public function supportSvgImport($mimes)
-
-    public function onImport($settings)
-    {
-        if (empty($settings['library']) || 'svg' !== $settings['library'] || empty($settings['value']['url'])) {
-            return $settings;
-        }
-
-        // add_filter('upload_mimes', [$this, 'supportSvgImport'], 100);
-
-        $imported = Plugin::$instance->templates_manager->getImportImagesInstance()->import($settings['value']);
-
-        // remove_filter('upload_mimes', [$this, 'supportSvgImport'], 100);
-
-        if (!$imported) {
-            $settings['value'] = '';
-            $settings['library'] = '';
-        } else {
-            $settings['value'] = $imported;
-        }
-
-        return $settings;
-    }
 }

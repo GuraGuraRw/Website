@@ -42,7 +42,7 @@ class ModulesXCatalogXWidgetsXProductXBox extends ProductBase
 
     protected function getDefaultProductId()
     {
-        return is_admin() ? (Helper::getLastUpdatedProductId($this->context->shop->id) ?: 1) : '';
+        return _CE_ADMIN_ ? (Helper::getLastUpdatedProductId($GLOBALS['context']->shop->id) ?: 1) : '';
     }
 
     protected function _registerControls()
@@ -63,13 +63,14 @@ class ModulesXCatalogXWidgetsXProductXBox extends ProductBase
                     'custom' => __('Custom'),
                 ],
                 'default' => 'product',
+                'save_default' => true,
             ]
         );
 
         $this->addControl(
             'product_id',
             [
-                'label' => __('Product'),
+                'label' => __('Product', 'Shop.Theme.Catalog'),
                 'type' => ControlsManager::SELECT2,
                 'label_block' => true,
                 'select2options' => [
@@ -269,7 +270,7 @@ class ModulesXCatalogXWidgetsXProductXBox extends ProductBase
     {
         $settings = $this->getSettingsForDisplay();
 
-        if (!$settings['product_id'] || empty($this->context->currency->id) || !$product = $this->getProduct($settings['product_id'])) {
+        if (!$settings['product_id'] || empty($GLOBALS['context']->currency->id) || !$product = $this->getProduct($settings['product_id'])) {
             return;
         }
 
@@ -283,7 +284,7 @@ class ModulesXCatalogXWidgetsXProductXBox extends ProductBase
             if (!$tpl = static::getSkinTemplate($settings['skin'])) {
                 return;
             }
-            echo '<div class="elementor-product-box">' . $this->context->smarty->fetch($tpl, null, null, ['product' => $product]) . '</div>';
+            echo '<div class="elementor-product-box">' . $GLOBALS['smarty']->fetch($tpl, null, null, ['product' => $product]) . '</div>';
         }
     }
 }

@@ -39,6 +39,11 @@ class ModulesXPremiumXWidgetsXAnimatedHeadline extends WidgetBase
         return ['headline', 'heading', 'animation', 'title', 'text'];
     }
 
+    protected function isDynamicContent()
+    {
+        return false;
+    }
+
     protected function _registerControls()
     {
         $this->startControlsSection(

@@ -25,8 +25,8 @@ class CEFont extends ObjectModel
     ];
 
     protected static $format = [
-        'woff' => 'woff',
         'woff2' => 'woff2',
+        'woff' => 'woff',
         'ttf' => 'truetype',
         'otf' => 'opentype',
     ];
@@ -38,13 +38,8 @@ class CEFont extends ObjectModel
 
     public static function familyExists($family, $exclude_id = 0)
     {
-        $db = Db::getInstance();
-        $table = _DB_PREFIX_ . 'ce_font';
-        $id_ce_font = (int) $exclude_id;
-        $family = $db->escape($family);
-
-        return (bool) $db->getValue(
-            "SELECT `id_ce_font` FROM `$table` WHERE `family` = '$family' AND `id_ce_font` != $id_ce_font"
+        return (bool) Db::getInstance()->getValue(
+            'SELECT `id_ce_font` FROM ' . _DB_PREFIX_ . 'ce_font WHERE `family` = "' . pSQL($family) . '" AND `id_ce_font` <> ' . (int) $exclude_id
         );
     }
 
@@ -52,23 +47,28 @@ class CEFont extends ObjectModel
     {
         $fonts = [];
         $font_types = [];
-        $db = Db::getInstance();
-        $table = _DB_PREFIX_ . 'ce_font';
-        $rows = $db->executeS("SELECT `family`, `files` FROM `$table` ORDER BY `family`");
-
+        $rows = Db::getInstance()->executeS(
+            'SELECT `family`, `files` FROM ' . _DB_PREFIX_ . 'ce_font ORDER BY `family`'
+        );
         if ($rows) {
             foreach ($rows as &$row) {
-                if ($font_face = self::getFontFaceFromData($row['family'], $row['files'])) {
-                    $fonts[$row['family']] = ['font_face' => $font_face];
+                $family = $row['family'];
+                $files = json_decode($row['files'], true);
+
+                if ($font_face = self::getFontFace($family, $files)) {
+                    $fonts[$family] = [
+                        'font_face' => $font_face,
+                        'preloads' => self::getPreloads($files),
+                    ];
                 }
-                $font_types[$row['family']] = 'custom';
+                $font_types[$family] = 'custom';
             }
         }
         Configuration::updateGlobalValue('elementor_fonts_manager_fonts', json_encode($fonts));
         Configuration::updateGlobalValue('elementor_fonts_manager_font_types', json_encode($font_types));
     }
 
-    public static function getFontFaceFromData($family, $data)
+    protected static function getFontFace($family, $data)
     {
         is_array($data) || $data = json_decode($data, true);
 
@@ -104,6 +104,22 @@ class CEFont extends ObjectModel
         return ob_get_clean();
     }
 
+    protected static function getPreloads(array $files)
+    {
+        $preloads = [];
+
+        foreach ($files as &$file) {
+            foreach (self::$format as $ext => $type) {
+                if (!empty($file[$ext]['url'])) {
+                    $preloads[$file[$ext]['url']] = $ext;
+                    break;
+                }
+            }
+        }
+
+        return $preloads;
+    }
+
     public function add($auto_date = true, $null_values = false)
     {
         if ($result = parent::add($auto_date, $null_values)) {
@@ -133,6 +149,6 @@ class CEFont extends ObjectModel
 
     public function __toString()
     {
-        return self::getFontFaceFromData($this->family, $this->files);
+        return self::getFontFace($this->family, $this->files);
     }
 }

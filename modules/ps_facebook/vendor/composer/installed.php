@@ -1,9 +1,9 @@
 <?php return array(
     'root' => array(
         'name' => 'prestashopcorp/ps_facebook',
-        'pretty_version' => 'v1.37.0',
-        'version' => '1.37.0.0',
-        'reference' => '02210fa56ec94b9cf9a7d4b03a776349267b0aa5',
+        'pretty_version' => 'v1.38.7',
+        'version' => '1.38.7.0',
+        'reference' => 'a79ee08f4ea8d18d4a4a9fa9c3130cc382956040',
         'type' => 'prestashop-module',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -22,7 +22,7 @@
         'facebook/php-business-sdk' => array(
             'pretty_version' => 'dev-guzzle-adapter',
             'version' => 'dev-guzzle-adapter',
-            'reference' => '55994a7162da9ccf5d2e2acaa60e444124f889da',
+            'reference' => '1a3f75ce9be22ffa8b2e120e001dc530139ec0ef',
             'type' => 'library',
             'install_path' => __DIR__ . '/../facebook/php-business-sdk',
             'aliases' => array(),
@@ -140,9 +140,9 @@
             'dev_requirement' => false,
         ),
         'prestashopcorp/ps_facebook' => array(
-            'pretty_version' => 'v1.37.0',
-            'version' => '1.37.0.0',
-            'reference' => '02210fa56ec94b9cf9a7d4b03a776349267b0aa5',
+            'pretty_version' => 'v1.38.7',
+            'version' => '1.38.7.0',
+            'reference' => 'a79ee08f4ea8d18d4a4a9fa9c3130cc382956040',
             'type' => 'prestashop-module',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),

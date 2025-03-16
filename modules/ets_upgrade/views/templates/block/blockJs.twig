@@ -1,0 +1,17 @@
+<script type="text/javascript">
+    {% if jsParams is defined %}
+    var ets_autoup_input = {{ jsParams|json_encode|raw }};
+    {% endif %}
+    {% if resumeNextParams is defined %}
+    var ets_autoup_resume_input = {{ resumeNextParams|json_encode|raw }};
+    {% endif %}
+    const ets_autoup_copied_translate = "{{ 'Copied'|trans }}";
+    const ets_autoup_estimate_time = "{{ 'Estimated remaining time:'|trans }}";
+    const ets_autoup_estimate_hour = "{{ 'hour'|trans }}";
+    const ets_autoup_estimate_hours = "{{ 'hours'|trans }}";
+    const ets_autoup_estimate_minute = "{{ 'minute'|trans }}";
+    const ets_autoup_estimate_minutes = "{{ 'minutes'|trans }}";
+    const ets_autoup_estimate_second = "{{ 'second'|trans }}";
+    const ets_autoup_estimate_seconds = "{{ 'seconds'|trans }}";
+    const ets_autoup_confirm_restore = "{{ 'Do you want to restore?'|trans }}";
+</script>

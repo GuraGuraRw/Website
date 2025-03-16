@@ -1,0 +1,37 @@
+<div class="bootstrap2" id="activityLogBlock">
+    <button class="ets_autoup_button detail_process" name="buttonDetailProcess">{{ 'View upgrade process'|trans }}</button>
+    <div class="ets_autoup_process_block" style="display: none;">
+        {#<div class="panel-heading">
+            {{ 'Activity Log'|trans }}
+        </div>#}
+        {#<p id="upgradeResultCheck" style="display: none;" class="alert alert-success"></p>#}
+
+        {#---Block results------#}
+        <h4 class="ets_autoup_title ets_autoup_process_title">{{ 'Running tasks'|trans }}: </h4>
+        {#<div><div id="upgradeResultToDoList" style="display: none;" class="alert alert-info col-xs-12"></div></div><br>#}
+        <div class="row">
+            <div id="currentlyProcessing" class="col-xs-12" style="display:none;">
+                <h4 id="pleaseWait" style="display: none;">{{ 'Currently processing'|trans }} <img class="pleaseWait" src="{{ psBaseUri }}img/loader.gif"/></h4>
+                <div id="infoStep" class="processing">{{ 'Analyzing the situation...'|trans }}</div>
+            </div>
+        </div>
+        {#---End Block results---#}
+
+        {#---Block Infos---#}
+        <h4 class="ets_autoup_title">{{ 'Results'|trans }}: </h4>
+        <div id="quickInfo" class="clear processing col-xs-12"></div>
+        {#---End Block Infos#}
+
+        {#---Block errors---#}
+        {# this block will show errors and important warnings that happens during upgrade #}
+        <div class="row">
+            <div id="errorDuringUpgrade" class="col-xs-12" style="display:none;">
+                <h4 class="ets_autoup_title">{{ 'Errors'|trans }}</h4>
+                <div id="infoError" class="processing"></div>
+            </div>
+        </div>
+        {#---End Block errors---#}
+        <button class="ets_autoup_button hide_detail_process" name="buttonHideDetailProcess" type="button" style="display: none;">{{ 'Hide upgrade process'|trans }}</button>
+    </div>
+
+</div>

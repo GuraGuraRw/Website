@@ -12,6 +12,7 @@ if (!defined('_PS_VERSION_')) {
     exit;
 }
 
+use CE\CoreXFilesXAssetsXSvgXSvgHandler as SvgHandler;
 use CE\ModulesXThemeXWidgetsXTraitsXNav as NavTrait;
 
 class ModulesXThemeXWidgetsXSignIn extends WidgetBase
@@ -27,7 +28,7 @@ class ModulesXThemeXWidgetsXSignIn extends WidgetBase
 
     public function getTitle()
     {
-        return __('Sign in');
+        return __('User Menu');
     }
 
     public function getIcon()
@@ -42,24 +43,40 @@ class ModulesXThemeXWidgetsXSignIn extends WidgetBase
 
     public function getKeywords()
     {
-        return ['login', 'user', 'account', 'logout'];
+        return ['login', 'sign', 'account', 'logout'];
     }
 
-    public function getLinkToOptions()
+    public function getVisitorOptions()
     {
-        $t = $this->context->getTranslator();
-
         return [
-            'my-account' => $t->trans('My account', [], 'Shop.Navigation'),
-            'identity' => $t->trans('Personal Information', [], 'Shop.Theme.Checkout'),
-            'address' => $t->trans('New address', [], 'Shop.Theme.Customeraccount'),
-            'addresses' => $t->trans('Addresses', [], 'Shop.Navigation'),
-            'history' => $t->trans('Order history', [], 'Shop.Navigation'),
-            'order-slip' => $t->trans('Credit slip', [], 'Shop.Navigation'),
-            'discount' => $t->trans('Vouchers', [], 'Shop.Theme.Customeraccount'),
-            'logout' => $t->trans('Sign out', [], 'Shop.Theme.Actions'),
+            'authentication' => __('Sign in', 'Shop.Theme.Actions'),
+            'password' => __('Forgot your password', 'Shop.Navigation'),
+            'register' => __('Create an account', 'Shop.Theme.Customeraccount'),
+            'guest-tracking' => __('Guest tracking', 'Shop.Navigation'),
             'custom' => __('Custom URL'),
         ];
+    }
+
+    public function getCustomerOptions()
+    {
+        $pages = [
+            'my-account' => __('My account', 'Shop.Navigation'),
+            'identity' => __('Personal Information', 'Shop.Theme.Checkout'),
+            'addresses' => __('Addresses', 'Shop.Navigation'),
+            'address' => __('New address', 'Shop.Theme.Customeraccount'),
+        ];
+        if (!\Configuration::get('PS_CATALOG_MODE')) {
+            $pages['history'] = __('Order history', 'Shop.Navigation');
+            $pages['order-slip'] = __('Credit slip', 'Shop.Navigation');
+            \Configuration::get('PS_CART_RULE_FEATURE_ACTIVE')
+                && $pages['discount'] = __('Vouchers', 'Shop.Theme.Customeraccount');
+            \Configuration::get('PS_ORDER_RETURN')
+                && $pages['order-follow'] = __('Merchandise returns', 'Shop.Theme.Customeraccount');
+        }
+        $pages['logout'] = __('Sign out', 'Shop.Theme.Actions');
+        $pages['custom'] = __('Custom URL');
+
+        return $pages;
     }
 
     protected function _registerControls()
@@ -67,16 +84,16 @@ class ModulesXThemeXWidgetsXSignIn extends WidgetBase
         $this->startControlsSection(
             'section_selector',
             [
-                'label' => $this->getTitle(),
+                'label' => __('User Menu'),
             ]
         );
 
-        $this->startControlsTabs('tabs_label_content');
+        $this->startControlsTabs('tabs_menu');
 
         $this->startControlsTab(
-            'tab_label_sign_in',
+            'tab_menu_visitor',
             [
-                'label' => __('Sign in'),
+                'label' => __('Visitor'),
             ]
         );
 
@@ -87,7 +104,6 @@ class ModulesXThemeXWidgetsXSignIn extends WidgetBase
                 'label_block' => false,
                 'type' => ControlsManager::ICONS,
                 'skin' => 'inline',
-                'exclude_inline_options' => ['svg'],
                 'fa4compatibility' => 'icon',
                 'default' => [
                     'value' => 'fas fa-user',
@@ -120,16 +136,74 @@ class ModulesXThemeXWidgetsXSignIn extends WidgetBase
             [
                 'label' => __('Label'),
                 'type' => ControlsManager::TEXT,
-                'default' => __('Sign in'),
+                'default' => Helper::$translator->trans('Sign in', [], 'Shop.Theme.Actions'),
+            ]
+        );
+
+        $repeater = new Repeater();
+
+        $repeater->addControl(
+            'link_to',
+            [
+                'label' => __('Link'),
+                'type' => ControlsManager::SELECT,
+                'options' => _CE_ADMIN_ ? $this->getVisitorOptions() : [],
+                'default' => 'register',
+            ]
+        );
+
+        $repeater->addControl(
+            'link',
+            [
+                'label_block' => true,
+                'type' => ControlsManager::URL,
+                'placeholder' => __('http://your-link.com'),
+                'options' => false,
+                'dynamic' => [
+                    'active' => true,
+                ],
+                'condition' => [
+                    'link_to' => 'custom',
+                ],
+            ]
+        );
+
+        $repeater->addControl(
+            'text',
+            [
+                'label' => __('Text'),
+                'type' => ControlsManager::TEXT,
+            ]
+        );
+
+        $repeater->addControl(
+            'selected_icon',
+            [
+                'label' => __('Icon'),
+                'label_block' => false,
+                'type' => ControlsManager::ICONS,
+                'skin' => 'inline',
+            ]
+        );
+
+        $this->addControl(
+            'dropdown',
+            [
+                'label' => __('Dropdown'),
+                'type' => ControlsManager::REPEATER,
+                'prevent_empty' => false,
+                'fields' => $repeater->getControls(),
+                'title_field' => '<i class="{{ selected_icon.value }}"></i>
+                    {{{ text || elementor.panel.currentView.currentPageView.model.get("settings").controls.dropdown.fields.link_to.options[link_to] }}}',
             ]
         );
 
         $this->endControlsTab();
 
         $this->startControlsTab(
-            'tab_label_signed_in',
+            'tab_menu_customer',
             [
-                'label' => __('Signed in'),
+                'label' => __('Customer'),
             ]
         );
 
@@ -144,8 +218,8 @@ class ModulesXThemeXWidgetsXSignIn extends WidgetBase
                 'options' => [
                     'icon' => __('Icon'),
                     'before' => __('Before'),
-                    'firstname' => __('First Name'),
-                    'lastname' => __('Last Name'),
+                    'firstname' => __('First Name', 'Shop.Forms.Labels'),
+                    'lastname' => __('Last Name', 'Shop.Forms.Labels'),
                     'after' => __('After'),
                 ],
             ]
@@ -185,73 +259,19 @@ class ModulesXThemeXWidgetsXSignIn extends WidgetBase
             ]
         );
 
-        $this->endControlsTab();
+        $repeater->updateControl('link_to', [
+            'options' => _CE_ADMIN_ ? $this->getCustomerOptions() : [],
+            'default' => 'identity',
+        ]);
 
-        $this->endControlsTabs();
-
-        $this->registerNavContentControls();
-
-        $this->addControl(
-            'heading_usermenu',
-            [
-                'label' => __('Usermenu'),
-                'type' => ControlsManager::HEADING,
-                'separator' => 'before',
-            ]
-        );
-
-        $repeater = new Repeater();
-
-        $repeater->addControl(
-            'link_to',
-            [
-                'label' => __('Link'),
-                'type' => ControlsManager::SELECT,
-                'default' => 'identity',
-                'options' => $this->getLinkToOptions(),
-            ]
-        );
-
-        $repeater->addControl(
-            'link',
-            [
-                'label_block' => true,
-                'type' => ControlsManager::URL,
-                'placeholder' => __('http://your-link.com'),
-                'options' => false,
-                'condition' => [
-                    'link_to' => 'custom',
-                ],
-            ]
-        );
-
-        $repeater->addControl(
-            'text',
-            [
-                'label' => __('Text'),
-                'type' => ControlsManager::TEXT,
-            ]
-        );
-
-        $repeater->addControl(
-            'selected_icon',
-            [
-                'label' => __('Icon'),
-                'label_block' => false,
-                'type' => ControlsManager::ICONS,
-                'skin' => 'inline',
-                'exclude_inline_options' => ['svg'],
-                'fa4compatibility' => 'icon',
-                'default' => [
-                    'value' => 'fas fa-user',
-                    'library' => 'fa-regular',
-                ],
-            ]
-        );
+        $repeater->updateControl('selected_icon', [
+            'fa4compatibility' => 'icon',
+        ]);
 
         $this->addControl(
             'usermenu',
             [
+                'label' => __('Dropdown'),
                 'type' => ControlsManager::REPEATER,
                 'fields' => $repeater->getControls(),
                 'default' => [
@@ -293,6 +313,12 @@ class ModulesXThemeXWidgetsXSignIn extends WidgetBase
             ]
         );
 
+        $this->endControlsTab();
+
+        $this->endControlsTabs();
+
+        $this->registerNavContentControls();
+
         $this->endControlsSection();
 
         $this->registerNavStyleSection([
@@ -317,70 +343,74 @@ class ModulesXThemeXWidgetsXSignIn extends WidgetBase
         return parent::getHtmlWrapperClass() . ' elementor-widget-nav-menu';
     }
 
-    public function getUrl(&$item)
-    {
-        if ('custom' === $item['link_to']) {
-            return $item['link']['url'];
-        }
-        if ('logout' === $item['link_to']) {
-            return $this->context->link->getPageLink('index', true, null, 'mylogout');
-        }
-
-        return $this->context->link->getPageLink($item['link_to'], true);
-    }
-
     protected function render()
     {
+        $pages = &$GLOBALS['smarty']->tpl_vars['urls']->value['pages'];
+        $getUrl = function (&$item) use (&$pages) {
+            if ('custom' === $link_to = $item['link_to']) {
+                return $item['link']['url'];
+            }
+            if ('logout' === $link_to) {
+                return \Tools::url($pages['index'], 'mylogout');
+            }
+
+            return $pages[str_replace('-', '_', $link_to)];
+        };
         $settings = $this->getSettingsForDisplay();
-        $customer = $this->context->customer;
-        $icon = isset($settings['icon']) && !isset($settings['__fa4_migrated']['selected_icon'])
-            ? $settings['icon']
-            : $settings['selected_icon']['value'];
+        $icon = IconsManager::getBcIcon($settings, 'icon');
         $this->indicator = isset($settings['indicator']) && !isset($settings['__fa4_migrated']['submenu_icon'])
             ? $settings['indicator']
             : $settings['submenu_icon']['value'];
 
-        if ($customer->isLogged()) {
-            $options = $this->getLinkToOptions();
-            $account = &$settings['account'];
+        if ($GLOBALS['customer']->isLogged()) {
+            $options = $this->getCustomerOptions();
             $menu = [
                 [
                     'id' => 0,
-                    'icon' => in_array('icon', $account) ? $icon : '',
-                    'label' => call_user_func(function () use ($settings, $account, $customer) {
+                    'icon' => in_array('icon', $settings['account']) ? $icon : '',
+                    'label' => call_user_func(function () use (&$settings) {
                         $label = '';
-
+                        $account = &$settings['account'];
                         in_array('before', $account) && $label .= $settings['before'];
-                        in_array('firstname', $account) && $label .= " {$customer->firstname}";
-                        in_array('lastname', $account) && $label .= " {$customer->lastname}";
+                        in_array('firstname', $account) && $label .= " {$GLOBALS['customer']->firstname}";
+                        in_array('lastname', $account) && $label .= " {$GLOBALS['customer']->lastname}";
                         in_array('after', $account) && $label .= $settings['after'];
 
                         return trim($label);
                     }),
-                    'url' => $this->context->link->getPageLink('my-account', true),
+                    'url' => $pages['my_account'],
                     'children' => [],
                 ],
             ];
             foreach ($settings['usermenu'] as $i => &$item) {
                 $menu[0]['children'][] = [
                     'id' => $i + 1,
-                    'icon' => !empty($item['icon']) && !isset($item['__fa4_migrated']['selected_icon'])
-                        ? $item['icon']
-                        : $item['selected_icon']['value'],
-                    'label' => $item['text'] ?: $options[$item['link_to']],
-                    'url' => $this->getUrl($item),
+                    'icon' => IconsManager::getBcIcon($item, 'icon'),
+                'label' => $item['text'] ?: $options[$item['link_to']],
+                    'url' => $getUrl($item),
                 ];
             }
         } else {
+            $settings['dropdown'] && $options = $this->getVisitorOptions();
             $menu = [
                 [
                     'id' => 0,
                     'icon' => $icon,
                     'label' => $settings['label'],
-                    'url' => $this->context->link->getPageLink('my-account', true),
+                    'url' => $pages['my_account'],
                     'children' => [],
                 ],
             ];
+            foreach ($settings['dropdown'] as $i => &$item) {
+                $menu[0]['children'][] = [
+                    'id' => $i + 1,
+                    'icon' => !empty($item['selected_icon']['value']['url']) ? SvgHandler::getInlineSvg($item['selected_icon']['value']['url']) : (
+                        !empty($item['selected_icon']['value']) ? "<i class='{$item['selected_icon']['value']}'></i>" : ''
+                    ),
+                    'label' => $item['text'] ?: $options[$item['link_to']],
+                    'url' => $getUrl($item),
+                ];
+            }
         }
         $ul_class = 'elementor-nav';
 
@@ -390,7 +420,7 @@ class ModulesXThemeXWidgetsXSignIn extends WidgetBase
         $menu_html = ob_get_clean();
 
         $this->addRenderAttribute('main-menu', 'class', [
-            'elementor-sign-in',
+            'ce-user-menu',
             'elementor-nav--main',
             'elementor-nav__container',
             'elementor-nav--layout-horizontal',
@@ -414,10 +444,9 @@ class ModulesXThemeXWidgetsXSignIn extends WidgetBase
         <ul <?php echo $depth ? 'class="sub-menu elementor-nav--dropdown"' : 'id="usermenu-' . $this->getId() . '" class="' . $ul_class . '"'; ?>>
         <?php foreach ($nodes as &$node) { ?>
             <li class="<?php printf(self::$li_class, 'account', "account-{$node['id']}", '', !empty($node['children']) ? ' menu-item-has-children' : ''); ?>">
-                <a class="<?php echo $depth ? 'elementor-sub-item' : 'elementor-item'; ?>" href="<?php echo esc_attr($node['url']); ?>">
-                <?php if ($node['icon']) { ?>
-                    <i class="<?php echo $node['icon']; ?>"></i>
-                <?php } ?>
+                <a class="<?php echo $depth ? 'elementor-sub-item' : 'elementor-item'; ?>" href="<?php echo esc_attr($node['url']); ?>"<?php
+                    $depth || print ' aria-label="' . __('My account', 'Shop.Navigation') . '"'; ?>>
+                    <?php echo $node['icon']; ?>
                 <?php if ($node['label']) { ?>
                     <span><?php echo $node['label']; ?></span>
                 <?php } ?>
@@ -430,12 +459,5 @@ class ModulesXThemeXWidgetsXSignIn extends WidgetBase
         <?php } ?>
         </ul>
         <?php
-    }
-
-    public function __construct($data = [], $args = [])
-    {
-        $this->context = \Context::getContext();
-
-        parent::__construct($data, $args);
     }
 }

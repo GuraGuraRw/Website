@@ -73,11 +73,12 @@ class ModulesXCatalogXWidgetsXProductXImages extends WidgetBase
                 'label' => __('Effect'),
                 'default' => 'slide',
                 'options' => [
-                    'slide' => __('Slide'),
-                    'fade' => __('Fade'),
-                    'cube' => __('Cube'),
-                    'flip' => __('Flip'),
+                    'cards' => __('Cards'),
                     'coverflow' => __('Coverflow'),
+                    'cube' => __('Cube'),
+                    'fade' => __('Fade'),
+                    'flip' => __('Flip'),
+                    'slide' => __('Slide'),
                 ],
                 'frontend_available' => true,
             ]
@@ -193,7 +194,7 @@ class ModulesXCatalogXWidgetsXProductXImages extends WidgetBase
         $this->addResponsiveControl(
             'slides_per_view',
             [
-                'label' => __('Slides Per View'),
+                'label' => __('Slides to Show'),
                 'type' => ControlsManager::SELECT2,
                 'select2options' => [
                     'tags' => true,
@@ -201,8 +202,9 @@ class ModulesXCatalogXWidgetsXProductXImages extends WidgetBase
                 ],
                 'options' => $options,
                 'selectors' => [
-                    '{{WRAPPER}}.elementor-position-bottom .elementor-thumbnails-swiper:not(.swiper-container-initialized) .swiper-wrapper' => 'grid-template-columns: repeat({{VALUE}}, 1fr);',
-                    '{{WRAPPER}}:not(.elementor-position-bottom) .elementor-thumbnails-swiper:not(.swiper-container-initialized) .swiper-wrapper' => 'grid-template-rows: repeat({{VALUE}}, 1fr);',
+                    '{{WRAPPER}}.elementor-position-bottom .elementor-thumbnails-swiper:not(.swiper-initialized) .swiper-wrapper' => 'grid-template-columns: repeat({{VALUE}}, 1fr);',
+                    '{{WRAPPER}}:not(.elementor-position-bottom) .elementor-thumbnails-swiper:not(.swiper-initialized) .swiper-wrapper' => 'grid-template-rows: repeat({{VALUE}}, 1fr);',
+                    '{{WRAPPER}}.elementor-skin-carousel .swiper:not(.swiper-initialized) .swiper-wrapper' => 'grid-template-columns: repeat({{VALUE}}, 1fr);',
                 ],
                 'render_type' => 'template',
                 'classes' => 'select2-numeric',
@@ -557,6 +559,9 @@ class ModulesXCatalogXWidgetsXProductXImages extends WidgetBase
                 'default' => [
                     'size' => 10,
                 ],
+                'selectors' => [
+                    '{{WRAPPER}}.elementor-skin-carousel .swiper:not(.swiper-initialized) .swiper-wrapper' => 'grid-column-gap: {{SIZE}}px;',
+                ],
                 'frontend_available' => true,
                 'render_type' => 'none',
                 'condition' => [
@@ -698,8 +703,8 @@ class ModulesXCatalogXWidgetsXProductXImages extends WidgetBase
                     'size' => 10,
                 ],
                 'selectors' => [
-                    '{{WRAPPER}}.elementor-position-bottom .elementor-thumbnails-swiper:not(.swiper-container-initialized) .swiper-wrapper' => 'grid-column-gap: {{SIZE}}px;',
-                    '{{WRAPPER}}:not(.elementor-position-bottom) .elementor-thumbnails-swiper:not(.swiper-container-initialized) .swiper-wrapper' => 'grid-row-gap: {{SIZE}}px;',
+                    '{{WRAPPER}}.elementor-position-bottom .elementor-thumbnails-swiper:not(.swiper-initialized) .swiper-wrapper' => 'grid-column-gap: {{SIZE}}px;',
+                    '{{WRAPPER}}:not(.elementor-position-bottom) .elementor-thumbnails-swiper:not(.swiper-initialized) .swiper-wrapper' => 'grid-row-gap: {{SIZE}}px;',
                 ],
                 'frontend_available' => true,
                 'render_type' => 'none',
@@ -933,7 +938,7 @@ class ModulesXCatalogXWidgetsXProductXImages extends WidgetBase
                 ],
                 'selectors' => [
                     '{{WRAPPER}} .swiper-pagination-bullet' => 'height: {{SIZE}}{{UNIT}}; width: {{SIZE}}{{UNIT}}',
-                    '{{WRAPPER}} .swiper-container-horizontal .swiper-pagination-progressbar' => 'height: {{SIZE}}{{UNIT}}',
+                    '{{WRAPPER}} .swiper-horizontal .swiper-pagination-progressbar' => 'height: {{SIZE}}{{UNIT}}',
                     '{{WRAPPER}} .swiper-pagination-fraction' => 'font-size: {{SIZE}}{{UNIT}}',
                 ],
                 'condition' => [
@@ -1066,9 +1071,7 @@ class ModulesXCatalogXWidgetsXProductXImages extends WidgetBase
 
     public function onImport($widget)
     {
-        $sizes = array_map(function ($size) {
-            return $size['name'];
-        }, \ImageType::getImagesTypes('products'));
+        $sizes = array_column(\ImageType::getImagesTypes('products'), 'name');
 
         if (isset($widget['settings']['image_size']) && !in_array($widget['settings']['image_size'], $sizes)) {
             $home = \ImageType::getFormattedName('home');
@@ -1087,40 +1090,41 @@ class ModulesXCatalogXWidgetsXProductXImages extends WidgetBase
 
     protected function render()
     {
-        $settings = $this->getSettingsForDisplay();
-        $context = \Context::getContext();
         $id = $this->getId();
-        $product = &$context->smarty->tpl_vars['product']->value;
-        $images = $product['images'] ?: [Helper::getNoImage()];
+        $settings = $this->getSettingsForDisplay();
+        $product = $GLOBALS['smarty']->tpl_vars['product']->value;
+        $images = $product['images'] ?: [
+            $GLOBALS['smarty']->tpl_vars['urls']->value['no_picture_image'],
+        ];
         $image_size = $settings['image_size'];
-        $thumb_size = $settings['thumb_size'];
+        $slides_per_view = 1;
 
-        $settings['zoom'] && $this->addRenderAttribute('link', [
-            'class' => 'swiper-zoom-container',
-            'data-swiper-zoom' => $settings['zoom_scale']['size'],
-        ]);
+        if ($is_slideshow = 'slideshow' === $settings['skin']) {
+            $settings['zoom'] && $this->addRenderAttribute('link', [
+                'class' => 'swiper-zoom-container',
+                'data-swiper-zoom' => $settings['zoom_scale']['size'],
+            ]);
+        } elseif ('slide' === $settings['effect'] || 'coverflow' === $settings['effect']) {
+            $slides_per_view = $settings['slides_per_view'] ?: 3;
+        }
         $this->addRenderAttribute('link', [
             'data-elementor-open-lightbox' => 'yes',
             'data-elementor-lightbox-slideshow' => $id,
         ]); ?>
         <div class="elementor-swiper">
-            <div class="elementor-main-swiper swiper-container">
+            <div class="elementor-main-swiper swiper">
                 <div class="swiper-wrapper">
-                <?php foreach ($images as $image) { ?>
-                    <div class="swiper-slide">
+                <?php foreach ($images as $i => $image) { ?>
+                    <div class="swiper-slide<?php empty($image['cover']) || print ' swiper-initial-slide'; ?>">
                     <?php if (empty($image['id_image'])) { ?>
                         <img class="elementor-carousel-image" src="<?php echo esc_attr($image['bySize'][$image_size]['url']); ?>" alt="<?php echo esc_attr($image['legend']); ?>">
                     <?php } else {
                         $imageBySize = &$image['bySize'][$image_size]; ?>
                         <a href="<?php echo esc_attr(Helper::getProductImageLink($image)); ?>" <?php $this->printRenderAttributeString('link'); ?>>
-                            <img class="elementor-carousel-image" src="<?php echo esc_attr($imageBySize['url']); ?>" alt="<?php echo esc_attr($image['legend']); ?>" width="<?php echo (int) $imageBySize['width']; ?>" height="<?php echo (int) $imageBySize['height']; ?>">
+                            <img class="elementor-carousel-image" src="<?php echo esc_attr($imageBySize['url']); ?>" alt="<?php echo esc_attr($image['legend']); ?>" width="<?php echo (int) $imageBySize['width']; ?>" height="<?php echo (int) $imageBySize['height']; ?>" fetchpriority=<?php echo $i < $slides_per_view || $image['cover'] ? '"high"' : '"low" loading="lazy"'; ?>>
                         <?php if ($settings['overlay']) { ?>
                             <div class="elementor-carousel-image-overlay e-overlay-animation-<?php echo esc_attr($settings['overlay_animation']); ?>">
-                            <?php if ('text' === $settings['overlay']) { ?>
-                                <?php echo $image['legend']; ?>
-                            <?php } else { ?>
-                                <?php echo IconsManager::getBcIcon($settings, 'icon', ['aria-hidden' => 'false']); ?>
-                            <?php } ?>
+                                <?php echo 'text' === $settings['overlay'] ? $image['legend'] : IconsManager::getBcIcon($settings, 'icon', ['aria-hidden' => 'false']); ?>
                             </div>
                         <?php } ?>
                         </a>
@@ -1131,11 +1135,11 @@ class ModulesXCatalogXWidgetsXProductXImages extends WidgetBase
             <?php if ($settings['show_arrows']) { ?>
                 <div class="elementor-swiper-button elementor-swiper-button-prev" role="button" tabindex="0">
                     <?php IconsManager::renderIcon($settings['previous_icon'], ['aria-hidden' => 'true']); ?>
-                    <span class="elementor-screen-only"><?php _e('Previous'); ?></span>
+                    <span class="elementor-screen-only"><?php _e('Previous', 'Shop.Theme.Global'); ?></span>
                 </div>
                 <div class="elementor-swiper-button elementor-swiper-button-next" role="button" tabindex="0">
                     <?php IconsManager::renderIcon($settings['next_icon'], ['aria-hidden' => 'true']); ?>
-                    <span class="elementor-screen-only"><?php _e('Next'); ?></span>
+                    <span class="elementor-screen-only"><?php _e('Next', 'Shop.Theme.Global'); ?></span>
                 </div>
             <?php } ?>
             <?php if ($settings['pagination']) { ?>
@@ -1143,21 +1147,23 @@ class ModulesXCatalogXWidgetsXProductXImages extends WidgetBase
             <?php } ?>
             </div>
         </div>
-        <?php if ('slideshow' === $settings['skin']) {
+        <?php if ($is_slideshow) {
+            $thumb_size = $settings['thumb_size'];
+            $slides_per_view = $settings['slides_per_view'] ?: ('bottom' === $settings['position'] ? 5 : 4);
             $this->removeRenderAttribute('link', 'class', 'swiper-zoom-container');
             $this->removeRenderAttribute('link', 'data-swiper-zoom');
             $this->addRenderAttribute('link', 'data-elementor-lightbox-slideshow', "$id-thumb", true); ?>
             <div class="elementor-swiper">
-                <div class="elementor-thumbnails-swiper swiper-container">
+                <div class="elementor-thumbnails-swiper swiper">
                     <div class="swiper-wrapper">
-                    <?php foreach ($images as $image) { ?>
+                    <?php foreach ($images as $i => $image) { ?>
                         <div class="swiper-slide">
                         <?php if (empty($image['id_image'])) { ?>
                             <img class="elementor-carousel-image" src="<?php echo esc_attr($image['bySize'][$thumb_size]['url']); ?>" alt="<?php echo esc_attr($image['legend']); ?>">
                         <?php } else {
                             $imageBySize = &$image['bySize'][$thumb_size]; ?>
                             <a href="<?php echo esc_attr(Helper::getProductImageLink($image)); ?>" <?php $this->printRenderAttributeString('link'); ?>>
-                                <img class="elementor-carousel-image" src="<?php echo esc_attr($imageBySize['url']); ?>" alt="<?php echo esc_attr($image['legend']); ?>" width="<?php echo (int) $imageBySize['width']; ?>" height="<?php echo (int) $imageBySize['height']; ?>">
+                                <img class="elementor-carousel-image" src="<?php echo esc_attr($imageBySize['url']); ?>" alt="<?php echo esc_attr($image['legend']); ?>" width="<?php echo (int) $imageBySize['width']; ?>" height="<?php echo (int) $imageBySize['height']; ?>" fetchpriority=<?php echo $i < $slides_per_view ? '"high"' : '"low" loading="lazy"'; ?>>
                             </a>
                         <?php } ?>
                         </div>

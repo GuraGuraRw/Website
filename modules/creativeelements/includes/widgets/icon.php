@@ -21,6 +21,8 @@ if (!defined('_PS_VERSION_')) {
  */
 class WidgetIcon extends WidgetBase
 {
+    const HELP_URL = 'http://docs.webshopworks.com/creative-elements/85-widgets/basic-widgets/302-icon-widget';
+
     /**
      * Get widget name.
      *
@@ -91,6 +93,11 @@ class WidgetIcon extends WidgetBase
     public function getKeywords()
     {
         return ['icon'];
+    }
+
+    protected function isDynamicContent()
+    {
+        return false;
     }
 
     /**
@@ -430,7 +437,7 @@ class WidgetIcon extends WidgetBase
         #>
         <div class="elementor-icon-wrapper">
             <{{{ iconTag }}} class="elementor-icon elementor-animation-{{ settings.hover_animation }}" {{{ link }}}>
-                {{{ elementor.helpers.getBcIcon(view, settings, 'icon', {'aria-hidden': true}) }}}
+                {{{ elementor.helpers.getBcIcon( view, settings, 'icon' ) }}}
             </{{{ iconTag }}}>
         </div>
         <?php

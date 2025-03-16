@@ -21,11 +21,12 @@
 namespace PrestaShop\Module\PrestashopCheckout\Checkout;
 
 use Cart;
-use Configuration;
 use Customer;
 use PrestaShop\Module\PrestashopCheckout\Exception\PsCheckoutException;
 use PrestaShop\Module\PrestashopCheckout\PayPal\Card3DSecure;
-use Product;
+use PrestaShop\Module\PrestashopCheckout\PayPal\Order\Entity\PayPalOrder;
+use PrestaShop\Module\PrestashopCheckout\PayPal\PayPalConfiguration;
+use PrestaShop\Module\PrestashopCheckout\Repository\PayPalOrderRepository;
 use Psr\Log\LoggerInterface;
 use Validate;
 
@@ -35,13 +36,26 @@ class CheckoutChecker
      * @var LoggerInterface
      */
     private $logger;
+    /**
+     * @var PayPalOrderRepository
+     */
+    private $payPalOrderRepository;
+    /**
+     * @var PayPalConfiguration
+     */
+    private $payPalConfiguration;
 
     /**
      * @param LoggerInterface $logger
      */
-    public function __construct(LoggerInterface $logger)
-    {
+    public function __construct(
+        LoggerInterface $logger,
+        PayPalOrderRepository $payPalOrderRepository,
+        PayPalConfiguration $payPalConfiguration
+    ) {
         $this->logger = $logger;
+        $this->payPalOrderRepository = $payPalOrderRepository;
+        $this->payPalConfiguration = $payPalConfiguration;
     }
 
     /**
@@ -55,16 +69,20 @@ class CheckoutChecker
     public function continueWithAuthorization($cartId, $orderPayPal)
     {
         if ($orderPayPal['status'] === 'COMPLETED') {
-            throw new PsCheckoutException(sprintf('PayPal Order %s is already captured', $orderPayPal['id']));
+            throw new PsCheckoutException(sprintf('PayPal Order %s is already captured', $orderPayPal['id']), PsCheckoutException::PAYPAL_ORDER_ALREADY_CAPTURED);
         }
 
-        if (isset($orderPayPal['payment_source']['card'])) {
+        $contingencies = $this->payPalConfiguration->getHostedFieldsContingencies();
+
+        $paymentSource = isset($orderPayPal['payment_source']) ? key($orderPayPal['payment_source']) : '';
+
+        if (in_array($paymentSource, ['google_pay', 'card'], true)) {
             $card3DSecure = (new Card3DSecure())->continueWithAuthorization($orderPayPal);
 
             $this->logger->info(
                 '3D Secure authentication result',
                 [
-                    'authentication_result' => isset($orderPayPal['payment_source']['card']['authentication_result']) ? $orderPayPal['payment_source']['card']['authentication_result'] : null,
+                    'authentication_result' => isset($orderPayPal['payment_source'][$paymentSource]['authentication_result']) ? $orderPayPal['payment_source'][$paymentSource]['authentication_result'] : null,
                     'decision' => str_replace(
                         [
                             (string) Card3DSecure::NO_DECISION,
@@ -73,7 +91,7 @@ class CheckoutChecker
                             (string) Card3DSecure::RETRY,
                         ],
                         [
-                            Configuration::get('PS_CHECKOUT_LIABILITY_SHIFT_REQ') ? 'Rejected, no liability shift' : 'Proceed, without liability shift',
+                            $contingencies === 'SCA_ALWAYS' ? 'Rejected, no liability shift' : 'Proceed, without liability shift',
                             'Proceed, liability shift is possible',
                             'Rejected',
                             'Retry, ask customer to retry',
@@ -89,8 +107,16 @@ class CheckoutChecker
                 case Card3DSecure::RETRY:
                     throw new PsCheckoutException('Card Strong Customer Authentication must be retried.', PsCheckoutException::PAYPAL_PAYMENT_CARD_SCA_UNKNOWN);
                 case Card3DSecure::NO_DECISION:
-                    if (Configuration::get('PS_CHECKOUT_LIABILITY_SHIFT_REQ')) {
+                    if ($contingencies === 'SCA_ALWAYS') {
                         throw new PsCheckoutException('No liability shift to card issuer', PsCheckoutException::PAYPAL_PAYMENT_CARD_SCA_UNKNOWN);
+                    }
+                    if ($contingencies === 'SCA_WHEN_REQUIRED') {
+                        $payPalOrder = $this->payPalOrderRepository->getPayPalOrderByCartId($cartId);
+                        try {
+                            $payPalOrder->addTag(PayPalOrder::THREE_D_SECURE_NOT_REQUIRED);
+                            $this->payPalOrderRepository->savePayPalOrder($payPalOrder);
+                        } catch (PsCheckoutException $e) {
+                        }
                     }
                     break;
             }
@@ -108,9 +134,9 @@ class CheckoutChecker
             throw new PsCheckoutException(sprintf('Cart with id %s has no product. Cannot capture the order.', var_export($cart->id, true)), PsCheckoutException::CART_PRODUCT_MISSING);
         }
 
-        if (!$this->isAllProductsInStock($cart)
-            || !$this->checkAllProductsAreStillAvailableInThisState($cart)
-            || !$this->checkAllProductsHaveMinimalQuantities($cart)
+        if ($cart->isAllProductsInStock() !== true ||
+            (method_exists($cart, 'checkAllProductsAreStillAvailableInThisState') && $cart->checkAllProductsAreStillAvailableInThisState() !== true) ||
+            (method_exists($cart, 'checkAllProductsHaveMinimalQuantities') && $cart->checkAllProductsHaveMinimalQuantities() !== true)
         ) {
             throw new PsCheckoutException(sprintf('Cart with id %s contains products unavailable. Cannot capture the order.', var_export($cart->id, true)), PsCheckoutException::CART_PRODUCT_UNAVAILABLE);
         }
@@ -134,58 +160,5 @@ class CheckoutChecker
         if ($paypalOrderAmount + 0.05 < $cartAmount || $paypalOrderAmount - 0.05 > $cartAmount) {
             throw new PsCheckoutException('The transaction amount does not match with the cart amount.', PsCheckoutException::DIFFERENCE_BETWEEN_TRANSACTION_AND_CART);
         }
-    }
-
-    private function isAllProductsInStock(Cart $cart)
-    {
-        if (!Configuration::get('PS_STOCK_MANAGEMENT')) {
-            return true;
-        }
-
-        if (version_compare(_PS_VERSION_, '1.7.3.2', '>=')) {
-            return $cart->isAllProductsInStock();
-        }
-
-        foreach ($cart->getProducts() as $product) {
-            $availableOutOfStock = Product::isAvailableWhenOutOfStock($product['out_of_stock']);
-            $productQuantity = Product::getQuantity(
-                $product['id_product'],
-                !empty($product['id_product_attribute']) ? $product['id_product_attribute'] : null
-            );
-
-            if ($productQuantity < 0 && !$availableOutOfStock) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    /**
-     * @param Cart $cart
-     *
-     * @return bool
-     */
-    private function checkAllProductsAreStillAvailableInThisState(Cart $cart)
-    {
-        if (method_exists($cart, 'checkAllProductsAreStillAvailableInThisState')) {
-            return $cart->checkAllProductsAreStillAvailableInThisState();
-        }
-
-        return true;
-    }
-
-    /**
-     * @param Cart $cart
-     *
-     * @return bool
-     */
-    private function checkAllProductsHaveMinimalQuantities(Cart $cart)
-    {
-        if (method_exists($cart, 'checkAllProductsHaveMinimalQuantities')) {
-            return $cart->checkAllProductsHaveMinimalQuantities();
-        }
-
-        return true;
     }
 }

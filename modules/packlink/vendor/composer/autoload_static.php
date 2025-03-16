@@ -8,7 +8,7 @@ if (!defined('_PS_VERSION_')) {
     exit;
 }
 
-class ComposerStaticInit0aac112b123da206984ae86398631ffe
+class ComposerStaticInit3fc9726df055b1e1c241262c74f422fd
 {
     public static $prefixLengthsPsr4 = array (
         'i' => 
@@ -72,9 +72,9 @@ class ComposerStaticInit0aac112b123da206984ae86398631ffe
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInit0aac112b123da206984ae86398631ffe::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInit0aac112b123da206984ae86398631ffe::$prefixDirsPsr4;
-            $loader->classMap = ComposerStaticInit0aac112b123da206984ae86398631ffe::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInit3fc9726df055b1e1c241262c74f422fd::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInit3fc9726df055b1e1c241262c74f422fd::$prefixDirsPsr4;
+            $loader->classMap = ComposerStaticInit3fc9726df055b1e1c241262c74f422fd::$classMap;
 
         }, null, ClassLoader::class);
     }

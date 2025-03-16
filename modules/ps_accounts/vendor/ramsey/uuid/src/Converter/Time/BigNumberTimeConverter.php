@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of the ramsey/uuid library
  *
@@ -11,12 +12,10 @@
  * @link https://packagist.org/packages/ramsey/uuid Packagist
  * @link https://github.com/ramsey/uuid GitHub
  */
+namespace PrestaShop\Module\PsAccounts\Vendor\Ramsey\Uuid\Converter\Time;
 
-namespace Ramsey\Uuid\Converter\Time;
-
-use Moontoast\Math\BigNumber;
-use Ramsey\Uuid\Converter\TimeConverterInterface;
-
+use PrestaShop\Module\PsAccounts\Vendor\Moontoast\Math\BigNumber;
+use PrestaShop\Module\PsAccounts\Vendor\Ramsey\Uuid\Converter\TimeConverterInterface;
 /**
  * BigNumberTimeConverter uses the moontoast/math library's `BigNumber` to
  * provide facilities for converting parts of time into representations that may
@@ -36,24 +35,12 @@ class BigNumberTimeConverter implements TimeConverterInterface
     public function calculateTime($seconds, $microSeconds)
     {
         $uuidTime = new BigNumber('0');
-
         $sec = new BigNumber($seconds);
         $sec->multiply('10000000');
-
         $usec = new BigNumber($microSeconds);
         $usec->multiply('10');
-
-        $uuidTime
-            ->add($sec)
-            ->add($usec)
-            ->add('122192928000000000');
-
-        $uuidTimeHex = sprintf('%016s', $uuidTime->convertToBase(16));
-
-        return [
-            'low' => substr($uuidTimeHex, 8),
-            'mid' => substr($uuidTimeHex, 4, 4),
-            'hi' => substr($uuidTimeHex, 0, 4),
-        ];
+        $uuidTime->add($sec)->add($usec)->add('122192928000000000');
+        $uuidTimeHex = \sprintf('%016s', $uuidTime->convertToBase(16));
+        return ['low' => \substr($uuidTimeHex, 8), 'mid' => \substr($uuidTimeHex, 4, 4), 'hi' => \substr($uuidTimeHex, 0, 4)];
     }
 }

@@ -61,6 +61,7 @@ class ModulesXCatalogXWidgetsXListingXProducts extends WidgetBase
                 'type' => ControlsManager::SELECT,
                 'options' => ProductBase::getSkinOptions(),
                 'default' => 'product',
+                'save_default' => true,
             ]
         );
 
@@ -70,23 +71,23 @@ class ModulesXCatalogXWidgetsXListingXProducts extends WidgetBase
                 'label' => __('Columns'),
                 'type' => ControlsManager::NUMBER,
                 'min' => 1,
+                'max' => 12,
                 'default' => 4,
                 'tablet_default' => 3,
                 'mobile_default' => 1,
-                'selectors' => [
-                    '{{WRAPPER}} .ce-products' => 'grid-template-columns: repeat({{VALUE}}, minmax(0, 1fr));',
-                ],
+                'prefix_class' => 'elementor-grid%s-',
+                'style_transfer' => true,
             ]
         );
 
-        $this->addControl(
+        _CE_ADMIN_ && $this->addControl(
             'configure',
             [
                 'label' => __('Additional Options'),
                 'type' => ControlsManager::BUTTON,
                 'text' => '<i class="eicon-external-link-square"></i>' . __('Configure'),
                 'link' => [
-                    'url' => \Context::getContext()->link->getAdminLink('AdminPPreferences') . '#pagination_products_per_page',
+                    'url' => Helper::$link->getAdminLink('AdminPPreferences') . '#pagination_products_per_page',
                     'is_external' => true,
                 ],
                 'separator' => 'before',
@@ -145,37 +146,37 @@ class ModulesXCatalogXWidgetsXListingXProducts extends WidgetBase
         static $id_container;
         null === $id_container && $this->addRenderAttribute('_container', 'id', $id_container = 'js-product-list');
 
-        $context = \Context::getContext();
-        $vars = &$context->smarty->tpl_vars;
+        $vars = &$GLOBALS['smarty']->tpl_vars;
         $listing = $vars['listing']->value;
 
         if (!$listing['products']) {
-            if (!$context->controller instanceof \CategoryController || !$vars['subcategories']->value) {
+            if (!$GLOBALS['context']->controller instanceof \CategoryController || !$vars['subcategories']->value) {
                 if ($id_no_results = \Configuration::get('CE_LISTING_NO_RESULTS')) {
-                    echo Plugin::$instance->frontend->getBuilderContent(
-                        new UId($id_no_results, UId::THEME, $context->language->id, $context->shop->id)
-                    );
+                    $uid = UId::$_ID;
+                    UId::$_ID = new UId($id_no_results, UId::THEME, $GLOBALS['language']->id, $GLOBALS['context']->shop->id);
+                    echo apply_filters('the_content', '');
+                    UId::$_ID = $uid;
                 } else {
                     \CESmarty::write(_CE_TEMPLATES_ . 'front/theme/catalog/listing/block.tpl', 'ce_page_content');
                 }
             }
-
-            return;
+            return print '<!-- listing-products -->';
         }
 
         if (!$tpl = ProductBase::getSkinTemplate($this->getSettings('skin'))) {
             return print '<!-- Missing Miniature -->';
         }
+        $mobile_detect = $GLOBALS['context']->mobile_detect;
+        $device_suffix = $mobile_detect->isTablet() ? '_tablet' : ($mobile_detect->isMobile() ? '_mobile' : '');
+        $columns = (int) $this->getSettings('columns' . $device_suffix);
 
-        if (isset($vars['productClasses'])) {
-            $vars['productClasses']->value = preg_replace('/\bcol-[-\w]+\s*/', '', $vars['productClasses']->value);
-        } else {
-            $context->smarty->assign('productClasses', '');
-        }
-        echo '<div class="ce-products ce-product-grid products">';
-        foreach ($listing['products'] as &$product) {
-            $context->smarty->assign('product', $product);
-            echo $context->smarty->fetch($tpl);
+        echo '<div class="products ce-products ce-product-grid elementor-grid">';
+        foreach ($listing['products'] as $i => $product) {
+            echo $GLOBALS['smarty']->fetch($tpl, null, null, [
+                'product' => $product,
+                'productClasses' => '',
+                'loading_eager' => $i < $columns,
+            ]);
         }
         echo '</div>';
     }

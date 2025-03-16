@@ -22,6 +22,8 @@ if (!defined('_PS_VERSION_')) {
  */
 class WidgetAlert extends WidgetBase
 {
+    const HELP_URL = 'http://docs.webshopworks.com/creative-elements/86-widgets/general-widgets/314-alert-widget';
+
     /**
      * Get widget name.
      *
@@ -76,6 +78,11 @@ class WidgetAlert extends WidgetBase
     public function getKeywords()
     {
         return ['alert', 'notice', 'message'];
+    }
+
+    protected function isDynamicContent()
+    {
+        return false;
     }
 
     /**

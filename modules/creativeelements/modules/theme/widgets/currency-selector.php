@@ -18,6 +18,12 @@ class ModulesXThemeXWidgetsXCurrencySelector extends WidgetBase
 {
     use NavTrait;
 
+    protected $currency_symbol;
+
+    protected $currency_code;
+
+    protected $currency_name;
+
     public function getName()
     {
         return 'currency-selector';
@@ -142,22 +148,20 @@ class ModulesXThemeXWidgetsXCurrencySelector extends WidgetBase
         $this->currency_code = in_array('code', $settings['content']);
         $this->currency_name = in_array('name', $settings['content']);
         $url = preg_replace('/[&\?](SubmitCurrency|id_currency)=[^&]*/', '', $_SERVER['REQUEST_URI']);
-        $id_currency = $this->context->currency->id;
+        $current = $GLOBALS['context']->currency;
         $menu = [
             '0' => [
-                'id_currency' => $id_currency,
-                'symbol' => !empty($this->context->currency->symbol)
-                    ? $this->context->currency->symbol
-                    : $this->context->currency->sign,
-                'iso_code' => $this->context->currency->iso_code,
-                'name' => $this->context->currency->name,
+                'id_currency' => $current->id,
+                'symbol' => !empty($current->symbol) ? $current->symbol : $current->sign,
+                'iso_code' => $current->iso_code,
+                'name' => $current->name,
                 'url' => 'javascript:;',
                 'current' => false,
                 'children' => [],
             ],
         ];
         foreach ($currencies as &$currency) {
-            $currency['current'] = $id_currency == $currency['id'];
+            $currency['current'] = $current->id == $currency['id'];
             $currency['url'] = \Tools::url($url, 'SubmitCurrency=1&id_currency=' . (int) $currency['id_currency']);
 
             $menu[0]['children'][] = $currency;
@@ -225,12 +229,5 @@ class ModulesXThemeXWidgetsXCurrencySelector extends WidgetBase
         <?php } ?>
         </ul>
         <?php
-    }
-
-    public function __construct($data = [], $args = [])
-    {
-        $this->context = \Context::getContext();
-
-        parent::__construct($data, $args);
     }
 }

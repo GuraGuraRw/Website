@@ -46,7 +46,7 @@ class ModulesXCustomCssXModule extends BaseModule
         $css = str_replace('selector', $post_css->getElementUniqueSelector($element), $css);
 
         // Add a css comment
-        $css = sprintf('/* Start custom CSS for %s, class: %s */', $element->getName(), $element->getUniqueSelector()) . $css . '/* End custom CSS */';
+        $css = "/* Start custom CSS for {$element->getName()}, class: {$element->getUniqueSelector()} */{$css}/* End custom CSS */";
 
         $post_css->getStylesheet()->addRawCss($css);
     }
@@ -58,34 +58,9 @@ class ModulesXCustomCssXModule extends BaseModule
     {
         $document = Plugin::$instance->documents->get($post_css->getPostId());
 
-        if ($document->getTemplateType() === 'kit') {
-            $stylesheet = $post_css->getStylesheet();
-
-            // Clear element related styles
-            \Closure::bind(function () {
-                foreach ($this->rules as $rule => &$selectors) {
-                    foreach ($selectors as $selector => &$styles) {
-                        if (strpos($selector, '.elementor-element-') !== false) {
-                            unset($selectors[$selector]);
-                        }
-                    }
-                    if (!$selectors) {
-                        unset($this->rules[$rule]);
-                    }
-                }
-            }, $stylesheet, $stylesheet)->__invoke();
-
-            // Clear all icon fonts
-            \Closure::bind(function () {
-                $this->icons_fonts = [];
-            }, $post_css, 'CE\CoreXFilesXCSSXBase')->__invoke();
-        }
-
         $custom_css = $document->getSettings('custom_css');
 
-        $custom_css = trim($custom_css);
-
-        if (empty($custom_css)) {
+        if (!$custom_css = trim($custom_css)) {
             return;
         }
 
@@ -101,5 +76,6 @@ class ModulesXCustomCssXModule extends BaseModule
     {
         add_action('elementor/element/parse_css', [$this, 'addPostCss'], 10, 2);
         add_action('elementor/css-file/post/parse', [$this, 'addPageSettingsCss']);
+        add_action('elementor/css-file/kit/parse', [$this, 'addPageSettingsCss']);
     }
 }

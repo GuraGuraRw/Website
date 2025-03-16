@@ -14,6 +14,8 @@ if (!defined('_PS_VERSION_')) {
 
 class ModulesXThemeXWidgetsXSiteLogo extends WidgetImage
 {
+    const HELP_URL = '';
+
     public function getName()
     {
         return 'theme-site-logo';
@@ -37,6 +39,11 @@ class ModulesXThemeXWidgetsXSiteLogo extends WidgetImage
     public function getKeywords()
     {
         return ['shop', 'logo', 'branding'];
+    }
+
+    protected function isDynamicContent()
+    {
+        return true;
     }
 
     protected function _registerControls()

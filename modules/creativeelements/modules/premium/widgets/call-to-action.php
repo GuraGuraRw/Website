@@ -39,6 +39,11 @@ class ModulesXPremiumXWidgetsXCallToAction extends WidgetBase
         return ['cta', 'banner'];
     }
 
+    protected function isDynamicContent()
+    {
+        return false;
+    }
+
     protected function _registerControls()
     {
         $this->startControlsSection(
@@ -1136,6 +1141,14 @@ class ModulesXPremiumXWidgetsXCallToAction extends WidgetBase
             ]
         );
 
+        $this->addGroupControl(
+            GroupControlTextShadow::getType(),
+            [
+                'name' => 'button_text_shadow',
+                'selector' => '{{WRAPPER}} .elementor-button',
+            ]
+        );
+
         $this->startControlsTabs('button_tabs');
 
         $this->startControlsTab(
@@ -1249,6 +1262,14 @@ class ModulesXPremiumXWidgetsXCallToAction extends WidgetBase
                 'selectors' => [
                     '{{WRAPPER}} .elementor-button' => 'border-radius: {{SIZE}}{{UNIT}};',
                 ],
+            ]
+        );
+
+        $this->addGroupControl(
+            GroupControlBoxShadow::getType(),
+            [
+                'name' => 'button_box_shadow',
+                'selector' => '{{WRAPPER}} .elementor-button',
             ]
         );
 
@@ -1617,7 +1638,7 @@ class ModulesXPremiumXWidgetsXCallToAction extends WidgetBase
         <<?php echo $wrapper_tag; ?> <?php $this->printRenderAttributeString('wrapper'); ?>>
         <?php if ($print_bg) { ?>
             <div class="elementor-cta-bg-wrapper">
-                <?php empty($settings['bg_image']['url']) || print GroupControlImageSize::getAttachmentImageHtml($settings, 'bg_image', 'lazy', 'elementor-cta-bg elementor-bg'); ?>
+                <?php empty($settings['bg_image']['url']) || print GroupControlImageSize::getAttachmentImageHtml($settings, 'bg_image', 'elementor-cta-bg elementor-bg'); ?>
                 <div class="elementor-cta-bg-overlay"></div>
             </div>
         <?php } ?>
@@ -1703,7 +1724,7 @@ class ModulesXPremiumXWidgetsXCallToAction extends WidgetBase
         }
 
         if ( 'icon' === settings.graphic_element ) {
-            var icon = elementor.helpers.getBcIcon(view, settings, 'icon', {'aria-hidden': true}),
+            var icon = elementor.helpers.getBcIcon( view, settings, 'icon' ),
                 iconWrapperClasses = 'elementor-icon-wrapper';
                 iconWrapperClasses += ' elementor-cta-image';
                 iconWrapperClasses += ' elementor-view-' + settings.icon_view;

@@ -5,8 +5,8 @@
 
 document.addEventListener('DOMContentLoaded', function() {
 	var prev;
-	$('.elementor').each(function() {
-		var uid = (this.className.match(/elementor-(\d+)/) || '')[1];
+	$('.elementor:not(:empty)').each(function() {
+		var uid = this.dataset.elementorId;
 		if (uid && uid !== prev) {
 			prev = uid;
 			$(this).addClass('ce-edit-wrapper');

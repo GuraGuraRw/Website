@@ -29,8 +29,8 @@ use PrestaShop\Module\PsAccounts\Vendor\League\OAuth2\Client\Tool\ArrayAccessorT
 use PrestaShop\Module\PsAccounts\Vendor\League\OAuth2\Client\Tool\GuardedPropertyTrait;
 use PrestaShop\Module\PsAccounts\Vendor\League\OAuth2\Client\Tool\QueryBuilderTrait;
 use PrestaShop\Module\PsAccounts\Vendor\League\OAuth2\Client\Tool\RequestFactory;
-use Psr\Http\Message\RequestInterface;
-use Psr\Http\Message\ResponseInterface;
+use PrestaShop\Module\PsAccounts\Vendor\Psr\Http\Message\RequestInterface;
+use PrestaShop\Module\PsAccounts\Vendor\Psr\Http\Message\ResponseInterface;
 use UnexpectedValueException;
 /**
  * Represents a service provider (authorization server).

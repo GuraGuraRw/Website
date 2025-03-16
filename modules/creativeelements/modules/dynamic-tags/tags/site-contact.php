@@ -51,11 +51,11 @@ class ModulesXDynamicTagsXTagsXSiteContact extends Tag
                 'type' => ControlsManager::SELECT,
                 'options' => [
                     '' => __('Select...'),
-                    'company' => __('Company'),
-                    'address' => __('Address'),
-                    'phone' => __('Tel'),
+                    'company' => __('Company', 'Shop.Forms.Labels'),
+                    'address' => __('Address', 'Shop.Forms.Labels'),
+                    'phone' => __('Phone', 'Shop.Forms.Labels'),
                     'fax' => __('Fax'),
-                    'email' => __('Email'),
+                    'email' => __('Email', 'Shop.Forms.Labels'),
                 ],
             ]
         );
@@ -70,7 +70,7 @@ class ModulesXDynamicTagsXTagsXSiteContact extends Tag
                 echo \Configuration::get('PS_SHOP_NAME');
                 break;
             case 'address':
-                echo \AddressFormat::generateAddress(\Context::getContext()->shop->getAddress(), [], '<br>');
+                echo \AddressFormat::generateAddress($GLOBALS['context']->shop->getAddress(), [], '<br>');
                 break;
             case 'phone':
                 echo \Configuration::get('PS_SHOP_PHONE');

@@ -1,0 +1,18 @@
+.ets_autoup_activity_log {
+    text-align: initial;
+}
+.ets_autoup_resume_wrap .ets_autoup_panel {
+    display: block;
+}
+#nextQuickInfo, #nextErrors {
+    height: 200px;
+}
+.ug-ui-buttons {
+    margin-top: 10px;
+    display: flex;
+    display: -webkit-flex;
+    justify-content: center;
+    -webkit-justify-content: center;
+    flex-wrap: wrap;
+    -webkit-flex-wrap: wrap;
+}

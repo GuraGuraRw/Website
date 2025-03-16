@@ -13,7 +13,7 @@ if (!defined('_PS_VERSION_')) {
 }
 
 use CE\CoreXDynamicTagsXDataTag as DataTag;
-use CE\ModulesXDynamicTagsXModule as Module;
+use CE\ModulesXDynamicTagsXModule as TagsModule;
 
 class ModulesXCatalogXTagsXProductAddToCart extends DataTag
 {
@@ -31,12 +31,12 @@ class ModulesXCatalogXTagsXProductAddToCart extends DataTag
 
     public function getGroup()
     {
-        return Module::ACTION_GROUP;
+        return TagsModule::ACTION_GROUP;
     }
 
     public function getCategories()
     {
-        return [Module::URL_CATEGORY];
+        return [TagsModule::URL_CATEGORY];
     }
 
     public function _registerControls()
@@ -44,7 +44,7 @@ class ModulesXCatalogXTagsXProductAddToCart extends DataTag
         $this->addControl(
             'id_product',
             [
-                'label' => __('Product'),
+                'label' => __('Product', 'Shop.Theme.Catalog'),
                 'type' => ControlsManager::SELECT2,
                 'label_block' => true,
                 'select2options' => [

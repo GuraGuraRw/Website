@@ -12,25 +12,10 @@ if (!defined('_PS_VERSION_')) {
     exit;
 }
 
+use CE\ModulesXPremiumXModule as Premium;
+
 class ModulesXPremiumXWidgetsXContactForm extends WidgetBase
 {
-    protected static $col_width = [
-        '100' => '100%',
-        '80' => '80%',
-        '75' => '75%',
-        '66' => '66%',
-        '60' => '60%',
-        '50' => '50%',
-        '40' => '40%',
-        '33' => '33%',
-        '25' => '25%',
-        '20' => '20%',
-    ];
-
-    protected $context;
-
-    protected $translator;
-
     protected $upload;
 
     protected $gdpr;
@@ -66,11 +51,10 @@ class ModulesXPremiumXWidgetsXContactForm extends WidgetBase
 
     protected function getContactOptions()
     {
-        $contacts = \Contact::getContacts($this->context->language->id);
         $opts = [
             '0' => __('Select'),
         ];
-        foreach ($contacts as $contact) {
+        foreach (\Contact::getContacts($GLOBALS['language']->id) as $contact) {
             $opts[$contact['id_contact']] = $contact['name'];
         }
 
@@ -79,114 +63,22 @@ class ModulesXPremiumXWidgetsXContactForm extends WidgetBase
 
     protected function getToken()
     {
-        if (empty($this->context->cookie->contactFormTokenTTL) || $this->context->cookie->contactFormTokenTTL < time()) {
-            $this->context->cookie->contactFormToken = md5(uniqid());
-            $this->context->cookie->contactFormTokenTTL = time() + 600;
+        if (empty($GLOBALS['cookie']->contactFormTokenTTL) || $GLOBALS['cookie']->contactFormTokenTTL < time()) {
+            $GLOBALS['cookie']->contactFormToken = call_user_func('md5', uniqid());
+            $GLOBALS['cookie']->contactFormTokenTTL = time() + 600;
         }
 
-        return $this->context->cookie->contactFormToken;
-    }
-
-    protected function trans($id, array $params = [], $domain = 'Modules.Contactform.Shop', $locale = null)
-    {
-        try {
-            return $this->translator->trans($id, $params, $domain, $locale);
-        } catch (\Exception $ex) {
-            return $id;
-        }
+        return $GLOBALS['cookie']->contactFormToken;
     }
 
     protected function _registerControls()
     {
+        $trans = [Helper::$translator, 'trans'];
+
         $this->startControlsSection(
             'section_form_content',
             [
                 'label' => __('Form Fields'),
-            ]
-        );
-
-        $this->addControl(
-            'subject_id',
-            [
-                'label' => $this->trans('Subject Heading', [], 'Modules.Contactform.Shop', _CE_LOCALE_),
-                'type' => ControlsManager::SELECT,
-                'options' => is_admin() ? $this->getContactOptions() : [],
-                'default' => '0',
-            ]
-        );
-
-        $this->addControl(
-            'show_upload',
-            [
-                'label' => $this->trans('Attach File', [], 'Modules.Contactform.Shop', _CE_LOCALE_),
-                'type' => $this->upload ? ControlsManager::SWITCHER : ControlsManager::HIDDEN,
-                'label_off' => __('Hide'),
-                'label_on' => __('Show'),
-                'default' => 'yes',
-            ]
-        );
-
-        $this->addControl(
-            'show_reference',
-            [
-                'label' => $this->trans('Order Reference', [], 'Modules.Contactform.Shop', _CE_LOCALE_),
-                'type' => ControlsManager::SWITCHER,
-                'label_off' => __('Hide'),
-                'label_on' => __('Show'),
-                'default' => 'yes',
-            ]
-        );
-
-        if (is_admin() && !\Tools::file_exists_cache(_PS_MODULE_DIR_ . 'invrecaptcha/invrecaptcha.php')) {
-            $this->addControl(
-                'captcha',
-                [
-                    'type' => ControlsManager::RAW_HTML,
-                    'content_classes' => 'elementor-panel-alert elementor-panel-alert-info',
-                    'raw' => '
-                        <i class="eicon-close" style="position:absolute; top:8px; right:8px; cursor:pointer" onclick="$(`.elementor-control-show_captcha input`).prop(`checked`, false).change()"></i>
-                        Protect your site against spam and abuse, while letting your real customers pass through with ease.
-                        <a href="https://addons.prestashop.com/website-security-access/32222-spam-protection-invisible-recaptcha.html" target="_blank">
-                            <i class="eicon-link"></i>Invisible reCAPTCHA
-                        </a> does this all in the background without any user interaction.
-                        <style>.elementor-control-captcha:not(.elementor-hidden-control) ~ .elementor-control-show_captcha { display: none }</style>
-                    ',
-                    'condition' => [
-                        'show_captcha!' => '',
-                    ],
-                ]
-            );
-
-            $this->addControl(
-                'show_captcha',
-                [
-                    'label' => 'Spam Protection - Invisible reCaptcha',
-                    'type' => ControlsManager::CHOOSE,
-                    'options' => [
-                        'yes' => [
-                            'title' => __('Learn More'),
-                            'icon' => 'eicon-info-circle',
-                        ],
-                    ],
-                    'default' => 'yes',
-                ]
-            );
-        }
-
-        $this->addControl(
-            'input_size',
-            [
-                'label' => __('Size'),
-                'type' => ControlsManager::SELECT,
-                'options' => [
-                    'xs' => __('Extra Small'),
-                    'sm' => __('Small'),
-                    'md' => __('Medium'),
-                    'lg' => __('Large'),
-                    'xl' => __('Extra Large'),
-                ],
-                'default' => 'sm',
-                'separator' => 'before',
             ]
         );
 
@@ -208,18 +100,69 @@ class ModulesXPremiumXWidgetsXContactForm extends WidgetBase
                 'type' => ControlsManager::SWITCHER,
                 'label_off' => __('Hide'),
                 'label_on' => __('Show'),
-                'condition' => [
+                'condition' => $show_labels = [
                     'show_labels!' => '',
                 ],
             ]
         );
+
+        $this->addControl(
+            'input_size',
+            [
+                'label' => __('Input Size'),
+                'type' => ControlsManager::SELECT,
+                'options' => [
+                    'xs' => __('Extra Small'),
+                    'sm' => __('Small'),
+                    'md' => __('Medium'),
+                    'lg' => __('Large'),
+                    'xl' => __('Extra Large'),
+                ],
+                'default' => 'sm',
+            ]
+        );
+
+        $this->addControl(
+            'subject_id',
+            [
+                'label' => __('Subject', 'Shop.Forms.Labels'),
+                'type' => ControlsManager::SELECT,
+                'options' => _CE_ADMIN_ ? $this->getContactOptions() : [],
+                'default' => '0',
+                'separator' => 'before',
+            ]
+        );
+
+        $this->addControl(
+            'show_upload',
+            [
+                'label' => __('Attachment', 'Shop.Forms.Labels'),
+                'type' => $this->upload ? ControlsManager::SWITCHER : ControlsManager::HIDDEN,
+                'label_off' => __('Hide'),
+                'label_on' => __('Show'),
+                'default' => 'yes',
+            ]
+        );
+
+        $this->addControl(
+            'show_reference',
+            [
+                'label' => __('Order reference', 'Shop.Forms.Labels'),
+                'type' => ControlsManager::SWITCHER,
+                'label_off' => __('Hide'),
+                'label_on' => __('Show'),
+                'default' => 'yes',
+            ]
+        );
+
+        Premium::addCaptchaPromoControls($this);
 
         $this->endControlsSection();
 
         $this->startControlsSection(
             'section_subject_content',
             [
-                'label' => $this->trans('Subject Heading', [], 'Modules.Contactform.Shop', _CE_LOCALE_),
+                'label' => __('Subject', 'Shop.Forms.Labels'),
                 'condition' => [
                     'subject_id' => '0',
                 ],
@@ -231,19 +174,30 @@ class ModulesXPremiumXWidgetsXContactForm extends WidgetBase
             [
                 'label' => __('Label'),
                 'type' => ControlsManager::TEXT,
-                'placeholder' => $this->trans('Subject Heading'),
+                'placeholder' => $trans('Subject', [], 'Shop.Forms.Labels'),
                 'condition' => [
                     'show_labels' => 'yes',
                 ],
             ]
         );
 
-        $this->addResponsiveControl(
+        $this->addControl(
             'subject_width',
             [
                 'label' => __('Column Width'),
                 'type' => ControlsManager::SELECT,
-                'options' => self::$col_width,
+                'options' => $col_widths = [
+                    '100' => '100%',
+                    '80' => '80%',
+                    '75' => '75%',
+                    '66' => '66%',
+                    '60' => '60%',
+                    '50' => '50%',
+                    '40' => '40%',
+                    '33' => '33%',
+                    '25' => '25%',
+                    '20' => '20%',
+                ],
                 'default' => '100',
             ]
         );
@@ -253,7 +207,7 @@ class ModulesXPremiumXWidgetsXContactForm extends WidgetBase
         $this->startControlsSection(
             'section_email_content',
             [
-                'label' => $this->trans('Email address', [], 'Modules.Contactform.Shop', _CE_LOCALE_),
+                'label' => __('Email address', 'Shop.Forms.Labels'),
             ]
         );
 
@@ -262,10 +216,8 @@ class ModulesXPremiumXWidgetsXContactForm extends WidgetBase
             [
                 'label' => __('Label'),
                 'type' => ControlsManager::TEXT,
-                'placeholder' => $this->trans('Email address'),
-                'condition' => [
-                    'show_labels!' => '',
-                ],
+                'placeholder' => $trans('Email address', [], 'Shop.Forms.Labels'),
+                'condition' => $show_labels,
             ]
         );
 
@@ -274,16 +226,16 @@ class ModulesXPremiumXWidgetsXContactForm extends WidgetBase
             [
                 'label' => __('Placeholder'),
                 'type' => ControlsManager::TEXT,
-                'placeholder' => $this->trans('your@email.com'),
+                'placeholder' => $trans('your@email.com', [], 'Shop.Forms.Help'),
             ]
         );
 
-        $this->addResponsiveControl(
+        $this->addControl(
             'email_width',
             [
                 'label' => __('Column Width'),
                 'type' => ControlsManager::SELECT,
-                'options' => self::$col_width,
+                'options' => $col_widths,
                 'default' => '100',
             ]
         );
@@ -293,7 +245,7 @@ class ModulesXPremiumXWidgetsXContactForm extends WidgetBase
         $this->startControlsSection(
             'section_reference_content',
             [
-                'label' => $this->trans('Order Reference', [], 'Modules.Contactform.Shop', _CE_LOCALE_),
+                'label' => __('Order reference', 'Shop.Forms.Labels'),
                 'condition' => [
                     'show_reference!' => '',
                 ],
@@ -305,19 +257,19 @@ class ModulesXPremiumXWidgetsXContactForm extends WidgetBase
             [
                 'label' => __('Label'),
                 'type' => ControlsManager::TEXT,
-                'placeholder' => $this->trans('Order Reference'),
+                'placeholder' => $trans('Order reference', [], 'Shop.Forms.Labels'),
                 'condition' => [
                     'show_labels' => 'yes',
                 ],
             ]
         );
 
-        $this->addResponsiveControl(
+        $this->addControl(
             'reference_width',
             [
                 'label' => __('Column Width'),
                 'type' => ControlsManager::SELECT,
-                'options' => self::$col_width,
+                'options' => $col_widths,
                 'default' => '100',
             ]
         );
@@ -327,7 +279,7 @@ class ModulesXPremiumXWidgetsXContactForm extends WidgetBase
         $this->startControlsSection(
             'section_upload_content',
             [
-                'label' => $this->trans('Attach File', [], 'Modules.Contactform.Shop', _CE_LOCALE_),
+                'label' => __('Attachment', 'Shop.Forms.Labels'),
                 'condition' => [
                     'show_upload' => $this->upload ? 'yes' : 'hide',
                 ],
@@ -339,19 +291,19 @@ class ModulesXPremiumXWidgetsXContactForm extends WidgetBase
             [
                 'label' => __('Label'),
                 'type' => ControlsManager::TEXT,
-                'placeholder' => $this->trans('Attach File'),
+                'placeholder' => $trans('Attachment', [], 'Shop.Forms.Labels'),
                 'condition' => [
                     'show_labels' => 'yes',
                 ],
             ]
         );
 
-        $this->addResponsiveControl(
+        $this->addControl(
             'upload_width',
             [
                 'label' => __('Column Width'),
                 'type' => ControlsManager::SELECT,
-                'options' => self::$col_width,
+                'options' => $col_widths,
                 'default' => '100',
             ]
         );
@@ -361,7 +313,7 @@ class ModulesXPremiumXWidgetsXContactForm extends WidgetBase
         $this->startControlsSection(
             'section_message_content',
             [
-                'label' => $this->trans('Message', [], 'Modules.Contactform.Shop', _CE_LOCALE_),
+                'label' => __('Message', 'Shop.Forms.Labels'),
             ]
         );
 
@@ -370,10 +322,8 @@ class ModulesXPremiumXWidgetsXContactForm extends WidgetBase
             [
                 'label' => __('Label'),
                 'type' => ControlsManager::TEXT,
-                'placeholder' => $this->trans('Message'),
-                'condition' => [
-                    'show_labels!' => '',
-                ],
+                'placeholder' => $trans('Message', [], 'Shop.Forms.Labels'),
+                'condition' => $show_labels,
             ]
         );
 
@@ -382,16 +332,16 @@ class ModulesXPremiumXWidgetsXContactForm extends WidgetBase
             [
                 'label' => __('Placeholder'),
                 'type' => ControlsManager::TEXT,
-                'placeholder' => $this->trans('How can we help?'),
+                'placeholder' => $trans('How can we help?', [], 'Shop.Forms.Help'),
             ]
         );
 
-        $this->addResponsiveControl(
+        $this->addControl(
             'message_width',
             [
                 'label' => __('Column Width'),
                 'type' => ControlsManager::SELECT,
-                'options' => self::$col_width,
+                'options' => $col_widths,
                 'default' => '100',
             ]
         );
@@ -434,7 +384,7 @@ class ModulesXPremiumXWidgetsXContactForm extends WidgetBase
             [
                 'label' => __('Text'),
                 'type' => ControlsManager::TEXT,
-                'placeholder' => $this->trans('Send'),
+                'placeholder' => $trans('Send', [], 'Shop.Theme.Actions'),
             ]
         );
 
@@ -450,12 +400,12 @@ class ModulesXPremiumXWidgetsXContactForm extends WidgetBase
             ]
         );
 
-        $this->addResponsiveControl(
+        $this->addControl(
             'button_width',
             [
                 'label' => __('Column Width'),
                 'type' => ControlsManager::SELECT,
-                'options' => self::$col_width,
+                'options' => $col_widths,
                 'default' => '100',
             ]
         );
@@ -592,7 +542,7 @@ class ModulesXPremiumXWidgetsXContactForm extends WidgetBase
                 'label' => __('Success'),
                 'label_block' => true,
                 'type' => ControlsManager::TEXT,
-                'placeholder' => $this->trans('Your message has been successfully sent to our team.'),
+                'placeholder' => $trans('Your message has been successfully sent to our team.', [], 'Modules.Contactform.Shop'),
                 'condition' => [
                     'custom_messages!' => '',
                 ],
@@ -605,21 +555,21 @@ class ModulesXPremiumXWidgetsXContactForm extends WidgetBase
                 'label' => __('Error'),
                 'label_block' => true,
                 'type' => ControlsManager::TEXT,
-                'placeholder' => $this->trans('An error occurred while sending the message.'),
+                'placeholder' => $trans('An error occurred while sending the message.', [], 'Modules.Contactform.Shop'),
                 'condition' => [
                     'custom_messages!' => '',
                 ],
             ]
         );
 
-        $this->addControl(
+        _CE_ADMIN_ && $this->addControl(
             'configure_module',
             [
                 'label' => __('Contact Form'),
                 'type' => ControlsManager::BUTTON,
                 'text' => '<i class="eicon-external-link-square"></i>' . __('Configure'),
                 'link' => [
-                    'url' => $this->context->link->getAdminLink('AdminModules', true, [], ['configure' => 'contactform']),
+                    'url' => Helper::$link->getAdminLink('AdminModules', true, [], ['configure' => 'contactform']),
                     'is_external' => true,
                 ],
                 'separator' => 'before',
@@ -650,26 +600,6 @@ class ModulesXPremiumXWidgetsXContactForm extends WidgetBase
         );
 
         $this->addControl(
-            'column_gap',
-            [
-                'label' => __('Columns Gap'),
-                'type' => ControlsManager::SLIDER,
-                'default' => [
-                    'size' => 10,
-                ],
-                'range' => [
-                    'px' => [
-                        'max' => 60,
-                    ],
-                ],
-                'selectors' => [
-                    '{{WRAPPER}} .elementor-field-group' => 'padding-right: calc({{SIZE}}{{UNIT}} / 2); padding-left: calc({{SIZE}}{{UNIT}} / 2);',
-                    '{{WRAPPER}} .elementor-form-fields-wrapper' => 'margin-left: calc(-{{SIZE}}{{UNIT}} / 2); margin-right: calc(-{{SIZE}}{{UNIT}} / 2);',
-                ],
-            ]
-        );
-
-        $this->addControl(
             'row_gap',
             [
                 'label' => __('Rows Gap'),
@@ -683,8 +613,27 @@ class ModulesXPremiumXWidgetsXContactForm extends WidgetBase
                     ],
                 ],
                 'selectors' => [
-                    '{{WRAPPER}} .elementor-field-group' => 'margin-bottom: {{SIZE}}{{UNIT}};',
-                    '{{WRAPPER}} .elementor-form-fields-wrapper' => 'margin-bottom: -{{SIZE}}{{UNIT}};',
+                    '{{WRAPPER}} .elementor-form-fields-wrapper' => 'row-gap: {{SIZE}}{{UNIT}};',
+                ],
+            ]
+        );
+
+        $this->addControl(
+            'column_gap',
+            [
+                'label' => __('Columns Gap'),
+                'type' => ControlsManager::SLIDER,
+                'default' => [
+                    'size' => 10,
+                ],
+                'range' => [
+                    'px' => [
+                        'max' => 60,
+                    ],
+                ],
+                'selectors' => [
+                    '{{WRAPPER}} .elementor-field-group' => 'padding: 0 calc({{SIZE}}{{UNIT}} / 2);',
+                    '{{WRAPPER}} .elementor-form-fields-wrapper' => 'margin: 0 calc(-{{SIZE}}{{UNIT}} / 2);',
                 ],
             ]
         );
@@ -695,31 +644,17 @@ class ModulesXPremiumXWidgetsXContactForm extends WidgetBase
                 'type' => ControlsManager::HEADING,
                 'label' => __('Label'),
                 'separator' => 'before',
-                'condition' => [
-                    'show_labels!' => '',
-                ],
+                'condition' => $show_labels,
             ]
         );
 
-        $this->addControl(
-            'label_spacing',
+        $this->addGroupControl(
+            GroupControlTypography::getType(),
             [
-                'label' => __('Spacing'),
-                'type' => ControlsManager::SLIDER,
-                'default' => [
-                    'size' => 8,
-                ],
-                'range' => [
-                    'px' => [
-                        'max' => 60,
-                    ],
-                ],
-                'selectors' => [
-                    '{{WRAPPER}} .elementor-field-group > label' => 'margin-bottom: {{SIZE}}{{UNIT}};',
-                ],
-                'condition' => [
-                    'show_labels!' => '',
-                ],
+                'name' => 'label_typography',
+                'scheme' => SchemeTypography::TYPOGRAPHY_3,
+                'selector' => '{{WRAPPER}} .elementor-form label',
+                'condition' => $show_labels,
             ]
         );
 
@@ -729,15 +664,13 @@ class ModulesXPremiumXWidgetsXContactForm extends WidgetBase
                 'label' => __('Text Color'),
                 'type' => ControlsManager::COLOR,
                 'selectors' => [
-                    '{{WRAPPER}} .elementor-field-group label' => 'color: {{VALUE}};',
+                    '{{WRAPPER}} .elementor-form label' => 'color: {{VALUE}};',
                 ],
                 'scheme' => [
                     'type' => SchemeColor::getType(),
                     'value' => SchemeColor::COLOR_3,
                 ],
-                'condition' => [
-                    'show_labels!' => '',
-                ],
+                'condition' => $show_labels,
             ]
         );
 
@@ -749,47 +682,30 @@ class ModulesXPremiumXWidgetsXContactForm extends WidgetBase
                 'selectors' => [
                     '{{WRAPPER}} .elementor-mark-required .elementor-field-label:after' => 'color: {{VALUE}};',
                 ],
-                'condition' => [
-                    'show_labels!' => '',
+                'condition' => $show_labels + [
                     'mark_required!' => '',
                 ],
             ]
         );
 
-        $this->addGroupControl(
-            GroupControlTypography::getType(),
-            [
-                'name' => 'label_typography',
-                'scheme' => SchemeTypography::TYPOGRAPHY_3,
-                'selector' => '{{WRAPPER}} .elementor-field-group label',
-                'condition' => [
-                    'show_labels!' => '',
-                ],
-            ]
-        );
-
-        $this->gdpr && $this->addControl(
-            'heading_style_checkbox',
-            [
-                'type' => ControlsManager::HEADING,
-                'label' => __('Checkbox'),
-                'separator' => 'before',
-            ]
-        );
-
         $this->addControl(
-            'checkbox_spacing',
+            'label_spacing',
             [
                 'label' => __('Spacing'),
-                'type' => $this->gdpr ? ControlsManager::SLIDER : ControlsManager::HIDDEN,
+                'type' => ControlsManager::SLIDER,
                 'range' => [
                     'px' => [
                         'max' => 60,
                     ],
                 ],
-                'selectors' => !$this->gdpr ? [] : [
-                    '{{WRAPPER}} input[type=checkbox]' => 'margin: 0 {{SIZE}}{{UNIT}};',
+                'default' => [
+                    'size' => 5,
                 ],
+                'selectors' => [
+                    '{{WRAPPER}} .elementor-field-group > .elementor-field-label' => 'margin-bottom: {{SIZE}}{{UNIT}};',
+                    '{{WRAPPER}} .elementor-field-option .elementor-field-label' => 'padding-inline-start: {{SIZE}}{{UNIT}};',
+                ],
+                'condition' => $show_labels,
             ]
         );
 
@@ -807,7 +723,7 @@ class ModulesXPremiumXWidgetsXContactForm extends WidgetBase
             GroupControlTypography::getType(),
             [
                 'name' => 'field_typography',
-                'selector' => '{{WRAPPER}} .elementor-field-group .elementor-field',
+                'selector' => '{{WRAPPER}} .elementor-field',
                 'scheme' => SchemeTypography::TYPOGRAPHY_3,
             ]
         );
@@ -818,7 +734,8 @@ class ModulesXPremiumXWidgetsXContactForm extends WidgetBase
                 'label' => __('Text Color'),
                 'type' => ControlsManager::COLOR,
                 'selectors' => [
-                    '{{WRAPPER}} .elementor-field-group .elementor-field' => 'color: {{VALUE}};',
+                    '{{WRAPPER}} .elementor-field' => 'color: {{VALUE}};',
+                    '{{WRAPPER}} .elementor-field-group' => '--ce-field-color: {{VALUE}};',
                 ],
                 'scheme' => [
                     'type' => SchemeColor::getType(),
@@ -833,7 +750,7 @@ class ModulesXPremiumXWidgetsXContactForm extends WidgetBase
                 'label' => __('Background Color'),
                 'type' => ControlsManager::COLOR,
                 'selectors' => [
-                    '{{WRAPPER}} .elementor-field-group .elementor-field-textual' => 'background-color: {{VALUE}};',
+                    '{{WRAPPER}} .elementor-field-textual' => 'background-color: {{VALUE}};',
                 ],
             ]
         );
@@ -844,7 +761,7 @@ class ModulesXPremiumXWidgetsXContactForm extends WidgetBase
                 'label' => __('Border Color'),
                 'type' => ControlsManager::COLOR,
                 'selectors' => [
-                    '{{WRAPPER}} .elementor-field-group .elementor-field-textual' => 'border-color: {{VALUE}};',
+                    '{{WRAPPER}} .elementor-field-textual' => 'border-color: {{VALUE}};',
                 ],
             ]
         );
@@ -855,7 +772,7 @@ class ModulesXPremiumXWidgetsXContactForm extends WidgetBase
                 'label' => __('Border Width'),
                 'type' => ControlsManager::DIMENSIONS,
                 'selectors' => [
-                    '{{WRAPPER}} .elementor-field-group .elementor-field-textual' => 'border-width: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+                    '{{WRAPPER}} .elementor-field-textual' => 'border-width: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
                 ],
             ]
         );
@@ -867,7 +784,7 @@ class ModulesXPremiumXWidgetsXContactForm extends WidgetBase
                 'type' => ControlsManager::DIMENSIONS,
                 'size_units' => ['px', '%'],
                 'selectors' => [
-                    '{{WRAPPER}} .elementor-field-group .elementor-field-textual' => 'border-radius: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+                    '{{WRAPPER}} .elementor-field-textual' => 'border-radius: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
                 ],
             ]
         );
@@ -887,6 +804,14 @@ class ModulesXPremiumXWidgetsXContactForm extends WidgetBase
             [
                 'name' => 'button_typography',
                 'scheme' => SchemeTypography::TYPOGRAPHY_4,
+                'selector' => '{{WRAPPER}} .elementor-button',
+            ]
+        );
+
+        $this->addGroupControl(
+            GroupControlTextShadow::getType(),
+            [
+                'name' => 'button_text_shadow',
                 'selector' => '{{WRAPPER}} .elementor-button',
             ]
         );
@@ -979,6 +904,14 @@ class ModulesXPremiumXWidgetsXContactForm extends WidgetBase
             ]
         );
 
+        $this->addControl(
+            'button_hover_animation',
+            [
+                'label' => __('Animation'),
+                'type' => ControlsManager::HOVER_ANIMATION,
+            ]
+        );
+
         $this->endControlsTab();
 
         $this->endControlsTabs();
@@ -1011,11 +944,22 @@ class ModulesXPremiumXWidgetsXContactForm extends WidgetBase
             ]
         );
 
-        $this->addControl(
-            'button_hover_animation',
+        $this->addGroupControl(
+            GroupControlBoxShadow::getType(),
             [
-                'label' => __('Animation'),
-                'type' => ControlsManager::HOVER_ANIMATION,
+                'name' => 'button_box_shadow',
+                'selector' => '{{WRAPPER}} .elementor-button',
+            ]
+        );
+
+        $this->addResponsiveControl(
+            'button_padding',
+            [
+                'label' => __('Padding'),
+                'type' => ControlsManager::DIMENSIONS,
+                'selectors' => [
+                    '{{WRAPPER}} .elementor-button' => 'padding: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+                ],
             ]
         );
 
@@ -1081,31 +1025,30 @@ class ModulesXPremiumXWidgetsXContactForm extends WidgetBase
 
     protected function render()
     {
+        if (_CE_ADMIN_) {
+            return; // Use contentTemplate
+        }
         $settings = $this->getSettingsForDisplay();
         $id = $this->getId();
         $id_contact = 0;
         $id_order = 0;
-        $orders = $settings['show_reference'] && !empty($this->context->customer->id) ? \Order::getCustomerOrders($this->context->customer->id) : [];
+        $customer = $GLOBALS['customer'];
+        $orders = $settings['show_reference'] && $customer->id ? \Order::getCustomerOrders($customer->id) : [];
         $show_labels = (bool) $settings['show_labels'];
         $mark_class = !empty($settings['mark_required']) ? ' elementor-mark-required' : '';
         $input_classes = 'elementor-field elementor-field-textual elementor-size-' . esc_attr($settings['input_size']);
 
         $this->addRenderAttribute('form', [
-            'action' => $this->context->link->getModuleLink('creativeelements', 'ajax', [], null, null, null, true),
-            'method' => 'post',
-            'enctype' => 'multipart/form-data',
+            'action' => Helper::$link->getModuleLink('creativeelements', 'ajax', [], null, null, null, true),
             'data-success' => $settings['custom_messages'] ? $settings['success_message'] : '',
             'data-error' => $settings['custom_messages'] ? $settings['error_message'] : '',
         ]);
         $this->addRenderAttribute('email', [
-            'id' => 'from-' . $id,
-            'value' => isset($this->context->customer->email) ? $this->context->customer->email : '',
-            'placeholder' => $settings['email_placeholder'] ?: $this->trans('your@email.com', [], 'Shop.Forms.Help'),
-            'inputmode' => 'email',
+            'value' => $customer->email ?: '',
+            'placeholder' => $settings['email_placeholder'] ?: __('your@email.com', 'Shop.Forms.Help'),
         ]);
         $this->addRenderAttribute('message', [
-            'id' => 'message-' . $id,
-            'placeholder' => $settings['message_placeholder'] ?: $this->trans('How can we help?', [], 'Shop.Forms.Help'),
+            'placeholder' => $settings['message_placeholder'] ?: __('How can we help?', 'Shop.Forms.Help'),
             'rows' => (int) $settings['message_rows'],
         ]);
         $this->addRenderAttribute('button', 'class', 'elementor-button elementor-size-' . $settings['button_size']);
@@ -1132,7 +1075,7 @@ class ModulesXPremiumXWidgetsXContactForm extends WidgetBase
                 $this->setRenderAttribute('email', 'value', $ct->email);
             }
         } ?>
-        <form class="elementor-contact-form" <?php $this->printRenderAttributeString('form'); ?>>
+        <form class="ce-contact-form elementor-form" method="post" <?php $this->printRenderAttributeString('form'); ?> enctype="multipart/form-data">
             <div class="elementor-form-fields-wrapper">
                 <input type="hidden" name="url">
             <?php if ($token = $this->getToken()) { ?>
@@ -1141,15 +1084,15 @@ class ModulesXPremiumXWidgetsXContactForm extends WidgetBase
             <?php if ($settings['subject_id']) { ?>
                 <input type="hidden" name="id_contact" value="<?php echo (int) ($id_contact ?: $settings['subject_id']); ?>">
             <?php } else { ?>
-                <div class="elementor-field-group elementor-column elementor-col-<?php echo (int) $settings['subject_width']; ?> elementor-field-type-select">
+                <div class="elementor-field-group elementor-column elementor-sm-100 elementor-col-<?php echo (int) $settings['subject_width']; ?> elementor-field-type-select">
                 <?php if ($show_labels) { ?>
                     <label class="elementor-field-label" for="id-contact-<?php echo $id; ?>">
-                        <?php echo $settings['subject_label'] ?: $this->trans('Subject Heading'); ?>
+                        <?php echo $settings['subject_label'] ?: __('Subject', 'Shop.Forms.Labels'); ?>
                     </label>
                 <?php } ?>
                     <div class="elementor-select-wrapper">
                         <select name="id_contact" id="id-contact-<?php echo $id; ?>" class="<?php echo $input_classes; ?>">
-                    <?php foreach (\Contact::getContacts($this->context->language->id) as $contact) { ?>
+                    <?php foreach (\Contact::getContacts($GLOBALS['language']->id) as $contact) { ?>
                         <?php if (!$id_contact || $id_contact == $contact['id_contact']) { ?>
                             <option value="<?php echo (int) $contact['id_contact']; ?>"><?php echo $contact['name']; ?></option>
                         <?php } ?>
@@ -1158,25 +1101,25 @@ class ModulesXPremiumXWidgetsXContactForm extends WidgetBase
                     </div>
                 </div>
             <?php } ?>
-                <div class="elementor-field-group elementor-column elementor-col-<?php echo ((int) $settings['email_width']) . $mark_class; ?> elementor-field-type-email">
+                <div class="elementor-field-group elementor-column elementor-sm-100 elementor-col-<?php echo ((int) $settings['email_width']) . $mark_class; ?> elementor-field-type-email">
                 <?php if ($show_labels) { ?>
                     <label class="elementor-field-label" for="from-<?php echo $id; ?>">
-                        <?php echo $settings['email_label'] ?: $this->trans('Email address'); ?>
+                        <?php echo $settings['email_label'] ?: __('Email address', 'Shop.Forms.Labels'); ?>
                     </label>
                 <?php } ?>
-                    <input type="email" name="from" <?php $this->printRenderAttributeString('email'); ?> class="<?php echo $input_classes; ?>" required>
+                    <input type="email" name="from" id="from-<?php echo $id; ?>" <?php $this->printRenderAttributeString('email'); ?> class="<?php echo $input_classes; ?>" inputmode="email" required>
                 </div>
             <?php if ($settings['show_reference'] && (Plugin::$instance->editor->isEditMode() || $orders)) { ?>
-                <div class="elementor-field-group elementor-column elementor-col-<?php echo (int) $settings['reference_width']; ?> elementor-field-type-select">
+                <div class="elementor-field-group elementor-column elementor-sm-100 elementor-col-<?php echo (int) $settings['reference_width']; ?> elementor-field-type-select">
                 <?php if ($show_labels) { ?>
                     <label class="elementor-field-label" for="id-order-<?php echo $id; ?>">
-                        <?php echo $settings['reference_label'] ?: $this->trans('Order Reference'); ?>
+                        <?php echo $settings['reference_label'] ?: __('Order reference', 'Shop.Forms.Labels'); ?>
                     </label>
                 <?php } ?>
                     <div class="elementor-select-wrapper">
                         <select name="id_order" id="id-order-<?php echo $id; ?>" class="<?php echo $input_classes; ?>">
                         <?php if (!$id_order) { ?>
-                            <option value=""><?php echo $this->trans('Select reference'); ?></option>
+                            <option value=""><?php echo __('Select reference', 'Shop.Forms.Labels'); ?></option>
                         <?php } ?>
                         <?php foreach ($orders as &$order) { ?>
                             <option value="<?php echo (int) $order['id_order']; ?>"><?php echo $order['reference']; ?></option>
@@ -1186,10 +1129,10 @@ class ModulesXPremiumXWidgetsXContactForm extends WidgetBase
                 </div>
             <?php } ?>
             <?php if ($this->upload && $settings['show_upload']) { ?>
-                <div class="elementor-field-group elementor-column elementor-col-<?php echo (int) $settings['upload_width']; ?> elementor-field-type-file">
+                <div class="elementor-field-group elementor-column elementor-sm-100 elementor-col-<?php echo (int) $settings['upload_width']; ?> elementor-field-type-file">
                 <?php if ($show_labels) { ?>
                     <label class="elementor-field-label" for="file-upload-<?php echo $id; ?>">
-                        <?php echo $settings['upload_label'] ?: $this->trans('Attach File'); ?>
+                        <?php echo $settings['upload_label'] ?: __('Attachment', 'Shop.Forms.Labels'); ?>
                     </label>
                 <?php } ?>
                     <label class="elementor-row <?php echo $input_classes; ?>">
@@ -1197,28 +1140,28 @@ class ModulesXPremiumXWidgetsXContactForm extends WidgetBase
                     </label>
                 </div>
             <?php } ?>
-                <div class="elementor-field-group elementor-column elementor-col-<?php echo ((int) $settings['message_width']) . $mark_class; ?> elementor-field-type-textarea">
+                <div class="elementor-field-group elementor-column elementor-sm-100 elementor-col-<?php echo ((int) $settings['message_width']) . $mark_class; ?> elementor-field-type-textarea">
                 <?php if ($show_labels) { ?>
                     <label class="elementor-field-label" for="message-<?php echo $id; ?>">
-                        <?php echo $settings['message_label'] ?: $this->trans('Message'); ?>
+                        <?php echo $settings['message_label'] ?: __('Message', 'Shop.Forms.Labels'); ?>
                     </label>
                 <?php } ?>
-                    <textarea name="message" <?php $this->printRenderAttributeString('message'); ?> class="<?php echo $input_classes; ?>" required></textarea>
+                    <textarea name="message" id="message-<?php echo $id; ?>" <?php $this->printRenderAttributeString('message'); ?> class="<?php echo $input_classes; ?>" required></textarea>
                 </div>
             <?php if ($this->gdpr) { ?>
-                <div class="elementor-field-group elementor-column elementor-col-100<?php echo $mark_class; ?> elementor-field-type-gdpr">
-                    <label class="elementor-field-label">
-                        <input type="checkbox" name="<?php echo $this->gdpr; ?>" value="1" required><span class="elementor-checkbox-label"><?php echo $this->gdpr_msg; ?></span>
+                <div class="elementor-field-group elementor-column elementor-col-100<?php echo $mark_class; ?> elementor-field-type-checkbox">
+                    <label class="elementor-field-option">
+                        <input type="checkbox" name="<?php echo $this->gdpr; ?>" value="1" required><span class="elementor-field-label"><?php echo $this->gdpr_msg; ?></span>
                     </label>
                 </div>
             <?php } ?>
-                <div class="elementor-field-group elementor-column elementor-col-<?php echo (int) $settings['button_width']; ?> elementor-field-type-submit">
+                <div class="elementor-field-group elementor-column elementor-sm-100 elementor-col-<?php echo (int) $settings['button_width']; ?> elementor-field-type-submit">
                     <button type="submit" name="submitMessage" value="Send" <?php $this->printRenderAttributeString('button'); ?>>
                         <span class="elementor-button-content-wrapper">
                         <?php if ($icon = IconsManager::getBcIcon($settings, 'icon', ['aria-hidden' => 'true'])) { ?>
-                            <span class="elementor-align-icon-<?php echo esc_attr($this->getSettings('icon_align')); ?>"><?php echo $icon; ?></span>
+                            <span class="elementor-align-icon-<?php echo esc_attr($settings['icon_align']); ?>"><?php echo $icon; ?></span>
                         <?php } ?>
-                            <span class="elementor-button-text"><?php echo $settings['button_text'] ?: $this->trans('Send'); ?></span>
+                            <span class="elementor-button-text"><?php echo $settings['button_text'] ?: __('Send', 'Shop.Theme.Actions'); ?></span>
                         </span>
                     </button>
                 </div>
@@ -1229,20 +1172,21 @@ class ModulesXPremiumXWidgetsXContactForm extends WidgetBase
 
     protected function contentTemplate()
     {
-        ?>
+        $trans = [Helper::$translator, 'trans']; ?>
         <#
-        var contacts = <?php echo json_encode(\Contact::getContacts($this->context->language->id)); ?>,
-            email_placeholder = settings.email_placeholder || <?php echo json_encode($this->trans('your@email.com', [], 'Shop.Forms.Help')); ?>,
-            message_placeholder = settings.message_placeholder || <?php echo json_encode($this->trans('How can we help?', [], 'Shop.Forms.Help')); ?>,
+        var contacts = <?php echo json_encode(\Contact::getContacts($GLOBALS['language']->id)); ?>,
+            email_placeholder = settings.email_placeholder || <?php echo json_encode($trans('your@email.com', [], 'Shop.Forms.Help')); ?>,
+            message_placeholder = settings.message_placeholder || <?php echo json_encode($trans('How can we help?', [], 'Shop.Forms.Help')); ?>,
             upload = <?php echo (int) $this->upload; ?>;
-            mark_class = settings.mark_required ? ' elementor-mark-required' : '';
+            mark_class = settings.mark_required ? ' elementor-mark-required' : '',
+            icon = elementor.helpers.getBcIcon( view, settings, 'icon' );
         #>
-        <form class="elementor-contact-form">
+        <form class="ce-contact-form elementor-form">
             <div class="elementor-form-fields-wrapper">
-            <# if (settings.subject_id <= 0) { #>
-                <div class="elementor-field-group elementor-column elementor-col-{{ settings.subject_width }} elementor-field-type-select">
+            <# if (!+settings.subject_id) { #>
+                <div class="elementor-field-group elementor-column elementor-sm-100 elementor-col-{{ settings.subject_width }} elementor-field-type-select">
                 <# if (settings.show_labels) { #>
-                    <label class="elementor-field-label">{{ settings.subject_label || <?php echo json_encode($this->trans('Subject Heading')); ?> }}</label>
+                    <label class="elementor-field-label">{{ settings.subject_label || <?php echo json_encode($trans('Subject', [], 'Shop.Forms.Labels')); ?> }}</label>
                 <# } #>
                     <div class="elementor-select-wrapper">
                         <select name="id_contact" class="elementor-field elementor-field-textual elementor-size-{{ settings.input_size }}">
@@ -1253,59 +1197,63 @@ class ModulesXPremiumXWidgetsXContactForm extends WidgetBase
                     </div>
                 </div>
             <# } #>
-                <div class="elementor-field-group elementor-column elementor-col-{{ settings.email_width }}{{ mark_class}} elementor-field-type-email">
+                <div class="elementor-field-group elementor-column elementor-sm-100 elementor-col-{{ settings.email_width }}{{ mark_class}} elementor-field-type-email">
                 <# if (settings.show_labels) { #>
-                    <label class="elementor-field-label">{{ settings.email_label || <?php echo json_encode($this->trans('Email address')); ?> }}</label>
+                    <label class="elementor-field-label">{{ settings.email_label || <?php echo json_encode($trans('Email address', [], 'Shop.Forms.Labels')); ?> }}</label>
                 <# } #>
                     <input type="email" name="from" placeholder="{{ email_placeholder }}" class="elementor-field elementor-field-textual elementor-size-{{ settings.input_size }}">
                 </div>
             <# if (settings.show_reference) { #>
-                <div class="elementor-field-group elementor-column elementor-col-{{ settings.reference_width }} elementor-field-type-select">
+                <div class="elementor-field-group elementor-column elementor-sm-100 elementor-col-{{ settings.reference_width }} elementor-field-type-select">
                 <# if (settings.show_labels) { #>
-                    <label class="elementor-field-label">{{ settings.reference_label || <?php echo json_encode($this->trans('Order Reference')); ?> }}</label>
+                    <label class="elementor-field-label">{{ settings.reference_label || <?php echo json_encode($trans('Order reference', [], 'Shop.Forms.Labels')); ?> }}</label>
                 <# } #>
                     <div class="elementor-select-wrapper">
                         <select name="id_order" class="elementor-field elementor-field-textual elementor-size-{{ settings.input_size }}">
-                            <option>{{ <?php echo json_encode($this->trans('Select reference')); ?> }}</option>
+                            <option>{{ <?php echo json_encode($trans('Select reference', [], 'Shop.Forms.Labels')); ?> }}</option>
                         </select>
                     </div>
                 </div>
             <# } #>
             <# if (upload && settings.show_upload) { #>
-                <div class="elementor-field-group elementor-column elementor-col-{{ settings.upload_width }} elementor-field-type-file">
+                <div class="elementor-field-group elementor-column elementor-sm-100 elementor-col-{{ settings.upload_width }} elementor-field-type-file">
                 <# if (settings.show_labels) { #>
-                    <label class="elementor-field-label">{{ settings.upload_label || <?php echo json_encode($this->trans('Attach File')); ?> }}</label>
+                    <label class="elementor-field-label">{{ settings.upload_label || <?php echo json_encode($trans('Attachment', [], 'Shop.Forms.Labels')); ?> }}</label>
                 <# } #>
                     <label class="elementor-row elementor-field elementor-field-textual elementor-size-{{ settings.input_size }}">
                         <input type="file" name="fileUpload">
                     </label>
                 </div>
             <# } #>
-                <div class="elementor-field-group elementor-column elementor-col-{{ settings.message_width }}{{ mark_class }} elementor-field-type-textarea">
+                <div class="elementor-field-group elementor-column elementor-sm-100 elementor-col-{{ settings.message_width }}{{ mark_class }} elementor-field-type-textarea">
                 <# if (settings.show_labels) { #>
-                    <label class="elementor-field-label">{{ settings.message_label || <?php echo json_encode($this->trans('Message')); ?> }}</label>
+                    <label class="elementor-field-label">{{ settings.message_label || <?php echo json_encode($trans('Message', [], 'Shop.Forms.Labels')); ?> }}</label>
                 <# } #>
                     <textarea name="message" placeholder="{{ message_placeholder }}" class="elementor-field elementor-field-textual elementor-size-{{ settings.input_size }}" rows="{{ settings.message_rows }}"></textarea>
                 </div>
             <?php if ($this->gdpr) { ?>
-                <div class="elementor-field-group elementor-column elementor-col-100{{ mark_class }} elementor-field-type-gdpr">
-                    <label class="elementor-field-label">
-                        <input type="checkbox"><span class="elementor-checkbox-label"><?php echo $this->gdpr_msg; ?></span>
+                <div class="elementor-field-group elementor-column elementor-col-100{{ mark_class }} elementor-field-type-checkbox">
+                    <label class="elementor-field-option">
+                        <input type="checkbox"><span class="elementor-field-label"><?php echo $this->gdpr_msg; ?></span>
                     </label>
                 </div>
             <?php } ?>
-                <div class="elementor-field-group elementor-column elementor-col-{{ settings.button_width }} elementor-field-type-submit">
+                <div class="elementor-field-group elementor-column elementor-sm-100 elementor-col-{{ settings.button_width }} elementor-field-type-submit">
                     <button type="submit" name="submitMessage" value="Send" class="elementor-button elementor-size-{{ settings.button_size }} elementor-animation-{{ settings.button_hover_animation }}">
                         <span class="elementor-button-content-wrapper">
-                        <# if (settings.icon || settings.selected_icon.value) { #>
-                            <span class="elementor-button-icon elementor-align-icon-{{ settings.icon_align }}">
-                                {{{ elementor.helpers.getBcIcon(view, settings, 'icon', {'aria-hidden': true}) }}}
-                            </span>
+                        <# if ( icon ) { #>
+                            <span class="elementor-button-icon elementor-align-icon-{{ settings.icon_align }}">{{{ icon }}}</span>
                         <# } #>
-                            <span class="elementor-button-text">{{ settings.button_text || <?php echo json_encode($this->trans('Send')); ?> }}</span>
+                            <span class="elementor-button-text">{{ settings.button_text || <?php echo json_encode($trans('Send', [], 'Shop.Theme.Actions')); ?> }}</span>
                         </span>
                     </button>
                 </div>
+            </div>
+            <div class="elementor-message elementor-message-success elementor-hidden" role="alert">
+                {{{ settings.custom_messages && settings.success_message || <?php echo json_encode($trans('Your message has been successfully sent to our team.', [], 'Modules.Contactform.Shop')); ?> }}}
+            </div>
+            <div class="elementor-message elementor-message-danger elementor-hidden" role="alert">
+                {{{ settings.custom_messages && settings.error_message || <?php echo json_encode($trans('An error occurred while sending the message.', [], 'Modules.Contactform.Shop')); ?> }}}
             </div>
         </form>
         <?php
@@ -1313,8 +1261,6 @@ class ModulesXPremiumXWidgetsXContactForm extends WidgetBase
 
     public function __construct($data = [], $args = [])
     {
-        $this->context = \Context::getContext();
-        $this->translator = $this->context->getTranslator();
         $this->upload = \Configuration::get('PS_CUSTOMER_SERVICE_FILE_UPLOAD');
         $this->initGDPR();
 
@@ -1323,21 +1269,19 @@ class ModulesXPremiumXWidgetsXContactForm extends WidgetBase
 
     protected function initGDPR()
     {
-        $id_lang = $this->context->language->id;
-
         if (\Module::isEnabled('psgdpr') && \Module::getInstanceByName('psgdpr')
-            && call_user_func('GDPRConsent::getConsentActive', $id_module = \Module::getModuleIdByName('contactform'))
+            && \GDPRConsent::getConsentActive($id_module = \Module::getModuleIdByName('contactform'))
         ) {
             $this->gdpr = 'psgdpr_consent_checkbox';
-            $this->gdpr_msg = call_user_func('GDPRConsent::getConsentMessage', $id_module, $id_lang);
-            $this->gdpr_cfg = $this->context->link->getAdminLink('AdminModules', true, [], [
+            $this->gdpr_msg = \GDPRConsent::getConsentMessage($id_module, $GLOBALS['language']->id);
+            _CE_ADMIN_ && $this->gdpr_cfg = Helper::$link->getAdminLink('AdminModules', true, [], [
                 'configure' => 'psgdpr',
                 'page' => 'dataConsent',
             ]);
         } elseif (\Module::isEnabled('gdprpro') && \Configuration::get('gdpr-pro_consent_contact_enable')) {
             $this->gdpr = 'gdpr_consent_chkbox';
-            $this->gdpr_msg = \Configuration::get('gdpr-pro_consent_contact_text', $id_lang);
-            $this->gdpr_cfg = $this->context->link->getAdminLink('AdminGdprConfig');
+            $this->gdpr_msg = \Configuration::get('gdpr-pro_consent_contact_text', $GLOBALS['language']->id);
+            _CE_ADMIN_ && $this->gdpr_cfg = Helper::$link->getAdminLink('AdminGdprConfig');
         }
         // Strip <p> tags from GDPR message
         $this->gdpr_msg && $this->gdpr_msg = preg_replace('`</?p\b.*?>`i', '', $this->gdpr_msg);

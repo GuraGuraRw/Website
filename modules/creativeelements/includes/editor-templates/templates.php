@@ -69,7 +69,7 @@ if (!defined('_PS_VERSION_')) {
                 <# if ( 'page' === activeType ) { #>
                     <div id="elementor-template-library-order">
                         <input type="radio" id="elementor-template-library-order-new" class="elementor-template-library-order-input" name="elementor-template-library-order" value="date">
-                        <label for="elementor-template-library-order-new" class="elementor-template-library-order-label"><?php _e('New'); ?></label>
+                        <label for="elementor-template-library-order-new" class="elementor-template-library-order-label"><?php _e('New', 'Shop.Theme.Catalog'); ?></label>
                         <input type="radio" id="elementor-template-library-order-trend" class="elementor-template-library-order-input" name="elementor-template-library-order" value="trendIndex">
                         <label for="elementor-template-library-order-trend" class="elementor-template-library-order-label"><?php _e('Trend'); ?></label>
                         <input type="radio" id="elementor-template-library-order-popular" class="elementor-template-library-order-input" name="elementor-template-library-order" value="popularityIndex">

@@ -2,7 +2,6 @@
   font-family: 'ceicons';
   src:
     url('fonts/ceicons.woff2?8goggd') format('woff2'),
-    url('fonts/ceicons.woff?8goggd') format('woff'),
     url('fonts/ceicons.svg?8goggd#ceicons') format('svg');
   font-weight: normal;
   font-style: normal;

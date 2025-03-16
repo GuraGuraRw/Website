@@ -51,14 +51,14 @@ class ModulesXDynamicTagsXTagsXContactURL extends DataTag
                 'type' => ControlsManager::SELECT,
                 'options' => [
                     '' => __('Select...'),
-                    'email' => __('Email'),
-                    'tel' => __('Tel'),
-                    'sms' => __('SMS'),
-                    'whatsapp' => __('WhatsApp'),
-                    'skype' => __('Skype'),
-                    'messenger' => __('Messenger'),
-                    'viber' => __('Viber'),
-                    'waze' => __('Waze'),
+                    'email' => __('Email', 'Shop.Forms.Labels'),
+                    'tel' => __('Phone', 'Shop.Forms.Labels'),
+                    'sms' => 'SMS',
+                    'whatsapp' => 'WhatsApp',
+                    'skype' => 'Skype',
+                    'messenger' => 'Messenger',
+                    'viber' => 'Viber',
+                    'waze' => 'Waze',
                     'google_calendar' => __('Google Calendar'),
                     'outlook_calendar' => __('Outlook Calendar'),
                     'yahoo_calendar' => __('Yahoo Calendar'),
@@ -69,7 +69,7 @@ class ModulesXDynamicTagsXTagsXContactURL extends DataTag
         $this->addControl(
             'mail_to',
             [
-                'label' => __('Email'),
+                'label' => __('Email', 'Shop.Forms.Labels'),
                 'type' => ControlsManager::TEXT,
                 'condition' => [
                     'link_type' => 'email',
@@ -80,7 +80,7 @@ class ModulesXDynamicTagsXTagsXContactURL extends DataTag
         $this->addControl(
             'mail_subject',
             [
-                'label' => __('Subject'),
+                'label' => __('Subject', 'Shop.Forms.Labels'),
                 'type' => ControlsManager::TEXT,
                 'label_block' => 'true',
                 'condition' => [
@@ -92,7 +92,7 @@ class ModulesXDynamicTagsXTagsXContactURL extends DataTag
         $this->addControl(
             'mail_body',
             [
-                'label' => __('Message'),
+                'label' => __('Message', 'Shop.Forms.Labels'),
                 'type' => ControlsManager::TEXTAREA,
                 'label_block' => 'true',
                 'condition' => [

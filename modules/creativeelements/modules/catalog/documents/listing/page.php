@@ -14,8 +14,8 @@ if (!defined('_PS_VERSION_')) {
 
 use CE\ModulesXCatalogXControlsXSelectCategory as SelectCategory;
 use CE\ModulesXCatalogXControlsXSelectManufacturer as SelectManufacturer;
-use CE\ModulesXCatalogXWidgetsXListingXPageTitle as PageTitle;
 use CE\ModulesXThemeXDocumentsXThemePageDocument as ThemePageDocument;
+use CE\ModulesXThemeXWidgetsXPageTitle as PageTitle;
 
 class ModulesXCatalogXDocumentsXListingXPage extends ThemePageDocument
 {
@@ -89,7 +89,7 @@ class ModulesXCatalogXDocumentsXListingXPage extends ThemePageDocument
         ];
     }
 
-    protected function getPermalinkUrl(\Link $link, $id_lang, $id_shop, array $args, $relative = true)
+    protected function getPermalinkUrl($id_lang, $id_shop, array $args, $relative = true)
     {
         $settings = $this->getData('settings');
         $preview = isset($settings['preview']) ? $settings['preview'] : 'category';
@@ -99,21 +99,21 @@ class ModulesXCatalogXDocumentsXListingXPage extends ThemePageDocument
                 $id_category = !empty($settings['id_category'])
                     ? $settings['id_category']
                     : \Configuration::get('PS_HOME_CATEGORY', null, null, $id_shop ?: null);
-                $url = $link->getCategoryLink($id_category, null, $id_lang, null, $id_shop, $relative);
+                $url = Helper::$link->getCategoryLink($id_category, null, $id_lang, null, $id_shop, $relative);
                 break;
             case 'manufacturer':
                 $id_manufacturer = !empty($settings['id_manufacturer'])
                     ? $settings['id_manufacturer']
                     : Helper::getLastUpdatedManufacturerId();
-                $url = $link->getManufacturerLink($id_manufacturer, null, $id_lang, $id_shop, $relative);
+                $url = Helper::$link->getManufacturerLink($id_manufacturer, null, $id_lang, $id_shop, $relative);
                 break;
             case 'search':
-                $url = $link->getPageLink($preview, true, $id_lang, empty($settings['search']) ? null : [
+                $url = Helper::$link->getPageLink($preview, true, $id_lang, empty($settings['search']) ? null : [
                     's' => $settings['search'],
-                ], $id_shop, $relative);
+                ], false, $id_shop, $relative);
                 break;
             default:
-                $url = $link->getPageLink($preview, true, $id_lang, null, $id_shop, $relative);
+                $url = Helper::$link->getPageLink($preview, true, $id_lang, null, false, $id_shop, $relative);
                 break;
         }
 
@@ -132,7 +132,7 @@ class ModulesXCatalogXDocumentsXListingXPage extends ThemePageDocument
     protected function renderBlocks(&$elements_data)
     {
         $include = ['listing-pagination', 'listing-info'];
-        $exclude = ['listing-page-title', 'listing-image', 'listing-description'];
+        $exclude = ['page-title', 'listing-page-title', 'listing-image', 'listing-description'];
 
         foreach ($elements_data as &$element_data) {
             if (isset($element_data['widgetType']) && strpos($widget_type = $element_data['widgetType'], 'listing') === 0) {
@@ -238,10 +238,10 @@ class ModulesXCatalogXDocumentsXListingXPage extends ThemePageDocument
         $preview_options = [
             'category' => __('Category'),
             'manufacturer' => __('Brand'),
-            'search' => __('Search'),
-            'prices-drop' => __('Prices Drop'),
-            'new-products' => __('New Products'),
-            'best-sales' => __('Best Sellers'),
+            'search' => __('Search', 'Shop.Navigation'),
+            'prices-drop' => __('Prices drop', 'Shop.Navigation'),
+            'new-products' => __('New products', 'Shop.Navigation'),
+            'best-sales' => __('Best sellers', 'Shop.Navigation'),
         ];
         if (!\Configuration::get(version_compare(_PS_VERSION_, '1.7.7', '<') ? 'PS_DISPLAY_SUPPLIERS' : 'PS_DISPLAY_MANUFACTURERS')) {
             unset($preview_options['manufacturer']);
@@ -268,7 +268,7 @@ class ModulesXCatalogXDocumentsXListingXPage extends ThemePageDocument
                 'select2options' => [
                     'allowClear' => false,
                 ],
-                'extend' => [
+                'options' => [
                     '0' => __('Default'),
                 ],
                 'default' => 0,
@@ -290,7 +290,7 @@ class ModulesXCatalogXDocumentsXListingXPage extends ThemePageDocument
                 'select2options' => [
                     'allowClear' => false,
                 ],
-                'extend' => [
+                'options' => [
                     '0' => __('Default'),
                 ],
                 'default' => 0,
@@ -327,11 +327,8 @@ class ModulesXCatalogXDocumentsXListingXPage extends ThemePageDocument
     public static function registerWidgets($widgets_manager)
     {
         $widgets_manager->registerWidgetType(new PageTitle([], null, [
-            'title' => __('Listing Name'),
-            'icon' => 'eicon-product-title',
             'categories' => ['listing-elements' => 1],
             'keywords' => ['shop', 'store', 'heading', 'title', 'name', 'listing', 'page', 'title'],
-            'dynamic_tag_name' => 'page-title',
         ]));
 
         foreach (static::getWidgetClasses() as $widget_class) {
@@ -342,7 +339,7 @@ class ModulesXCatalogXDocumentsXListingXPage extends ThemePageDocument
 
     public function __construct(array $data = [])
     {
-        if ($data) {
+        if ($data && _CE_ADMIN_) {
             $template = get_post_meta($data['post_id'], '_wp_page_template', true);
             $template || update_post_meta($data['post_id'], '_wp_page_template', 'layout-full-width');
 
@@ -357,5 +354,17 @@ class ModulesXCatalogXDocumentsXListingXPage extends ThemePageDocument
         did_action('elementor/widgets/widgets_registered')
             ? static::registerWidgets(Plugin::$instance->widgets_manager)
             : add_action('elementor/widgets/widgets_registered', [static::class, 'registerWidgets']);
+
+        if (!_CE_ADMIN_ && version_compare(_PS_VERSION_, '1.7.7', '<')
+            && in_array($page = $GLOBALS['context']->controller->php_self, ['best-sales', 'new-products', 'prices-drop'])
+        ) { // BC Fix for Breadcrumb & Page Title
+            $vars = &$GLOBALS['smarty']->tpl_vars;
+            $breadcrumb = &$vars['breadcrumb']->value;
+            $breadcrumb['links'][1] = [
+                'title' => $vars['listing']->value['label'],
+                'url' => Helper::$link->getPageLink($page),
+            ];
+            $breadcrumb['count'] = 2;
+        }
     }
 }

@@ -20,12 +20,13 @@ class CEMigrate
 
     private static function searchIds()
     {
-        $table = _DB_PREFIX_ . 'creativepage';
-        $rows = Db::getInstance()->executeS("SELECT id, active FROM $table ORDER BY id");
         $ids = [
             'content' => [],
             'template' => [],
         ];
+        $rows = Db::getInstance()->executeS(
+            'SELECT `id`, `active` FROM ' . _DB_PREFIX_ . 'creativepage ORDER BY `id`'
+        );
         if ($rows) {
             foreach ($rows as &$row) {
                 $ids[$row['active'] < 2 ? 'content' : 'template'][] = (int) $row['id'];
@@ -127,12 +128,11 @@ class CEMigrate
 
     public static function moveConfigs()
     {
-        $table = _DB_PREFIX_ . 'creativepage';
         // Get old data rows
-        $rows = Db::getInstance()->executeS("
-            SELECT id_shop, meta_key, meta_value FROM {$table}_meta
-            WHERE id = 0 AND meta_key LIKE 'elementor_scheme_%'
-        ");
+        $rows = Db::getInstance()->executeS('
+            SELECT `id_shop`, `meta_key`, `meta_value` FROM ' . _DB_PREFIX_ . 'creativepage_meta
+            WHERE `id` = 0 AND `meta_key` LIKE "elementor_scheme_%"
+        ');
         // Update configs
         if ($rows) {
             foreach ($rows as &$row) {
@@ -175,14 +175,13 @@ class CEMigrate
             self::startMoving($id);
         }
         $db = Db::getInstance();
-        $table = _DB_PREFIX_ . 'creativepage';
 
         // Get old data rows
         $rows = $db->executeS(
-            "SELECT * FROM $table AS a
-            INNER JOIN {$table}_lang AS b ON a.id = b.id
-            INNER JOIN {$table}_shop AS sa ON a.id = sa.id AND b.id_shop = sa.id_shop
-            WHERE a.id = " . (int) $id
+            'SELECT * FROM ' . _DB_PREFIX_ . 'creativepage a
+            INNER JOIN ' . _DB_PREFIX_ . 'creativepage_lang b ON a.`id` = b.`id`
+            INNER JOIN ' . _DB_PREFIX_ . 'creativepage_shop sa ON a.`id` = sa.`id` AND b.`id_shop` = sa.`id_shop`
+            WHERE a.`id` = ' . (int) $id
         );
         if (!$rows) {
             return false;
@@ -211,10 +210,10 @@ class CEMigrate
                     $ce_content = [
                         'id_employee' => (int) $row['id_employee'],
                         'id_product' => (int) $row['id_page'],
-                        'hook' => $db->escape($row['type']),
+                        'hook' => pSQL($row['type']),
                         'active' => $row['id_page'] ? 1 : (int) $row['active'],
-                        'date_add' => $db->escape($row['date_add']),
-                        'date_upd' => $db->escape($row['date_upd']),
+                        'date_add' => pSQL($row['date_add']),
+                        'date_upd' => pSQL($row['date_upd']),
                     ];
                     if (!$db->insert('ce_content', $ce_content)) {
                         return false;
@@ -231,8 +230,8 @@ class CEMigrate
                     'id_ce_content' => (int) $id_ce_content,
                     'id_shop' => (int) $id_shop,
                     'active' => (int) $row['active'],
-                    'date_add' => $db->escape($row['date_add']),
-                    'date_upd' => $db->escape($row['date_upd']),
+                    'date_add' => pSQL($row['date_add']),
+                    'date_upd' => pSQL($row['date_upd']),
                 ];
                 if (!$db->insert('ce_content_shop', $ce_content_shop)) {
                     return false;
@@ -243,7 +242,7 @@ class CEMigrate
                         'id_ce_content' => (int) $id_ce_content,
                         'id_lang' => (int) $id_lang,
                         'id_shop' => (int) $id_shop,
-                        'title' => $db->escape($title),
+                        'title' => pSQL($title),
                         'content' => '',
                     ];
                     if (!$db->insert('ce_content_lang', $ce_content_lang)) {
@@ -282,13 +281,11 @@ class CEMigrate
             self::startMoving($id);
         }
         $db = Db::getInstance();
-        $table = _DB_PREFIX_ . 'creativepage';
-
         // Get old data row
         $row = $db->getRow(
-            "SELECT * FROM $table AS a
-            INNER JOIN {$table}_lang AS b ON a.id = b.id AND b.id_lang = 1 AND b.id_shop = 1
-            WHERE a.id = " . (int) $id
+            'SELECT * FROM ' . _DB_PREFIX_ . 'creativepage a
+            INNER JOIN ' . _DB_PREFIX_ . 'creativepage_lang b ON a.`id` = b.`id` AND b.`id_lang` = 1 AND b.`id_shop` = 1
+            WHERE a.`id` = ' . (int) $id
         );
         if (empty($row)) {
             return false;
@@ -296,11 +293,11 @@ class CEMigrate
         // Insert ce_template fields
         $res = $db->insert('ce_template', [
             'id_employee' => (int) $row['id_employee'],
-            'title' => $db->escape($row['title']),
-            'type' => $db->escape($row['type']),
+            'title' => pSQL($row['title']),
+            'type' => pSQL($row['type']),
             'active' => true,
-            'date_add' => $db->escape($row['date_add']),
-            'date_upd' => $db->escape($row['date_upd']),
+            'date_add' => pSQL($row['date_add']),
+            'date_upd' => pSQL($row['date_upd']),
         ]);
         // Update meta data
         if ($res) {

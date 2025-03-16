@@ -58,7 +58,7 @@ class ModulesXCatalogXSkinsXCategoryTreeTheme extends SkinBase
         $tpl = 'ps_categorytree/views/templates/hook/ps_categorytree.tpl';
         $theme_tpl = _PS_THEME_DIR_ . 'modules/' . $tpl;
 
-        echo \Context::getContext()->smarty->fetch(file_exists($theme_tpl) ? $theme_tpl : _PS_MODULE_DIR_ . $tpl, null, null, [
+        echo $GLOBALS['smarty']->fetch(file_exists($theme_tpl) ? $theme_tpl : _PS_MODULE_DIR_ . $tpl, null, null, [
             'currentCategory' => $category->id,
             'categories' => $this->parent->getCategoryTree($category, $settings['max_depth'], $settings['sort'], $settings['sort_way']),
         ]);

@@ -2,7 +2,7 @@
 
 namespace PrestaShop\Module\PsAccounts\Vendor\GuzzleHttp\Handler;
 
-use Psr\Http\Message\RequestInterface;
+use PrestaShop\Module\PsAccounts\Vendor\Psr\Http\Message\RequestInterface;
 interface CurlFactoryInterface
 {
     /**

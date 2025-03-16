@@ -1,0 +1,21 @@
+.switch.prestashop-switch input[type=radio],
+input[type=radio]{
+    height: 14px;
+    margin-top: 0;
+    display: inline-block;
+    margin-bottom: 6px;
+}
+input[type="checkbox"] {
+    margin-top: -4px;
+}
+a {
+    color: #00aff0;
+}
+.alert {
+    font-size: 14px;
+    line-height: 1.3;
+}
+a.button.confirmBeforeDelete {
+    margin-top: 0px;
+    display: inline-block;
+}

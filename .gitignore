@@ -7,3 +7,12 @@ modules/psaddonsconnect/vendor/prestashop/circuit-breaker
 modules/psaddonsconnect/vendor/react/promise
 
 var/cache/
+
+.env
+config.php
+*.log
+/vendor/
+/node_modules/
+.DS_Store
+/cache/
+/tmp/

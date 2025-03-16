@@ -25,31 +25,18 @@ class ModulesXCatalogXControlsXSelectManufacturer extends ControlSelect2
 
     public static function getManufacturers()
     {
-        if (is_admin() && null === self::$_manufacturers) {
+        if (null === self::$_manufacturers) {
             self::$_manufacturers = [];
-            $ps = _DB_PREFIX_;
-            $id_lang = (int) \Context::getContext()->language->id;
+            $rows = \Db::getInstance()->executeS(
+                'SELECT `id_manufacturer` AS `id`, `name` FROM ' . _DB_PREFIX_ . 'manufacturer WHERE `active` = 1 ORDER BY `name`'
+            ) ?: [];
 
-            if ($rows = \Db::getInstance()->executeS(
-                "SELECT `id_manufacturer` AS `id`, `name` FROM `{$ps}manufacturer` WHERE `active` = 1 ORDER BY `name`"
-            )) {
-                foreach ($rows as &$row) {
-                    self::$_manufacturers[$row['id']] = "#{$row['id']} {$row['name']}";
-                }
+            foreach ($rows as &$row) {
+                self::$_manufacturers[$row['id']] = "#{$row['id']} {$row['name']}";
             }
         }
 
-        return self::$_manufacturers ?: [];
-    }
-
-    protected function getDefaultSettings()
-    {
-        return [
-            'options' => self::getManufacturers(),
-            'multiple' => false,
-            'select2options' => [],
-            'extend' => [],
-        ];
+        return self::$_manufacturers;
     }
 
     public function onImport($id_manufacturer, array $control_data)
@@ -59,7 +46,9 @@ class ModulesXCatalogXControlsXSelectManufacturer extends ControlSelect2
 
     public function contentTemplate()
     {
-        echo '<# $.extend( data.options, data.extend ) #>';
+        $manufacturers = json_encode(self::getManufacturers());
+
+        echo "<# data.options = $.extend( $manufacturers, data.options ) #>";
 
         parent::contentTemplate();
     }

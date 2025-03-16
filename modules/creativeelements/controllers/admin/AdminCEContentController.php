@@ -40,7 +40,6 @@ class AdminCEContentController extends ModuleAdminController
         'displayAfterBodyOpeningTag',
         'displayShoppingCart',
         'displayShoppingCartFooter',
-        'displayShoppingCartFooter',
         'displayFooterProduct',
         'displayNotFound',
     ];
@@ -55,10 +54,9 @@ class AdminCEContentController extends ModuleAdminController
             );
         }
 
-        $table_shop = _DB_PREFIX_ . $this->table . '_shop';
         $this->_select = 'sa.*';
-        $this->_join = "LEFT JOIN $table_shop sa ON sa.id_ce_content = a.id_ce_content AND b.id_shop = sa.id_shop";
-        $this->_where = 'AND sa.id_shop = ' . (int) $this->context->shop->id . ' AND a.id_product = 0';
+        $this->_join = 'LEFT JOIN ' . _DB_PREFIX_ . 'ce_content_shop sa ON sa.`id_ce_content` = a.`id_ce_content` AND b.`id_shop` = sa.`id_shop`';
+        $this->_where = 'AND sa.`id_shop` = ' . (int) $this->context->shop->id . ' AND a.`id_product` = 0';
 
         $this->fields_list = [
             'id_ce_content' => [
@@ -204,7 +202,7 @@ class AdminCEContentController extends ModuleAdminController
     public function initToolBarTitle()
     {
         if ('add' === $this->display) {
-            $this->page_header_toolbar_title = $this->l('Add New');
+            $this->page_header_toolbar_title = $this->trans('Add New', [], 'Admin.Actions');
         } elseif ('edit' === $this->display) {
             $this->page_header_toolbar_title = sprintf($this->l('Edit %s'), $this->l('Content'));
         } else {
@@ -324,11 +322,8 @@ class AdminCEContentController extends ModuleAdminController
         return parent::renderForm();
     }
 
-    protected function l($string, $module = 'creativeelements', $addslashes = false, $htmlentities = true)
+    protected function l($string, $ctx = '', $addslashes = false, $htmlentities = true)
     {
-        $js = $addslashes || !$htmlentities;
-        $str = Translate::getModuleTranslation($module, $string, '', null, $js, _CE_LOCALE_);
-
-        return $htmlentities ? $str : stripslashes($str);
+        return Translate::getModuleTranslation($this->module, $string, $ctx, null, $addslashes, _CE_LOCALE_, false, $htmlentities);
     }
 }

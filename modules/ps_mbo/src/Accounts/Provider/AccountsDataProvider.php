@@ -17,15 +17,14 @@
  * @copyright Since 2007 PrestaShop SA and Contributors
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
+declare(strict_types=1);
 
 namespace PrestaShop\Module\Mbo\Accounts\Provider;
 
 use Db;
 use Exception;
 use PrestaShop\Module\PsAccounts\Repository\UserTokenRepository;
-use PrestaShop\PrestaShop\Adapter\CoreException;
 use PrestaShop\PrestaShop\Adapter\ServiceLocator;
-use PrestaShop\PrestaShop\Core\Module\Exception\ModuleErrorException;
 use PrestaShop\PsAccountsInstaller\Installer\Exception\ModuleNotInstalledException;
 use PrestaShop\PsAccountsInstaller\Installer\Exception\ModuleVersionException;
 use PrestaShop\PsAccountsInstaller\Installer\Facade\PsAccounts;
@@ -40,18 +39,20 @@ class AccountsDataProvider
 
     public function __construct(
         string $psAccountsVersion
-    ) {
+    )
+    {
         $this->psAccountsVersion = $psAccountsVersion;
     }
 
-    /**
-     * @return string
-     *
-     * @throws CoreException
-     */
-    public function getAccountsToken()
+    public function getAccountsToken(): string
     {
-        if (!$this->isAccountLinked() || null === $psAccountsModule = ServiceLocator::get('ps_accounts')) {
+        if (!$this->isAccountLinked()) {
+            return '';
+        }
+
+        $psAccountsModule = ServiceLocator::get('ps_accounts');
+
+        if (null === $psAccountsModule) {
             return '';
         }
 
@@ -68,10 +69,7 @@ class AccountsDataProvider
         return null === $token ? '' : (string) $token;
     }
 
-    /**
-     * @return string|null
-     */
-    public function getAccountsShopId()
+    public function getAccountsShopId(): ?string
     {
         if (!$this->isAccountLinked()) {
             return null;
@@ -86,10 +84,7 @@ class AccountsDataProvider
         return $shopUuid ?: null;
     }
 
-    /**
-     * @return string|null
-     */
-    public function getAccountsUserId()
+    public function getAccountsUserId(): ?string
     {
         try {
             $userUuid = $this->getAccountsService()->getUserUuid();
@@ -100,10 +95,7 @@ class AccountsDataProvider
         return $userUuid ?: null;
     }
 
-    /**
-     * @return string|null
-     */
-    public function getAccountsUserEmail()
+    public function getAccountsUserEmail(): ?string
     {
         try {
             $email = $this->getAccountsService()->getEmail();
@@ -114,10 +106,7 @@ class AccountsDataProvider
         return $email;
     }
 
-    /**
-     * @return bool
-     */
-    private function isAccountLinked()
+    private function isAccountLinked(): bool
     {
         try {
             return $this->getAccountsService()->isAccountLinked();
@@ -126,7 +115,10 @@ class AccountsDataProvider
         }
     }
 
+
     /**
+     * @param string $serviceName
+     *
      * @return mixed
      *
      * @throws ModuleNotInstalledException
@@ -136,12 +128,8 @@ class AccountsDataProvider
     {
         if ($this->isPsAccountsInstalled()) {
             if ($this->checkPsAccountsVersion()) {
-                $psAccounts = \Module::getInstanceByName(Installer::PS_ACCOUNTS_MODULE_NAME);
-                if (!$psAccounts instanceof \Module) {
-                    throw new ModuleErrorException('Module ' . Installer::PS_ACCOUNTS_MODULE_NAME . ' not found');
-                }
-
-                return $psAccounts->getService(PsAccounts::PS_ACCOUNTS_SERVICE);
+                return \Module::getInstanceByName(Installer::PS_ACCOUNTS_MODULE_NAME)
+                    ->getService(PsAccounts::PS_ACCOUNTS_SERVICE);
             }
             throw new ModuleVersionException('Module version expected : ' . $this->psAccountsVersion);
         }
@@ -159,18 +147,11 @@ class AccountsDataProvider
             return \Module::isInstalled($moduleName);
         }
 
-        $sqlQuery = sprintf(
-            'SELECT `id_module` FROM `%smodule` WHERE `name` = "%s" AND `active` = 1',
-            _DB_PREFIX_,
-            pSQL($moduleName)
-        );
+        $sqlQuery = 'SELECT `id_module` FROM `' . _DB_PREFIX_ . 'module` WHERE `name` = "' . pSQL($moduleName) . '" AND `active` = 1';
 
         return (int) Db::getInstance()->getValue($sqlQuery) > 0;
     }
 
-    /**
-     * @return bool
-     */
     private function checkPsAccountsVersion()
     {
         $moduleName = Installer::PS_ACCOUNTS_MODULE_NAME;
@@ -178,8 +159,8 @@ class AccountsDataProvider
         $module = \Module::getInstanceByName($moduleName);
 
         if ($module instanceof \Ps_accounts) {
-            return (bool) version_compare(
-                (string) $module->version,
+            return version_compare(
+                $module->version,
                 $this->psAccountsVersion,
                 '>='
             );

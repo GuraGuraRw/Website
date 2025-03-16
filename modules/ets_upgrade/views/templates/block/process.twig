@@ -1,0 +1,114 @@
+{#---Block resuilt---#}
+<div id="blockProcess" class="ug_block_step">
+    <div class="ets_autoup_upgrade_process">
+        <img src="{{ pathImg }}upgrading.png"><br>
+        <h3>{{ 'Your website is being upgraded ...'|trans }}</h3>
+        <span>{{ 'Do not close your web browser until the upgrade is completed. Be patient and wait!'|trans }}</span>
+    </div>
+    <div class="ets_autoup_rollback_process" style="display:none;">
+        <img src="{{ pathImg }}rollback.png"><br>
+        <h3>{{ 'Website is being restored ...'|trans }}</h3>
+        <span>{{ 'Be patient and wait!'|trans }}</span>
+    </div>
+    <div class="ets_autoup_process" style="display:none;">
+        <div class="ets_autoup_process_bar" style="width: 100%; background-color: #D4D4D4; height: 20px">
+            <div class="ets_autoup_percent" style="width: 0%; background-color: #00bb00;height: 100%;">
+                <label class="ets_autoup_label_percent">
+                    <span>1%</span>
+                </label>
+            </div>
+        </div>
+        <span class="ets_autoup_estimate_time" style="display: none;"></span>
+    </div>
+    {% include '@ModuleAutoUpgrade/block/activityLog.twig' %}
+
+    <div class="footer_back">
+        <button class="prevStep" name="prevStep" type="button">{{ 'Back'|trans }}</button>
+    </div>
+    <div class="ets_autoup_resume">
+        <div class="ets_table">
+            <div class="ets_table-cell">
+                <div class="ets_autoup_resume_confirm">
+                    <span class="ets_autoup_close"></span>
+                    <div class="ets_autoup_resume_content">
+                        <p class="alert alert-danger">{{ 'Oops! There is an unknown error occurred during the upgrade.'|trans }}</p>
+                    </div>
+                    <div class="ets_autoup_resume_btn">
+                        <button class="processResume btn btn-default" type="button" name="processResume">{{ 'Resume'|trans }}</button>
+                        <a class="ets_autoup_btn_rollback btn btn-default" target="_blank" href="{{ rollbackLink|raw }}">{{ 'Rollback'|trans }}</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="ets_autoup_stop_process">
+        <div class="ets_table">
+            <div class="ets_table-cell">
+                <div class="ets_autoup_wrap_content">
+                    <span class="ets_autoup_close"></span>
+                    <p class="alert alert-danger php_version_warning">
+                        <svg width="33" height="33" viewBox="0 0 1792 1792" xmlns="http://www.w3.org/2000/svg"><path d="M1024 1375v-190q0-14-9.5-23.5t-22.5-9.5h-192q-13 0-22.5 9.5t-9.5 23.5v190q0 14 9.5 23.5t22.5 9.5h192q13 0 22.5-9.5t9.5-23.5zm-2-374l18-459q0-12-10-19-13-11-24-11h-220q-11 0-24 11-10 7-10 21l17 457q0 10 10 16.5t24 6.5h185q14 0 23.5-6.5t10.5-16.5zm-14-934l768 1408q35 63-2 126-17 29-46.5 46t-63.5 17h-1536q-34 0-63.5-17t-46.5-46q-37-63-2-126l768-1408q17-31 47-49t65-18 65 18 47 49z"/></svg>
+                        <span class="ets_autoup_prestashop_17">{{ 'PrestaShop 1.7.8.x requires PHP 7.1.3 or higher but your current PHP version is'|trans }}&nbsp;{{ PHP_VERSION|raw }}.&nbsp;{{ 'Please upgrade your PHP version then continue the upgrade process!'|trans }}</span></br>
+                        <span class="ets_autoup_prestashop_80" style="display: none;">{{ 'PrestaShop 8.x requires PHP 7.2.5 or higher but your current PHP version is'|trans }}&nbsp;{{ PHP_VERSION|raw }}.&nbsp;{{ 'Please upgrade your PHP version then continue the upgrade process!'|trans }}</span></br>
+                        <span>{{ 'Do not close this window! If you must close this window for some reason, please come back to the "Resume URL" below to continue the upgrade.'|trans|raw }}</span>
+                    </p>
+                    <p class="alert alert-info">
+                        <svg width="40" height="40" viewBox="0 0 1792 1792" xmlns="http://www.w3.org/2000/svg"><path d="M1024 1376v-192q0-14-9-23t-23-9h-192q-14 0-23 9t-9 23v192q0 14 9 23t23 9h192q14 0 23-9t9-23zm256-672q0-88-55.5-163t-138.5-116-170-41q-243 0-371 213-15 24 8 42l132 100q7 6 19 6 16 0 25-12 53-68 86-92 34-24 86-24 48 0 85.5 26t37.5 59q0 38-20 61t-68 45q-63 28-115.5 86.5t-52.5 125.5v36q0 14 9 23t23 9h192q14 0 23-9t9-23q0-19 21.5-49.5t54.5-49.5q32-18 49-28.5t46-35 44.5-48 28-60.5 12.5-81zm384 192q0 209-103 385.5t-279.5 279.5-385.5 103-385.5-103-279.5-279.5-103-385.5 103-385.5 279.5-279.5 385.5-103 385.5 103 279.5 279.5 103 385.5z"/></svg>
+                        <span>{{ 'Resume URL'|trans }}</span>:<a href="{{ resumeLink|raw }}">{{ resumeLink|raw }}</a><br>
+                        <span>{{ 'Access key'|trans }}</span>:<span class="ets_autoup_section_copied">{{ rollbackKey|raw }}</span><br>
+                        <span>{{ '*Store this information somewhere to continue the upgrade if you must close this window! '|trans }}</span>
+                    </p>
+                    <div class="ets_autoup_footer">
+                        <div class="ets_autoup_condition">
+                            <label for="ets_autoup_accept_condition">
+                                <input id="ets_autoup_accept_condition" type="checkbox">{{ 'I have upgraded PHP to the required version'|trans }}
+                            </label>
+                        </div>
+                        <button class="ets_autoup_process_continue btn btn-default" type="button" name="ets_autoup_process_continue" disabled>{{ 'Continue'|trans }}</button>
+                        <a class="ets_autoup_btn_rollback btn btn-default" target="_blank" href="{{ rollBackLink|raw }}">{{ 'Rollback'|trans }}</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="ets_autoup_re_download_file_zip">
+        <div class="ets_table">
+            <div class="ets_table-cell">
+                <div class="ets_autoup_re_download_form">
+                    <form id="ets_autoup_upload_form" method="post" action="{{ currentIndex ~ '&ajax=1&uploadFileZip&token=' ~ token }}" class="defaultForm form-horizontal" enctype="multipart/form-data" novalidate>
+                        <div class="ets_autoup_re_upload_file_zip">
+                            <p class="upload_from">
+                                {{ 'Failed to download PrestaShop file automatically. Please click %shere%s to download then upload the zip file in the below upload field'|trans(['<a target="_blank" href="' ~ downloadLink ~ '">', '</a>'])|raw }}
+                            </p>
+                            <label class="ets_autoup_upload_file" for="upload_file_zip" style="font-weight: normal">
+                                {{ 'Select file to upload'|trans }}
+                                <input id="upload_file_zip" type="file" name="upload_file_zip" class="file-name">
+                            </label>
+                            <p class="help-block">{{ 'Uploading zip file. Please be patient...'|trans }}</p>
+                            <div class="ets_autoup_processing" style="display: none;">
+                                <div class="process-bar" style="text-align: center;">
+                                    <div class="bar"></div>
+                                </div>
+                                <div class="percent">0%</div>
+                            </div>
+                            <div class="status"></div>
+                            <div class="ets_autoup_block_errors"></div>
+                        </div>
+                        <div class="ets_autoup_re_upload_file_zip_ftp" style="display: none;">
+                            <p>{{ 'Failed to upload PrestaShop file. Please upload the zip file manually via FTP to the following directory: '|trans }}</p>
+                            <p>{{ downloadPath }}</p>
+                            <label class="ets_autoup_uploaded_file" for="fileZipIsUploaded" style="font-weight: normal">
+                                <input id="fileZipIsUploaded" type="checkbox" name="fileZipIsUploaded">
+                                {{ 'I have just uploaded PrestaShop file'|trans }}
+                            </label>
+                        </div>
+                        <div class="ets_autoup_re_download_btn" style="display: none;">
+                            <button disabled="disabled" type="button" name="processReDownloadFileZip" class="processReDownloadFileZip btn btn-default">{{ 'Continue'|trans }}</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{#---End Block resuilt---#}

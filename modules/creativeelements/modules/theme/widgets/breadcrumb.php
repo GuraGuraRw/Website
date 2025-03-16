@@ -37,6 +37,7 @@ class ModulesXThemeXWidgetsXBreadcrumb extends WidgetBase
             'theme-elements',
             'product-elements' => 0,
             'listing-elements' => 0,
+            'customer-elements' => 0,
         ];
     }
 
@@ -268,7 +269,7 @@ class ModulesXThemeXWidgetsXBreadcrumb extends WidgetBase
         if ('theme' === $settings['skin']) {
             return print smartyInclude(['file' => '_partials/breadcrumb.tpl']);
         }
-        $breadcrumb = \Context::getContext()->smarty->tpl_vars['breadcrumb']->value;
+        $breadcrumb = $GLOBALS['smarty']->tpl_vars['breadcrumb']->value;
 
         if (!$count = (int) $breadcrumb['count']) {
             return;

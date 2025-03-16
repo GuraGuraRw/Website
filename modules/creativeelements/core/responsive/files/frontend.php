@@ -40,7 +40,7 @@ class CoreXResponsiveXFilesXFrontend extends Base
 
         $breakpoints_keys = array_keys($breakpoints);
 
-        $file_content = call_user_func('file_get_contents', $this->template_file);
+        $file_content = @call_user_func('file_get_contents', $this->template_file);
 
         $file_content = preg_replace_callback('/-width:\s*(767|768|1024|1025)px\s*\)/', function ($placeholder_data) use ($breakpoints_keys, $breakpoints) {
             $width = (int) $placeholder_data[1];

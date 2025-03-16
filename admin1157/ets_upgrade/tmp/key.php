@@ -1,0 +1,2 @@
+<?php
+$key = "u2p5TvySUPm4YxrLGyThdHH0SWJnRNKi8S2nVCGQ50AZQsorjKLtem6EGNLH5jkT";

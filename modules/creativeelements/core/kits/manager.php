@@ -13,9 +13,9 @@ if (!defined('_PS_VERSION_')) {
 }
 
 use CE\CoreXDocumentsManager as DocumentsManager;
-use CE\CoreXFilesXCSSXPost as PostCSS;
 use CE\CoreXFilesXCSSXPostPreview as PostPreview;
 use CE\CoreXKitsXDocumentsXKit as Kit;
+use CE\ModulesXThemeXFilesXCSSXKit as KitCSS;
 use CE\TemplateLibraryXSourceLocal as SourceLocal;
 
 class CoreXKitsXManager
@@ -25,10 +25,9 @@ class CoreXKitsXManager
     public function getActiveId()
     {
         $kit_post = null;
-        $id_kit = \Configuration::get(self::OPTION_ACTIVE);
-        $id = new UId($id_kit, UId::TEMPLATE);
 
-        if ($id_kit) {
+        if ($id_kit = (int) \Configuration::get(self::OPTION_ACTIVE)) {
+            $id = new UId($id_kit, UId::TEMPLATE);
             $kit_post = get_post($id);
         }
 
@@ -54,6 +53,10 @@ class CoreXKitsXManager
 
     private function createDefault()
     {
+        if (!_CE_ADMIN_) {
+            return 0;
+        }
+
         $kit = Plugin::$instance->documents->create('kit', [
             'post_type' => SourceLocal::CPT,
             'post_title' => __('Default'),
@@ -110,11 +113,15 @@ class CoreXKitsXManager
             if ($kit->isAutosave()) {
                 $css_file = PostPreview::create($kit->getId());
             } else {
-                $css_file = PostCSS::create($kit->getId());
+                // $css_file = PostCSS::create($kit->getId());
+                $css_file = KitCSS::create($kit->getId());
             }
             $css_file->enqueue();
 
-            // Plugin::$instance->frontend->addBodyClass('elementor-kit-' . substr($kit->getMainId(), 0, -6));
+            // Plugin::$instance->frontend->addBodyClass('elementor-kit-' . $kit->getMainId());
+            $vars = &$GLOBALS['smarty']->tpl_vars;
+            $id_kit = (int) \Configuration::get(self::OPTION_ACTIVE);
+            $id_kit && isset($vars['page']) && $vars['page']->value['body_classes']["ce-kit-$id_kit"] = 1;
         }
     }
 
@@ -126,11 +133,14 @@ class CoreXKitsXManager
     public function getKitForFrontend()
     {
         $kit = false;
-        $active_kit = $this->getActiveKit();
+
+        if (!$active_kit = $this->getActiveKit()) {
+            return $kit;
+        }
         $is_kit_preview = is_preview() && $active_kit->getMainId() == (int) $_REQUEST['preview_id'];
 
         if ($is_kit_preview) {
-            $kit = Plugin::$instance->documents->getDocOrAutoSave($active_kit->getMainId(), get_current_user_id());
+            $kit = Plugin::$instance->documents->getDocOrAutoSave($active_kit->getMainId());
         } elseif ('publish' === $active_kit->getMainPost()->post_status) {
             $kit = $active_kit;
         }
@@ -143,7 +153,7 @@ class CoreXKitsXManager
         add_action('elementor/documents/register', [$this, 'registerDocument']);
         add_filter('elementor/editor/localize_settings', [$this, 'localizeSettings']);
         add_action('elementor/editor/footer', [$this, 'renderPanelHtml']);
-        add_action('elementor/frontend/after_enqueue_global', [$this, 'frontendBeforeEnqueueStyles'], 0);
+        // add_action('elementor/frontend/after_enqueue_global', [$this, 'frontendBeforeEnqueueStyles'], 0);
         add_action('elementor/preview/enqueue_styles', [$this, 'previewEnqueueStyles'], 0);
     }
 }

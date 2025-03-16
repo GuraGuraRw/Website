@@ -1,6 +1,6 @@
 <?php
 /**
- * Creative Elements - live PageBuilder
+ * Creative Elements - live Theme & Page Builder
  *
  * @author    WebshopWorks
  * @copyright 2019-2024 WebshopWorks.com
@@ -45,7 +45,7 @@ class ModulesXCatalogXWidgetsXProductXMiniatureXRating extends ProductRating
 
     protected function renderStars($icon)
     {
-        if (!is_admin()) {
+        if (!_CE_ADMIN_) {
             return parent::renderStars($icon);
         }
         ob_start(); ?>
@@ -66,17 +66,12 @@ class ModulesXCatalogXWidgetsXProductXMiniatureXRating extends ProductRating
     protected function renderSmarty()
     {
         $settings = $this->getSettingsForDisplay();
-        $comments_number_icon = isset($settings['comments_number_icon']) && !isset($settings['__fa4_migrated']['selected_comments_number_icon'])
-            ? $settings['comments_number_icon']
-            : $settings['selected_comments_number_icon']['value']; ?>
-        {$cb = Context::getContext()->controller->getContainer()}
-        {if $cb->has('product_comment_repository')}
-            {$pcr = $cb->get('product_comment_repository')}
+        ?>
+        {$pcr = Context::getContext()->controller->getContainer()->get(product_comment_repository, 2)}
+        {if $pcr}
             {$pcm = Configuration::get('PRODUCT_COMMENTS_MODERATE')}
-            {$nb_comments = _q_c_($pcr, $pcr->getCommentsNumber($product.id, $pcm)|intval, 0)}
-            <?php echo $settings['hide_empty']
-                ? '{if $nb_comments}'
-                : '{if $pcr}'; ?>
+            {$nb_comments = $pcr->getCommentsNumber($product.id, $pcm)|intval}
+        <?php $settings['hide_empty'] && print '{if $nb_comments}'; ?>
             {$average_grade = Tools::ps_round($pcr->getAverageGrade($product.id, $pcm), 1)}
             <div class="ce-product-rating">
                 <?php WidgetStarRating::render(); ?>
@@ -87,19 +82,19 @@ class ModulesXCatalogXWidgetsXProductXMiniatureXRating extends ProductRating
 
             <?php if ($settings['show_comments_number']) { ?>
                 <span class="elementor-icon-list-item">
-                <?php if ($comments_number_icon) { ?>
+                <?php if ($icon = isset($settings['comments_number_icon']) && !isset($settings['__fa4_migrated']['selected_comments_number_icon']) ? $settings['comments_number_icon'] : $settings['selected_comments_number_icon']['value']) { ?>
                     <span class="elementor-icon-list-icon">
-                        <i class="<?php echo esc_attr($comments_number_icon); ?>" aria-hidden="true"></i>
+                        <i class="<?php echo esc_attr($icon); ?>" aria-hidden="true"></i>
                     </span>
                 <?php } ?>
                     <span class="elementor-icon-list-text">
-                        <?php echo "$settings[comments_number_before]{\$nb_comments}$settings[comments_number_after]"; ?>
+                        <?php echo $settings['comments_number_before'] . '{$nb_comments}' . $settings['comments_number_after']; ?>
                     </span>
                 </span>
             <?php } ?>
             {/if}
             </div>
-            <?php echo '{/if}'; ?>
+        <?php $settings['hide_empty'] && print '{/if}'; ?>
         {/if}
         <?php
     }

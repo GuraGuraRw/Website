@@ -5,8 +5,8 @@ namespace PrestaShop\Module\PsAccounts\Vendor\League\OAuth2\Client\Tool;
 use PrestaShop\Module\PsAccounts\Vendor\GuzzleHttp\Exception\BadResponseException;
 use PrestaShop\Module\PsAccounts\Vendor\GuzzleHttp\Psr7\Uri;
 use InvalidArgumentException;
-use Psr\Http\Message\RequestInterface;
-use Psr\Http\Message\ResponseInterface;
+use PrestaShop\Module\PsAccounts\Vendor\Psr\Http\Message\RequestInterface;
+use PrestaShop\Module\PsAccounts\Vendor\Psr\Http\Message\ResponseInterface;
 trait ProviderRedirectTrait
 {
     /**

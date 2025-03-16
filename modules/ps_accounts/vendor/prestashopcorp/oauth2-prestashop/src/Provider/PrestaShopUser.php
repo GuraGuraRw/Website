@@ -1,6 +1,6 @@
 <?php
 
-namespace PrestaShop\OAuth2\Client\Provider;
+namespace PrestaShop\Module\PsAccounts\Vendor\PrestaShop\OAuth2\Client\Provider;
 
 use PrestaShop\Module\PsAccounts\Vendor\League\OAuth2\Client\Provider\ResourceOwnerInterface;
 use PrestaShop\Module\PsAccounts\Vendor\League\OAuth2\Client\Tool\ArrayAccessorTrait;

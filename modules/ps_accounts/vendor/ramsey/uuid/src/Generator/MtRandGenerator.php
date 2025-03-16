@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of the ramsey/uuid library
  *
@@ -11,8 +12,7 @@
  * @link https://packagist.org/packages/ramsey/uuid Packagist
  * @link https://github.com/ramsey/uuid GitHub
  */
-
-namespace Ramsey\Uuid\Generator;
+namespace PrestaShop\Module\PsAccounts\Vendor\Ramsey\Uuid\Generator;
 
 /**
  * MtRandRandomGenerator provides functionality to generate strings of random
@@ -35,11 +35,9 @@ class MtRandGenerator implements RandomGeneratorInterface
     public function generate($length)
     {
         $bytes = '';
-
         for ($i = 1; $i <= $length; $i++) {
-            $bytes = chr(mt_rand(0, 255)) . $bytes;
+            $bytes = \chr(\mt_rand(0, 255)) . $bytes;
         }
-
         return $bytes;
     }
 }

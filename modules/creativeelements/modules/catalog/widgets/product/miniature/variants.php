@@ -1,6 +1,6 @@
 <?php
 /**
- * Creative Elements - live PageBuilder
+ * Creative Elements - live Theme & Page Builder
  *
  * @author    WebshopWorks
  * @copyright 2019-2024 WebshopWorks.com
@@ -85,10 +85,8 @@ class ModulesXCatalogXWidgetsXProductXMiniatureXVariants extends ProductVariants
                     'size' => 10,
                 ],
                 'selectors' => [
-                    'body:not(.lang-rtl) {{WRAPPER}} .ce-product-variants__pattern' => 'margin: 0 {{SIZE}}{{UNIT}} {{SIZE}}{{UNIT}} 0',
-                    'body:not(.lang-rtl) {{WRAPPER}} .ce-product-variants' => 'margin: 0 -{{SIZE}}{{UNIT}} -{{SIZE}}{{UNIT}} 0',
-                    'body.lang-rtl {{WRAPPER}} .ce-product-variants__pattern' => 'margin: 0 0 {{SIZE}}{{UNIT}} {{SIZE}}{{UNIT}}',
-                    'body.lang-rtl {{WRAPPER}} .ce-product-variants' => 'margin: 0 0 -{{SIZE}}{{UNIT}} -{{SIZE}}{{UNIT}}',
+                    '{{WRAPPER}} .ce-product-variants' => 'margin: 0 0 -{{SIZE}}{{UNIT}}; margin-inline-end: -{{SIZE}}{{UNIT}};',
+                    '{{WRAPPER}} .ce-product-variants__pattern' => 'margin: 0 0 {{SIZE}}{{UNIT}}; margin-inline-end: {{SIZE}}{{UNIT}};',
                 ],
             ]
         );
@@ -266,7 +264,7 @@ class ModulesXCatalogXWidgetsXProductXMiniatureXVariants extends ProductVariants
 
     protected function render()
     {
-        $product = &\Context::getContext()->smarty->tpl_vars['product']->value;
+        $product = $GLOBALS['smarty']->tpl_vars['product']->value;
 
         if (!$product['main_variants']) {
             return;
@@ -277,12 +275,12 @@ class ModulesXCatalogXWidgetsXProductXMiniatureXVariants extends ProductVariants
         <div class="ce-product-variants ce-product-variants__patterns">
         <?php for ($i = 0; $i < $count && $i < $limit; ++$i) {
             $variant = $product['main_variants'][$i]; ?>
-            <a class="ce-product-variants__pattern ce-product-variants__<?php echo esc_attr($variant['type']); ?>"
+            <a class="ce-product-variants__pattern ce-product-variants__<?php echo $variant['texture'] ? 'texture' : 'color'; ?>"
                 href="<?php echo esc_attr($variant['url']); ?>" title="<?php echo esc_attr($variant['name']); ?>"
-            <?php if ($variant['html_color_code']) { ?>
-                style="background-color: <?php echo esc_attr($variant['html_color_code']); ?>"
-            <?php } elseif ($variant['texture']) { ?>
+            <?php if ($variant['texture']) { ?>
                 style="background-image: url(<?php echo esc_attr($variant['texture']); ?>)"
+            <?php } else { ?>
+                style="background-color: <?php echo esc_attr($variant['html_color_code']); ?>"
             <?php } ?>></a>
         <?php } ?>
         <?php if ($count > $limit) { ?>
@@ -303,12 +301,12 @@ class ModulesXCatalogXWidgetsXProductXMiniatureXVariants extends ProductVariants
         <div class="ce-product-variants ce-product-variants__patterns">
         {foreach $product.main_variants as $i => $variant}
             {if $i < <?php echo $limit; ?>}
-                <a class="ce-product-variants__pattern ce-product-variants__{$variant.type}"
+                <a class="ce-product-variants__pattern ce-product-variants__{if $variant.texture}texture{else}color{/if}"
                     href="{$variant.url}" title="{$variant.name}"
-                {if $variant.html_color_code}
-                    style="background-color: {$variant.html_color_code}"
-                {elseif $variant.texture}
+                {if $variant.texture}
                     style="background-image: url({$variant.texture})"
+                {else}
+                    style="background-color: {$variant.html_color_code}"
                 {/if}></a>
             {else}
                 <span class="ce-product-variants__pattern ce-product-variants__count">

@@ -1,0 +1,197 @@
+<script>
+  var jQueryVersionPS = parseInt($().jquery.replace(/\./g, ""));
+</script>
+<script src="{{ psBaseUri }}modules/ets_upgrade/views/js/jquery-1.6.2.min.js"></script>
+<script>
+  if (jQueryVersionPS >= 162) {
+    jq162 = jQuery.noConflict(true);
+  }
+</script>
+<link type="text/css" rel="stylesheet" href="{{ psBaseUri }}modules/ets_upgrade/views/css/admin.css" />
+{% if is15 %}<link type="text/css" rel="stylesheet" href="{{ psBaseUri }}modules/ets_upgrade/views/css/admin.v15.css" />{% endif %}
+
+<div class="ets_autoup_bootstrap" id="mainBlock">
+
+    <h3>{{ '1-Click Direct Upgrade'|trans }}</h3>
+    <h4>{{ 'Keep your store up-to-date with latest Prestashop official version'|trans }}</h4>
+
+    {% if versionCompare == 0 %}
+
+        {#---Block no upgrade---#}
+        <div id="noUpgrade" class="ug_block_step">
+            <img src="{{ pathImg }}pres17.png" />
+            <h4>{{ 'Congratulations!'|trans }}</h4>
+            <span class="version">{{ 'Your shop is up-to-date (version %s)'|trans([currentPsVersion]) }}</span><br/>
+            <span class="ets_note">{{ 'Nothing to do'|trans }}</span>
+            <div class="footer_back">
+                <button class="prevStep" name="prevStep">{{ 'Back'|trans }}</button>
+            </div>
+        </div>
+
+        {#---End no upgrade---#}
+
+    {% elseif versionCompare %}
+
+        {#---Block begin upgrade---#}
+        <div id="upgradeBegin" class="ug_block_step">
+            <img src="{{ pathImg }}need_upgrade.png" />
+            <span class="version available">{{ 'Prestashop '|trans }} <span class="ets_autoup_latest_version">{{ latestChannelVersion }}</span>&nbsp;{{ 'is available! '|trans }}</span><br>
+            <span class="version current">{{ 'Your version %s'|trans([currentPsVersion]) }}</span><br>
+            <button name="ets_upgrade_now" class="btn btn-default nextStep upgradeNow" type="button">{{ 'Upgrade now'|trans }}</button>
+            <div class="footer_back">
+                <button class="prevStep" name="prevStep">{{ 'Back'|trans }}</button>
+            </div>
+        </div>
+
+        {#---End begin---#}
+
+    {% endif %}
+
+    {#---Error enviroment checklist---#}
+    <div id="blockCheckList" class="ug_block_step{% if isOkForUpgrade %} ets_autoup_checklist{% endif %}">
+        <img src="{{ pathImg }}not_ready.png"><br>
+        <p class="alert alert-warning">{{ 'Error ! Your store is not ready for upgrade. Please correct below information before upgrading your store. Click Refresh button after correcting the error list'|trans }}</p><br>
+        {{ currentConfig|raw }}
+        <button class="ets_autoup_btn_refresh" name="buttonRefresh">{{ 'Refresh'|trans }}</button>
+        {% if isOkForUpgrade and not isIgnoreUpgrade %}
+            <button class="ets_autoup_btn_upgrade_any_way nextStep" name="buttonUpgradeAnyWay">{{ 'Upgrade Anyway'|trans }}</button>
+        {% endif %}
+        <div class="footer_back">
+            <button class="prevStep" name="prevStep">{{ 'Back'|trans }}</button>
+        </div>
+    </div>
+    {#---End checklist---#}
+
+
+    {#---Block upgrade options---#}
+    <div id="blockSetting" class="ug_block_step">
+        <img src="{{ pathImg }}upgrade_ready.png"><br>
+        <h4>{{ 'Your store will be upgraded to'|trans }}&nbsp;<span class="ets_autoup_latest_version">{{ latestChannelVersion }}</span></h4>
+        <span>{{ 'Current version: %s'|trans([currentPsVersion]) }}</span> <a href="javascript:void(0);" class="ets_autoup_btn_view_more">{{ 'View more'|trans }}</a><br>
+
+        {#---Block viewmore---#}
+        <div class="ets_autoup_block_viewmore" style="display: none;">
+            {% include '@ModuleAutoUpgrade/block/versionComparison.twig' %}
+        </div>
+        {#---End viewmore---#}
+
+        {#---Block options setting---#}
+        <button class="ets_autoup_btn_show_options btn btn-default" name="buttonShowOptions">{{ 'Advanced settings'|trans }}</button>
+        <div class="ets_autoup_options" style="display: none;">
+            <form action="{{ currentIndex }}&amp;customSubmitAutoUpgrade=1&amp;token={{ token }}" method="post" class="form-horizontal" enctype="multipart/form-data">
+                {{ upgradeOptions|raw }}
+                <button class="ets_autoup_btn_hide_options btn btn-default" name="buttonHideOptions" type="button">{{ 'Hide advanced options'|trans }}</button>
+            </form>
+            <div id="optionBlock" class="ets_autoup_more_option_block" style="display: none;">
+                {{ upgradeButtonBlock|raw }}
+            </div>
+        </div>
+        {#---End setting---#}
+
+        {#---Bloack rollback info---#}
+        <div class="ets_autoup_rollback_info">
+            <h4>{{ 'Rollback information'|trans }}</h4>
+            <p>{{ 'During or after the upgrade process, you can always rollback to your previous version using rollback URL & access key below.'|trans|raw }}
+            {{ 'Copy and store the URL & the key somewhere in case you need to rollback to the old version of your website.'|trans|raw }}</p>
+            <p>{{ 'Rollback URL'|trans }} : <a class="ets_autoup_rollback_out_link" href="{{ rollBackLink }}" target="_blank">{{ rollBackLink }}</a></p>
+            <p>{{ 'Access key'|trans }}: <span class="ets_autoup_section_copied">{{ rollbackKey }}</span></p>
+        </div>
+        {#---End rollback---#}
+
+        {#---Block button click upgrade---#}
+        <div id="blockButtonUpgrade" class="ets_autoup_block_footer">
+            <div class="fw_normal">
+                <p class="alert alert-warning">
+                    {% if currentPsVersion matches '{^1\.6\.[0-9]+(\.[0-9]+)?$}' and  latestChannelVersion matches '{^1\.7\.[7-9]+(\.[0-9]+)?$}' %}
+                        <span>{{ 'You are upgrading Prestashop 1.6 to 1.7 so non-compatible modules and current theme will be removed, new native Prestashop 1.7 modules and default theme will be installed.'|trans }}</span><br>
+                    {% endif %}
+                    <span>{{ 'Before upgrading, please make sure that you have manually made a full back up of your website (both files and MySQL database). You can use them to restore your website to original version in case there are unxpected problems happen with the rollback. Please keep in mind that you CANNOT ROLL BACK TO ORIGINAL VERSION WITHOUT BACK UP DATA. If you don’t know how to make manual backup, please contact your hosting provider or see'|trans }} <a href="https://devdocs.prestashop.com/1.7/basics/keeping-up-to-date/backup/" target="_blank">{{'here'|trans}}</a></span>
+                </p>
+            </div>
+            <label class="" for="ets_autoup_confirm_backup">
+                <input id="ets_autoup_confirm_backup" name="ets_autoup_confirm_backup" type="checkbox" disabled> {{ 'Yes, I have made a full backup manually (both files and MySQL database)'|trans }}
+            </label>
+            <label class="" for="ets_autoup_confirm_latest">
+                <input id="ets_autoup_confirm_latest" name="ets_autoup_confirm_latest" type="checkbox" disabled> {{ 'Yes, I am using the latest version of “1-Click Direct Upgrade” module'|trans }}
+            </label>
+            <div class="ets_autoup_php_version{% if (PHP_VERSION_ID < 70103 and  latestChannelVersion matches '{^1\.7\.[7-9]+(\.[0-9]+)?$}') or (PHP_VERSION_ID < 70205 and  latestChannelVersion matches '{^8\.[0-9]+(\.[0-9]+)?$}') %} active{% endif %}" data-php-version-id="{{ PHP_VERSION_ID }}">
+                <p class="alert alert-warning">
+                    <span>{{ 'PrestaShop 1.7.8 requires PHP 7.1.3 or higher and PrestaShop 8.x requires PHP 7.2.5 but your current PHP version is'|trans }}&nbsp;{{ PHP_VERSION|raw }}</span></br>
+                    <span>{{ 'During the upgrade, please change the PHP version to match the version of Prestashop you upgrade when required.'|trans|raw }}</span>
+                </p>
+                <label class="fw_normal" for="ets_autoup_warning_upgrade">
+                    <input id="ets_autoup_warning_upgrade" type="checkbox"> {{ 'Yes, I\'m sure I\'m able to upgrade my PHP version when required!'|trans }}
+                </label>
+            </div>
+            <div class="ets_autoup_overload">
+                <div class="ets_autoup_table">
+                    <div class="ets_autoup_table_cell">
+                        <div class="ets_autoup_wrap_content">
+                            <span class="ets_autoup_close"></span>
+                            <p class="alert alert-warning">
+                                <span>{{ 'Your website may NOT BE RECOVERABLE if you do not have a backup! So please double-check that you have made the required backup and you are using the latest version of "1-Click Direct Upgrade" module.'|trans }} <a href="https://devdocs.prestashop.com/1.7/basics/keeping-up-to-date/backup/" target="_blank">{{'here'|trans}}</a></span>
+                            </p>
+                            <label class="ets_autoup_confirm_label" for="ets_autoup_confirm_backup2">
+                                <input id="ets_autoup_confirm_backup2" name="ets_autoup_confirm_backup2" type="checkbox"> {{ 'Yes, I have made a full backup manually (both files and MySQL database)'|trans }}
+                            </label>
+                            <label class="ets_autoup_confirm_label" for="ets_autoup_confirm_latest2">
+                                <input id="ets_autoup_confirm_latest2" name="ets_autoup_confirm_latest2" type="checkbox"> {{ 'Yes, I am using the latest version of “1-Click Direct Upgrade” module'|trans }}
+                            </label>
+                            <div class="upgradeNowform">
+                                <button id="upgradeNow2" name="upgradeNow2" class="button-autoupgrade upgradestep btn btn-primary" disabled>{{ 'Upgrade now'|trans }}</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="upgradeNowform">
+                <button id="upgradeNow" name="upgradeNow" class="button-autoupgrade upgradestep btn btn-primary" disabled>{{ 'Start upgrade'|trans }}</button>
+            </div>
+        </div>
+        {#---End button upgrade---#}
+        <div class="footer_back">
+            <button class="prevStep" name="prevStep">{{ 'Back'|trans }}</button>
+        </div>
+    </div>
+    {#---End options---#}
+
+
+    {#---Block process upgrade---#}
+    {% include '@ModuleAutoUpgrade/block/process.twig' %}
+    {#---End process upgrade---#}
+
+    {#---Block resuilt---#}
+    {% include '@ModuleAutoUpgrade/block/result.twig' %}
+    {#---End Block resuilt---#}
+
+
+    {#---Block rollback---#}
+    <div id="blockRollback" class="ug_block_step">
+        <img src="{{ pathImg }}rollback.png"><br>
+        {{ rollbackForm|raw }}
+        <div class="footer_back">
+            <button class="prevStep" name="prevStep">{{ 'Back'|trans }}</button>
+        </div>
+    </div>
+    {#---End block rollback---#}
+
+
+    {#---Block steps---#}
+    {% include '@ModuleAutoUpgrade/block/blockStep.twig' %}
+    {#---End block steps---#}
+
+</div>
+
+{#--- Block bottom ---#}
+{% include '@ModuleAutoUpgrade/block/blockBottom.twig' %}
+{#--- End block bottom ---#}
+
+{#--- Block javascript ---#}
+{% include '@ModuleAutoUpgrade/block/blockJs.twig' %}
+{#--- End block javascript ---#}
+
+{#---Variants---#}
+<script src="{{ psBaseUri }}modules/ets_upgrade/views/js/jquery.xml2json.js"></script>
+<script src="{{ psBaseUri }}modules/ets_upgrade/views/js/jquery.form.js"></script>
+<script src="{{ psBaseUri }}modules/ets_upgrade/views/js/upgrade.function.js"></script>
+<script src="{{ psBaseUri }}modules/ets_upgrade/views/js/upgrade.js"></script>

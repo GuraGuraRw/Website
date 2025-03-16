@@ -14,6 +14,10 @@ if (!defined('_PS_VERSION_')) {
 
 class ModulesXCatalogXWidgetsXCategoryXGrid extends WidgetImageGallery
 {
+    const HELP_URL = '';
+
+    private $properties;
+
     public function getName()
     {
         return 'category-grid';
@@ -37,6 +41,11 @@ class ModulesXCatalogXWidgetsXCategoryXGrid extends WidgetImageGallery
     public function getKeywords()
     {
         return ['shop', 'store', 'grid', 'listing', 'category', 'images'];
+    }
+
+    protected function isDynamicContent()
+    {
+        return true;
     }
 
     protected function _registerControls()

@@ -180,7 +180,8 @@ class CoreXDocumentsManager
             return false;
         }
 
-        $post_id = apply_filters('elementor/documents/get/post_id', "$post_id");
+        // $post_id = apply_filters('elementor/documents/get/post_id', "$post_id");
+        $post_id = "$post_id";
 
         if (!$from_cache || !isset($this->documents[$post_id])) {
             if ($parent = wp_is_post_autosave($post_id)) {
@@ -226,9 +227,10 @@ class CoreXDocumentsManager
     public function getDocOrAutoSave($id, $user_id = 0)
     {
         $document = $this->get($id);
-        if ($document && $document->getAutosaveId($user_id)) {
-            $document = $document->getAutosave($user_id);
-        }
+        // if ($document && $document->getAutosaveId($user_id)) {
+        //     $document = $document->getAutosave($user_id);
+        // }
+        $document && $document = $document->getAutosave($user_id) ?: $document;
 
         return $document;
     }
@@ -247,7 +249,7 @@ class CoreXDocumentsManager
     public function getDocForFrontend($post_id)
     {
         if (is_preview()) {
-            $document = $this->getDocOrAutoSave($post_id, get_current_user_id());
+            $document = $this->getDocOrAutoSave($post_id);
         } else {
             $document = $this->get($post_id);
         }

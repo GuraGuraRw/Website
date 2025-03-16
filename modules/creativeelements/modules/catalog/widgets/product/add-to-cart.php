@@ -43,6 +43,11 @@ class ModulesXCatalogXWidgetsXProductXAddToCart extends WidgetButton
         return ['shop', 'store', 'product', 'button', 'add to cart', 'buy now'];
     }
 
+    protected function isDynamicContent()
+    {
+        return true;
+    }
+
     protected function _registerControls()
     {
         parent::_registerControls();
@@ -229,16 +234,16 @@ class ModulesXCatalogXWidgetsXProductXAddToCart extends WidgetButton
 
     protected function render()
     {
-        $context = \Context::getContext();
-        $product = &$context->smarty->tpl_vars['product']->value;
+        $vars = &$GLOBALS['smarty']->tpl_vars;
+        $product = $vars['product']->value;
         $button_type = $this->getSettings('button_type');
 
         if ('full-details' === $button_type) {
             $this->addRenderAttribute('button', 'href', $product['url']);
+        } elseif (!$product['available_for_order'] || $vars['configuration']->value['is_catalog']) {
+            return;
         } elseif ($product['add_to_cart_url']) {
             $this->addRenderAttribute('button', 'href', '#ce-action=' . \Tools::toCamelCase($button_type));
-        } elseif (!$product['available_for_order']) {
-            return;
         }
         // BC: Clear link
         $this->setSettings('link', []);

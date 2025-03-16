@@ -1,9 +1,9 @@
 <?php
 
-namespace ps_metrics_module_v4_0_5\Dotenv\Regex;
+namespace ps_metrics_module_v4_0_10\Dotenv\Regex;
 
-use ps_metrics_module_v4_0_5\PhpOption\None;
-use ps_metrics_module_v4_0_5\PhpOption\Some;
+use ps_metrics_module_v4_0_10\PhpOption\None;
+use ps_metrics_module_v4_0_10\PhpOption\Some;
 class Success extends Result
 {
     /**

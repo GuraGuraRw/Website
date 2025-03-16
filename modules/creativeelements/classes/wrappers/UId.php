@@ -113,7 +113,7 @@ class UId
             $this->id_lang = 0;
             $this->id_shop = 0;
         } else {
-            null === $id_lang && $id_lang = \Context::getContext()->language->id;
+            null === $id_lang && $id_lang = $GLOBALS['language']->id;
 
             $this->id_lang = abs($id_lang % 100);
             $this->id_shop = $id_shop ? abs($id_shop % 100) : 0;
@@ -158,29 +158,25 @@ class UId
         }
         isset(self::$shop_ids[$this->id_type]) || self::$shop_ids[$this->id_type] = [];
 
-        $ids = [];
         $model = $this->getModel();
         $def = &$model::${'definition'};
-        $db = \Db::getInstance();
-        $table = $db->escape(_DB_PREFIX_ . $def['table'] . (isset($def['fields']['id_shop']) ? '' : '_shop'));
-        $primary = $db->escape($def['primary']);
-        $id = (int) $this->id;
-        $ctx_ids = implode(', ', $all ? \Shop::getShops(true, null, true) : \Shop::getContextListShopID());
-        $rows = $db->executeS(
-            "SELECT id_shop FROM $table WHERE $primary = $id AND id_shop IN ($ctx_ids)"
+        $table = $def['table'] . (isset($def['fields']['id_shop']) ? '' : '_shop');
+        $shops = $all ? \Shop::getShops(true, null, true) : \Shop::getContextListShopID();
+        $rows = \Db::getInstance()->executeS(
+            'SELECT `id_shop` FROM ' . _DB_PREFIX_ . bqSQL($table) .
+            ' WHERE `' . bqSQL($def['primary']) . '` = ' . (int) $this->id . ' AND `id_shop` IN (' . implode(',', array_map('intval', $shops)) . ')'
         );
-        if ($rows) {
-            foreach ($rows as &$row) {
-                $ids[] = $row['id_shop'];
-            }
-        }
 
-        return self::$shop_ids[$this->id_type][$this->id] = $ids;
+        return self::$shop_ids[$this->id_type][$this->id] = array_column($rows ?: [], 'id_shop');
     }
 
     public function getDefaultShopId()
     {
-        return ($ids = $this->getShopIdList()) ? $ids[0] : 0;
+        if (!$ids = $this->getShopIdList()) {
+            return 0;
+        }
+
+        return in_array($id = \Configuration::get('PS_SHOP_DEFAULT'), $ids) ? $id : $ids[0];
     }
 
     /**
@@ -297,11 +293,10 @@ class UId
     public static function getBuiltList($id, $id_type, $id_shop = null)
     {
         $uids = [];
-        $table = _DB_PREFIX_ . 'ce_meta';
         $shop = null === $id_shop ? '__' : '%02d';
         $__id = sprintf("%d%02d__$shop", $id, $id_type, $id_shop);
         $rows = \Db::getInstance()->executeS(
-            "SELECT id FROM $table WHERE id LIKE '$__id' AND name = '_elementor_edit_mode'"
+            'SELECT `id` FROM ' . _DB_PREFIX_ . 'ce_meta WHERE `id` LIKE "' . pSQL($__id) . '" AND `name` = "_elementor_edit_mode"'
         );
         if ($rows) {
             foreach ($rows as &$row) {
@@ -343,7 +338,7 @@ function get_the_ID()
     if (UId::$_ID) {
         return UId::$_ID;
     }
-    $controller = \Context::getContext()->controller;
+    $controller = $GLOBALS['context']->controller;
 
     if ($controller instanceof \AdminCEEditorController || $controller instanceof \CreativeElementsPreviewModuleFrontController) {
         $id_key = \Tools::getIsset('editor_post_id') ? 'editor_post_id' : 'template_id';
@@ -357,11 +352,10 @@ function get_the_ID()
 function get_preview_post_link($post = null, array $args = [], $relative = true)
 {
     $uid = uidval($post);
-    $ctx = \Context::getContext();
     $admin = $uid->getAdminController();
     $id_shop = $uid->id_shop ?: $uid->getDefaultShopId();
     $args['preview_id'] = "$uid";
-    $args['id_employee'] = $ctx->employee->id;
+    $args['id_employee'] = $GLOBALS['employee']->id;
     $args[strpos($admin, 'AdminCE') === 0 ? 'cetoken' : 'adtoken'] = \Tools::getAdminTokenLite($admin);
 
     switch ($uid->id_type) {
@@ -369,7 +363,7 @@ function get_preview_post_link($post = null, array $args = [], $relative = true)
             throw new \RuntimeException('TODO');
         case UId::TEMPLATE:
         case UId::THEME:
-            $link = Plugin::$instance->documents->get($uid)->getPermalink();
+            $url = Plugin::$instance->documents->get($uid)->getPermalink();
             break;
         case UId::CONTENT:
             $hook = strtolower(\CEContent::getHookById($uid->id));
@@ -383,8 +377,8 @@ function get_preview_post_link($post = null, array $args = [], $relative = true)
                 }
                 empty($prod->active) && ($args['preview'] = 1) && $args['adtoken'] = \Tools::getAdminTokenLite('AdminProducts');
 
-                $link = $ctx->link->getProductLink($prod, null, null, null, $uid->id_lang, $id_shop, $prod->cache_default_attribute ?: 0, false, $relative, false, [], false);
-                $link = explode('#', $link)[0];
+                $url = Helper::$link->getProductLink($prod, null, null, null, $uid->id_lang, $id_shop, $prod->cache_default_attribute ?: 0, false, $relative, false, [], false);
+                $url = explode('#', $url)[0];
                 break;
             }
             $page = 'index';
@@ -395,7 +389,7 @@ function get_preview_post_link($post = null, array $args = [], $relative = true)
             } elseif ('displayleftcolumn' === $hook || 'displayrightcolumn' === $hook) {
                 $layout = 'r' !== $hook[7] ? 'layout-left-column' : 'layout-right-column';
                 $layouts = $ctx->shop->theme->get('theme_settings')['layouts'];
-                unset($layouts['category']);
+                unset($layouts['best-sales'], $layouts['category'], $layouts['contact']);
 
                 if ($key = array_search($layout, $layouts)) {
                     $page = $key;
@@ -407,11 +401,11 @@ function get_preview_post_link($post = null, array $args = [], $relative = true)
             } elseif ('displaymaintenance' === $hook) {
                 $args['maintenance'] = 1;
             }
-            $link = $ctx->link->getPageLink($page, null, $uid->id_lang, null, false, $id_shop, $relative);
+            $url = Helper::$link->getPageLink($page, null, $uid->id_lang, null, false, $id_shop, $relative);
 
             if ('index' === $page && \Configuration::get('PS_REWRITING_SETTINGS')) {
                 // Remove rewritten URL if exists
-                $link = preg_replace('`[^/]+$`', '', $link);
+                $url = substr($url, 0, strrpos($url, '/') + 1);
             }
             break;
         case UId::PRODUCT:
@@ -419,28 +413,28 @@ function get_preview_post_link($post = null, array $args = [], $relative = true)
             $prod_attr = !empty($prod->cache_default_attribute) ? $prod->cache_default_attribute : 0;
             empty($prod->active) && $args['preview'] = 1;
 
-            $link = $ctx->link->getProductLink($prod, null, null, null, $uid->id_lang, $id_shop, $prod_attr, false, $relative, false, [], false);
-            $link = explode('#', $link)[0];
+            $url = Helper::$link->getProductLink($prod, null, null, null, $uid->id_lang, $id_shop, $prod_attr, false, $relative, false, [], false);
+            $url = explode('#', $url)[0];
             break;
         case UId::CATEGORY:
-            $link = $ctx->link->getCategoryLink($uid->id, null, $uid->id_lang, null, $id_shop, $relative);
+            $url = Helper::$link->getCategoryLink($uid->id, null, $uid->id_lang, null, $id_shop, $relative);
             break;
         case UId::CMS:
-            $link = $ctx->link->getCmsLink($uid->id, null, null, $uid->id_lang, $id_shop, $relative);
+            $url = Helper::$link->getCmsLink($uid->id, null, null, $uid->id_lang, $id_shop, $relative);
             break;
         case UId::ETS_BLOG_POST:
             $name = 'ets_blog';
         case UId::YBC_BLOG_POST:
             isset($name) || $name = 'ybc_blog';
-            $link = \Module::getInstanceByName($name)->getLink('blog', ['id_post' => $uid->id], $uid->id_lang);
+            $url = \Module::getInstanceByName($name)->getLink('blog', ['id_post' => $uid->id], $uid->id_lang);
             break;
-        case UID::XIPBLOG_POST:
-            $link = call_user_func('XipBlog::xipBlogPostLink', ['id' => $uid->id]);
+        case UId::XIPBLOG_POST:
+            $url = \XipBlog::xipBlogPostLink(['id' => $uid->id]);
             break;
         case UId::STBLOG_POST:
             $post = new \StBlogClass($uid->id, $uid->id_lang);
 
-            $link = $ctx->link->getModuleLink('stblog', 'article', [
+            $url = Helper::$link->getModuleLink('stblog', 'article', [
                 'id_st_blog' => $uid->id,
                 'id_blog' => $uid->id,
                 'rewrite' => $post->link_rewrite,
@@ -451,7 +445,7 @@ function get_preview_post_link($post = null, array $args = [], $relative = true)
             $args['blogtoken'] = $args['adtoken'];
             unset($args['adtoken']);
 
-            $link = $ctx->link->getModuleLink('advanceblog', 'detail', [
+            $url = Helper::$link->getModuleLink('advanceblog', 'detail', [
                 'id' => $uid->id,
                 'post' => $post->link_rewrite,
             ], null, $uid->id_lang, null, $relative);
@@ -460,7 +454,7 @@ function get_preview_post_link($post = null, array $args = [], $relative = true)
             $post = new \NewsClass($uid->id, $uid->id_lang);
             empty($post->actif) && $args['preview'] = \Module::getInstanceByName('prestablog')->generateToken($uid->id);
 
-            $link = call_user_func('PrestaBlog::prestablogUrl', [
+            $url = \PrestaBlog::prestablogUrl([
                 'id' => $uid->id,
                 'seo' => $post->link_rewrite,
                 'titre' => $post->title,
@@ -471,12 +465,12 @@ function get_preview_post_link($post = null, array $args = [], $relative = true)
             $post = new \SimpleBlogPost($uid->id, $uid->id_lang, $uid->id_shop);
             $cat = new \SimpleBlogCategory($post->id_simpleblog_category, $uid->id_lang, $uid->id_shop);
 
-            $link = call_user_func('SimpleBlogPost::getLink', $post->link_rewrite, $cat->link_rewrite);
+            $url = \SimpleBlogPost::getLink($post->link_rewrite, $cat->link_rewrite);
             break;
         case UId::PSBLOG_POST:
             $post = new \PsBlogBlog($uid->id, $uid->id_lang, $uid->id_shop);
 
-            $link = call_user_func('PsBlogHelper::getInstance')->getBlogLink([
+            $url = \PsBlogHelper::getInstance()->getBlogLink([
                 'id_psblog_blog' => $post->id,
                 'link_rewrite' => $post->link_rewrite,
             ]);
@@ -484,22 +478,22 @@ function get_preview_post_link($post = null, array $args = [], $relative = true)
         case UId::HIBLOG_POST:
             $post = new \HiBlogPost($uid->id, $uid->id_lang, $uid->id_shop);
 
-            $link = \Module::getInstanceByName('hiblog')->getPostURL($post->friendly_url);
+            $url = \Module::getInstanceByName('hiblog')->getPostURL($post->friendly_url);
             break;
-        case UID::TVCMSBLOG_POST:
-            $link = call_user_func('TvcmsBlog::tvcmsBlogPostLink', [
+        case UId::TVCMSBLOG_POST:
+            $url = \TvcmsBlog::tvcmsBlogPostLink([
                 'id' => $uid->id,
-                'rewrite' => call_user_func('TvcmsPostsClass::getTheRewrite', $uid->id),
+                'rewrite' => \TvcmsPostsClass::getTheRewrite($uid->id),
             ]);
             break;
         default:
             $method = "get{$uid->getModel()}Link";
 
-            $link = $ctx->link->$method($uid->id, null, $uid->id_lang, $id_shop, $relative);
+            $url = Helper::$link->$method($uid->id, null, $uid->id_lang, $id_shop, $relative);
             break;
     }
 
-    return add_query_arg($args, $link);
+    return add_query_arg($args, $url);
 }
 
 function uidval($var, $fallback = -1)
@@ -525,7 +519,6 @@ function uidval($var, $fallback = -1)
 function get_edit_post_link($post_id)
 {
     $uid = uidval($post_id);
-    $ctx = \Context::getContext();
     $id = $uid->id;
     $model = $uid->getModel();
     $admin = $uid->getAdminController();
@@ -534,7 +527,7 @@ function get_edit_post_link($post_id)
         case UId::REVISION:
             throw new \RuntimeException('TODO');
         case UId::YBC_BLOG_POST:
-            $link = $ctx->link->getAdminLink($admin, true, [], [
+            $url = Helper::$link->getAdminLink($admin, true, [], [
                 'configure' => 'ybc_blog',
                 'tab_module' => 'front_office_features',
                 'module_name' => 'ybc_blog',
@@ -543,7 +536,7 @@ function get_edit_post_link($post_id)
             ]);
             break;
         case UId::PRESTABLOG_POST:
-            $link = $ctx->link->getAdminLink($admin, true, [], [
+            $url = Helper::$link->getAdminLink($admin, true, [], [
                 'configure' => 'prestablog',
                 'editNews' => 1,
                 'idN' => $id,
@@ -562,9 +555,9 @@ function get_edit_post_link($post_id)
                 $def['primary'] => $id,
                 "update{$def['table']}" => 1,
             ];
-            $link = $ctx->link->getAdminLink($admin, true, $args) . '&' . http_build_query($args);
+            $url = Helper::$link->getAdminLink($admin, true, $args) . '&' . http_build_query($args);
             break;
     }
 
-    return $link;
+    return $url;
 }

@@ -13,7 +13,7 @@ if (!defined('_PS_VERSION_')) {
 }
 
 use CE\CoreXDynamicTagsXDataTag as DataTag;
-use CE\ModulesXDynamicTagsXModule as Module;
+use CE\ModulesXDynamicTagsXModule as TagsModule;
 
 class ModulesXCatalogXTagsXManufacturerImages extends DataTag
 {
@@ -31,12 +31,12 @@ class ModulesXCatalogXTagsXManufacturerImages extends DataTag
 
     public function getGroup()
     {
-        return Module::CATALOG_GROUP;
+        return TagsModule::CATALOG_GROUP;
     }
 
     public function getCategories()
     {
-        return [Module::GALLERY_CATEGORY];
+        return [TagsModule::GALLERY_CATEGORY];
     }
 
     public function getPanelTemplateSettingKey()
@@ -111,13 +111,15 @@ class ModulesXCatalogXTagsXManufacturerImages extends DataTag
 
     public function getValue(array $options = [])
     {
-        $context = \Context::getContext();
-        $brands = \Manufacturer::getManufacturers(false, $context->language->id);
+        $brands = \Manufacturer::getManufacturers(false, $GLOBALS['language']->id);
         $settings = $this->getSettings();
         $image_size = $settings['image_size'];
-        $image_type = $this->getControls('image_size')['options'][$image_size];
-        $width = (int) substr($image_type, strrpos($image_type, '(') + 1);
-        $height = (int) substr($image_type, strrpos($image_type, '×') + 2);
+        $image_types = array_column(\ImageType::getImagesTypes('manufacturers'), null, 'name');
+        $image_sizes = isset($image_types[$image_size]) ? [
+            'width' => $image_types[$image_size]['width'],
+            'height' => $image_types[$image_size]['height'],
+        ] : [];
+        $image_sizes || $image_size = '';
         $caption = $settings['caption'];
         $description = $settings['description'];
         $items = [];
@@ -125,19 +127,11 @@ class ModulesXCatalogXTagsXManufacturerImages extends DataTag
         foreach ($brands as &$brand) {
             $items[] = [
                 'image' => [
-                    'id' => '',
-                    'url' => $context->link->getManufacturerImageLink($brand['id_manufacturer'], $image_size),
+                    'url' => Helper::$link->getManufacturerImageLink($brand['id_manufacturer'], $image_size),
                     'alt' => $brand['name'],
-                    'width' => $width,
-                    'height' => $height,
-                ],
+                ] + $image_sizes,
                 'link' => [
-                    'url' => $context->link->getManufacturerLink(
-                        $brand['id_manufacturer'],
-                        $brand['link_rewrite'],
-                        $context->language->id,
-                        $context->shop->id
-                    ),
+                    'url' => Helper::$link->getManufacturerLink($brand['id_manufacturer'], $brand['link_rewrite'], $GLOBALS['language']->id, $GLOBALS['context']->shop->id),
                 ],
                 'caption' => $caption ? (
                     'custom' === $caption ? $settings['caption_text'] : strip_tags($brand[$caption])

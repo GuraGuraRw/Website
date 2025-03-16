@@ -680,7 +680,7 @@ class ControlsManager
         $control_type_instance = $this->getControl($control_data['type']);
 
         if (!$control_type_instance) {
-            _doing_it_wrong(sprintf('%1$s::%2$s', __CLASS__, __FUNCTION__), sprintf('Control type "%s" not found.', $control_data['type']), '1.0.0');
+            _doing_it_wrong(__CLASS__ . '::' . __FUNCTION__, sprintf('Control type "%s" not found.', $control_data['type']), '1.0.0');
 
             return false;
         }
@@ -698,7 +698,7 @@ class ControlsManager
         $stack_id = $element->getUniqueName();
 
         if (!$options['overwrite'] && isset($this->stacks[$stack_id]['controls'][$control_id])) {
-            _doing_it_wrong(sprintf('%1$s::%2$s', __CLASS__, __FUNCTION__), sprintf('Cannot redeclare control with same name "%s".', $control_id), '1.0.0');
+            _doing_it_wrong(__CLASS__ . '::' . __FUNCTION__, sprintf('Cannot redeclare control with same name "%s".', $control_id), '1.0.0');
 
             return false;
         }

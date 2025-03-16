@@ -173,20 +173,12 @@ class Autoloader
                 'replacement' => 'CoreXEditorXEditor',
                 'version' => '2.6.0',
             ],
-            'SchemeBase' => [
-                'replacement' => 'CoreXSchemesXBase',
-                'version' => '2.8.0',
-            ],
             'SchemeColor' => [
                 'replacement' => 'CoreXSchemesXColor',
                 'version' => '2.8.0',
             ],
             'SchemeColorPicker' => [
                 'replacement' => 'CoreXSchemesXColorPicker',
-                'version' => '2.8.0',
-            ],
-            'SchemesManager' => [
-                'replacement' => 'CoreXSchemesXManager',
                 'version' => '2.8.0',
             ],
             'SchemeTypography' => [

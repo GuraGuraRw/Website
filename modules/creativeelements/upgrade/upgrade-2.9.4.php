@@ -19,8 +19,7 @@ function upgrade_module_2_9_4($module)
     Shop::isFeatureActive() && Shop::setContext(Shop::CONTEXT_ALL);
 
     // Generate Kit
-    $plugin = CE\Plugin::instance();
-    $kit_uid = $plugin->kits_manager->getActiveId();
+    $kit_uid = CE\Plugin::instance()->kits_manager->getActiveId();
     $kit_settings = CE\get_post_meta($kit_uid, '_elementor_page_settings', true) ?: [];
 
     foreach (['container_width', 'space_between_widgets'] as $key) {
@@ -68,20 +67,14 @@ function upgrade_module_2_9_4($module)
     CEDatabase::updateTabs();
     CEDatabase::initConfigs();
 
-    $ps = _DB_PREFIX_;
-    $engine = _MYSQL_ENGINE_;
-    $result = Db::getInstance()->execute("
-        CREATE TABLE IF NOT EXISTS `{$ps}ce_icon_set` (
+    $result = Db::getInstance()->execute('
+        CREATE TABLE IF NOT EXISTS ' . _DB_PREFIX_ . 'ce_icon_set (
             `id_ce_icon_set` int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
-            `name` varchar(128) NOT NULL DEFAULT '',
+            `name` varchar(128) NOT NULL DEFAULT "",
             `config` longtext,
             PRIMARY KEY (`id_ce_icon_set`)
-        ) ENGINE=$engine DEFAULT CHARSET=utf8mb4 DEFAULT COLLATE=utf8mb4_unicode_ci;
-    ");
-
-    // Clear caches
-    $plugin->files_manager->clearCache();
-    Media::clearCache();
+        ) ENGINE=' . _MYSQL_ENGINE_ . ' DEFAULT CHARSET=utf8mb4 DEFAULT COLLATE=utf8mb4_unicode_ci;
+    ');
 
     return $result;
 }

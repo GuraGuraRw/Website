@@ -4,7 +4,7 @@ namespace PrestaShop\Module\PsAccounts\Vendor\GuzzleHttp;
 
 use PrestaShop\Module\PsAccounts\Vendor\GuzzleHttp\Promise\PromiseInterface;
 use PrestaShop\Module\PsAccounts\Vendor\GuzzleHttp\Psr7;
-use Psr\Http\Message\RequestInterface;
+use PrestaShop\Module\PsAccounts\Vendor\Psr\Http\Message\RequestInterface;
 /**
  * Prepares requests that contain a body, adding the Content-Length,
  * Content-Type, and Expect headers.

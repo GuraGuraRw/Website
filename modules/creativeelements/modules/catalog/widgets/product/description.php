@@ -109,9 +109,7 @@ class ModulesXCatalogXWidgetsXProductXDescription extends WidgetBase
 
     protected function render()
     {
-        $product = &\Context::getContext()->smarty->tpl_vars['product']->value;
-
-        echo $product['description'];
+        echo $GLOBALS['smarty']->tpl_vars['product']->value['description'];
     }
 
     public function renderPlainContent()

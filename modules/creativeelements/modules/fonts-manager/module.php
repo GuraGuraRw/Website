@@ -64,6 +64,15 @@ class ModulesXFontsManagerXModule extends BaseModule
         return array_merge($this->getFontTypes(), $fonts);
     }
 
+    public function preloadCustom($font)
+    {
+        if ($preloads = $this->getFonts($font)['preloads']) {
+            foreach ($preloads as $url => $ext) {
+                echo '<link rel="preload" as="font" type="font/' . $ext . '" href="' . Helper::getMediaLink($url) . '" crossorigin>';
+            }
+        }
+    }
+
     public function enqueueFonts($post_css)
     {
         $stylesheet = $post_css->getStylesheet();
@@ -112,11 +121,10 @@ class ModulesXFontsManagerXModule extends BaseModule
 
     public function registerIconLibrariesControl($additional_sets)
     {
-        $link = \Context::getContext()->link;
         $icon_sets = \CEIconSet::getCustomIconsConfig();
 
         foreach ($icon_sets as &$icon_set) {
-            $icon_set['url'] = $link->getMediaLink(__PS_BASE_URI__ . $icon_set['url']);
+            $icon_set['url'] = Helper::$link->getMediaLink(__PS_BASE_URI__ . $icon_set['url']);
 
             empty($icon_set['fetchJson']) || $icon_set['fetchJson'] = __PS_BASE_URI__ . $icon_set['fetchJson'];
         }
@@ -131,7 +139,10 @@ class ModulesXFontsManagerXModule extends BaseModule
         add_filter('elementor/fonts/groups', [$this, 'registerFontsGroups']);
         add_filter('elementor/fonts/additional_fonts', [$this, 'registerFontsInControl']);
 
+        add_action('elementor/fonts/print_font_links/custom', [$this, 'preloadCustom']);
+
         add_action('elementor/css-file/post/parse', [$this, 'enqueueFonts']);
+        add_action('elementor/css-file/kit/parse', [$this, 'enqueueFonts']);
         add_action('elementor/css-file/global/parse', [$this, 'enqueueFonts']);
         // Ajax
         add_action('elementor/ajax/register_actions', [$this, 'registerAjaxActions']);

@@ -109,7 +109,7 @@ class ModulesXCatalogXWidgetsXCategoryXAdditionalDescription extends WidgetBase
 
     protected function render()
     {
-        $category = &\Context::getContext()->smarty->tpl_vars['category']->value;
+        $category = &$GLOBALS['smarty']->tpl_vars['category']->value;
 
         echo $category['additional_description'];
     }

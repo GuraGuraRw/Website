@@ -2524,10 +2524,10 @@ a.elementor-responsive-switcher {
 	.elementor-editor-kit .elementor-panel #elementor-panel-header #elementor-panel-header-kit-close,
 	.elementor-editor-kit .elementor-panel #elementor-panel-header #elementor-panel-header-kit-back {
 		display: table-cell; }
-	body:not(.e-routes-has-history):not([class*='container elementor-editor-kit']) #elementor-panel-header-kit-back {
+	body:not(.e-routes-has-history) #elementor-panel-header-kit-back {
 		pointer-events: none;
 		opacity: 0.4; }
-		body:not(.e-routes-has-history):not([class*='container elementor-editor-kit']) #elementor-panel-header-kit-back:hover .elementor-icon {
+		body:not(.e-routes-has-history) #elementor-panel-header-kit-back:hover .elementor-icon {
 			cursor: inherit;
 			color: inherit; }
 
@@ -2542,7 +2542,7 @@ a.elementor-responsive-switcher {
 	background-color: #4ab7f4; }
 
 .elementor-editor-kit #elementor-panel-header-add-button,
-.elementor-editor-kit #elementor-panel-header-menu-button,
+.elementor-editor-kit:not(.ce-initial-kit) #elementor-panel-header-menu-button,
 .elementor-editor-kit #elementor-panel-footer-sub-menu-item-save-template,
 .elementor-editor-kit #elementor-panel-footer-navigator {
 	display: none; }

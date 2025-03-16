@@ -38,14 +38,8 @@ class CoreXFilesXAssetsXManager
     public function __construct()
     {
         $this->registerAssetTypes();
-        /*
-         * Elementor files assets registered.
-         *
-         * Fires after Elementor registers assets types
-         *
-         * @since 2.6.0
-         */
-        do_action('elementor/core/files/assets/assets_registered', $this);
+
+        // do_action('elementor/core/files/assets/assets_registered', $this);
     }
 
     public function getAsset($name)

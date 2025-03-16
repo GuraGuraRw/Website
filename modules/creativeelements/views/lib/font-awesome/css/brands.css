@@ -12,7 +12,7 @@
 	font-style: normal;
 	font-weight: 400;
 	font-display: swap;
-	src: url("../webfonts/fa-brands-400.woff2") format("woff2"), url("../webfonts/fa-brands-400.woff") format("woff") }
+	src: url("../webfonts/fa-brands-400.woff2") format("woff2") }
 
 .fab, .fa-brands {
 	font-family: 'Font Awesome 6 Brands';

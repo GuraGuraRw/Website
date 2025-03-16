@@ -14,12 +14,13 @@ if (!defined('_PS_VERSION_')) {
 
 use CE\CoreXDynamicTagsXBaseTag as BaseTag;
 use CE\CoreXDynamicTagsXDynamicCSS as DynamicCSS;
+use CE\CoreXDynamicTagsXTag as Tag;
 use CE\CoreXFilesXCSSXPost as Post;
 use CE\CoreXFilesXCSSXPostPreview as PostPreview;
 
 class CoreXDynamicTagsXManager
 {
-    const TAG_LABEL = 'elementor-tag';
+    // const TAG_LABEL = 'elementor-tag';
 
     const MODE_RENDER = 'render';
 
@@ -88,7 +89,7 @@ class CoreXDynamicTagsXManager
         if (!empty($settings['returnType']) && 'object' === $settings['returnType']) {
             $value = $this->parseTagText($text, $settings, $parse_callback);
         } else {
-            $value = preg_replace_callback('/\[' . self::TAG_LABEL . '.+?(?=\])\]/', function ($tag_text_match) use ($settings, $parse_callback) {
+            $value = preg_replace_callback('/\[elementor-tag.+?(?=\])\]/', function ($tag_text_match) use ($settings, $parse_callback) {
                 return $this->parseTagText($tag_text_match[0], $settings, $parse_callback);
             }, $text);
         }
@@ -164,7 +165,7 @@ class CoreXDynamicTagsXManager
      */
     public function tagToText(BaseTag $tag)
     {
-        return sprintf('[%1$s id="%2$s" name="%3$s" settings="%4$s"]', self::TAG_LABEL, $tag->getId(), $tag->getName(), urlencode(json_encode($tag->getSettings(), JSON_FORCE_OBJECT)));
+        return "[elementor-tag id=\"{$tag->getId()}\" name=\"{$tag->getName()}\" settings=\"" . urlencode(json_encode($tag->getSettings(), JSON_FORCE_OBJECT)) . '"]';
     }
 
     /**
@@ -383,14 +384,7 @@ class CoreXDynamicTagsXManager
         $documents = Plugin::$instance->documents;
         $documents->switchToDocument($documents->get($data['post_id']));
 
-        /*
-         * Before dynamic tags rendered.
-         *
-         * Fires before Elementor renders the dynamic tags.
-         *
-         * @since 2.0.0
-         */
-        do_action('elementor/dynamic_tags/before_render');
+        // do_action('elementor/dynamic_tags/before_render');
 
         $tags_data = [];
 
@@ -406,14 +400,7 @@ class CoreXDynamicTagsXManager
             $tags_data[$tag_key] = $tag->getContent();
         }
 
-        /*
-         * After dynamic tags rendered.
-         *
-         * Fires after Elementor renders the dynamic tags.
-         *
-         * @since 2.0.0
-         */
-        do_action('elementor/dynamic_tags/after_render');
+        // do_action('elementor/dynamic_tags/after_render');
 
         return $tags_data;
     }

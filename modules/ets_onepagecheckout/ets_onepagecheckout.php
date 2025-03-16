@@ -59,7 +59,7 @@ class Ets_onepagecheckout extends Module
 	{
         $this->name = 'ets_onepagecheckout';
 		$this->tab = 'front_office_features';
-		$this->version = '2.8.5';
+		$this->version = '2.8.6';
 		$this->author = 'PrestaHero';
 		$this->need_instance = 0;
 		$this->bootstrap = true;

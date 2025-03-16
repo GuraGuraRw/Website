@@ -331,6 +331,7 @@ abstract class WidgetBase extends ElementBase
             'categories' => $this->getCategories(),
             'html_wrapper_class' => $this->getHtmlWrapperClass(),
             'show_in_panel' => $this->showInPanel(),
+            'is_dynamic_content' => $this->isDynamicContent(),
         ];
 
         $stack = Plugin::$instance->controls_manager->getElementStack($this);
@@ -349,6 +350,21 @@ abstract class WidgetBase extends ElementBase
     protected function shouldPrintEmpty()
     {
         return false;
+    }
+
+    protected function shouldRenderShortcode()
+    {
+        if (!apply_filters('elementor/element/should_render_shortcode', false)) {
+            return false;
+        }
+
+        $data = $this->getData();
+
+        if (!empty($data['settings']['_element_cache'])) {
+            return 'yes' === $data['settings']['_element_cache'];
+        }
+
+        return $this->isDynamicContent() || !empty($data['settings']['__dynamic__']);
     }
 
     /**
@@ -497,20 +513,11 @@ abstract class WidgetBase extends ElementBase
      */
     public function renderContent()
     {
-        if (static::REMOTE_RENDER && is_admin() && 'render' === self::$render_method) {
+        if (_CE_ADMIN_ && static::REMOTE_RENDER && 'render' === self::$render_method) {
             return print '<div class="ce-remote-render"></div>';
         }
 
-        /*
-         * Before widget render content.
-         *
-         * Fires before Elementor widget is being rendered.
-         *
-         * @since 1.0.0
-         *
-         * @param WidgetBase $this The current widget
-         */
-        do_action('elementor/widget/before_render_content', $this);
+        // do_action('elementor/widget/before_render_content', $this);
 
         ob_start();
 
@@ -524,7 +531,7 @@ abstract class WidgetBase extends ElementBase
 
         $widget_content = ob_get_clean();
 
-        if (empty($widget_content)) {
+        if (!$widget_content) {
             return;
         }
         // Tweak: Container attributes are extendable
@@ -532,17 +539,8 @@ abstract class WidgetBase extends ElementBase
 
         echo "<div {$this->getRenderAttributeString('_container')}>";
 
-        /*
-         * Render widget content.
-         *
-         * Filters the widget content before it's rendered.
-         *
-         * @since 1.0.0
-         *
-         * @param string      $widget_content The content of the widget
-         * @param WidgetBase $this           The widget
-         */
-        echo apply_filters('elementor/widget/render_content', $widget_content, $this);
+        // echo apply_filters('elementor/widget/render_content', $widget_content, $this);
+        echo $widget_content;
 
         echo '</div>';
     }
@@ -633,7 +631,8 @@ abstract class WidgetBase extends ElementBase
 
         unset($data['isInner']);
 
-        $data['widgetType'] = $this->getData('widgetType');
+        // $data['widgetType'] = $this->getData('widgetType');
+        $data['widgetType'] = $this->getName();
 
         if ($with_html_content) {
             ob_start();

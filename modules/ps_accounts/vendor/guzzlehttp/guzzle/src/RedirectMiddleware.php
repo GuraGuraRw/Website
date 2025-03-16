@@ -6,9 +6,9 @@ use PrestaShop\Module\PsAccounts\Vendor\GuzzleHttp\Exception\BadResponseExceptio
 use PrestaShop\Module\PsAccounts\Vendor\GuzzleHttp\Exception\TooManyRedirectsException;
 use PrestaShop\Module\PsAccounts\Vendor\GuzzleHttp\Promise\PromiseInterface;
 use PrestaShop\Module\PsAccounts\Vendor\GuzzleHttp\Psr7;
-use Psr\Http\Message\RequestInterface;
-use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\UriInterface;
+use PrestaShop\Module\PsAccounts\Vendor\Psr\Http\Message\RequestInterface;
+use PrestaShop\Module\PsAccounts\Vendor\Psr\Http\Message\ResponseInterface;
+use PrestaShop\Module\PsAccounts\Vendor\Psr\Http\Message\UriInterface;
 /**
  * Request redirect middleware.
  *

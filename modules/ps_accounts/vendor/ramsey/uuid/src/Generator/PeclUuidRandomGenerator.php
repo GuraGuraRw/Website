@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of the ramsey/uuid library
  *
@@ -11,8 +12,7 @@
  * @link https://packagist.org/packages/ramsey/uuid Packagist
  * @link https://github.com/ramsey/uuid GitHub
  */
-
-namespace Ramsey\Uuid\Generator;
+namespace PrestaShop\Module\PsAccounts\Vendor\Ramsey\Uuid\Generator;
 
 /**
  * PeclUuidRandomGenerator provides functionality to generate strings of random
@@ -30,8 +30,7 @@ class PeclUuidRandomGenerator implements RandomGeneratorInterface
      */
     public function generate($length)
     {
-        $uuid = uuid_create(UUID_TYPE_RANDOM);
-
-        return uuid_parse($uuid);
+        $uuid = \uuid_create(\UUID_TYPE_RANDOM);
+        return \uuid_parse($uuid);
     }
 }

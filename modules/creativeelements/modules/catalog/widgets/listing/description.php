@@ -113,7 +113,7 @@ class ModulesXCatalogXWidgetsXListingXDescription extends WidgetBase
 
     protected function render()
     {
-        $vars = $context = &\Context::getContext()->smarty->tpl_vars;
+        $vars = &$GLOBALS['smarty']->tpl_vars;
 
         if (isset($vars[$page = $vars['page']->value['page_name']])) {
             echo $vars[$page]->value['description'];

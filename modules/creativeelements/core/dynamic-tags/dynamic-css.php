@@ -88,15 +88,29 @@ class CoreXDynamicTagsXDynamicCSS extends Post
         return $meta;
     }
 
+    protected function renderCss(&$data = null)
+    {
+        null === $data && $data = $this->getData() ?: [];
+
+        foreach ($data as &$element_data) {
+            if (isset($element_data['settings']['__dynamic__'])
+                && $element = Plugin::$instance->elements_manager->createElementInstance($element_data)
+            ) {
+                $this->renderStyles($element);
+            }
+
+            $element_data['elements'] && $this->renderCss($element_data['elements']);
+        }
+    }
+
     /**
      * @since 2.0.13
      */
     public function addControlsStackStyleRules(ControlsStack $controls_stack, array $controls, array $values, array $placeholders, array $replacements, array $all_controls = [])
     {
         $dynamic_settings = $controls_stack->getSettings('__dynamic__');
-        if (!empty($dynamic_settings)) {
-            $controls = array_intersect_key($controls, $dynamic_settings);
 
+        if ($dynamic_settings && $controls = array_intersect_key($controls, $dynamic_settings)) {
             $all_controls = $controls_stack->getControls();
 
             $parsed_dynamic_settings = $controls_stack->parseDynamicSettings($values, $controls);
@@ -111,12 +125,6 @@ class CoreXDynamicTagsXDynamicCSS extends Post
                 }
 
                 $this->addControlStyleRules($control, $parsed_dynamic_settings, $all_controls, $placeholders, $replacements);
-            }
-        }
-
-        if ($controls_stack instanceof ElementBase) {
-            foreach ($controls_stack->getChildren() as $child_element) {
-                $this->renderStyles($child_element);
             }
         }
     }

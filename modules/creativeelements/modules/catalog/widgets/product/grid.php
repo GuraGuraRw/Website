@@ -54,6 +54,7 @@ class ModulesXCatalogXWidgetsXProductXGrid extends ProductBase
                     'custom' => __('Custom'),
                 ],
                 'default' => 'product',
+                'save_default' => true,
             ]
         );
 
@@ -65,12 +66,11 @@ class ModulesXCatalogXWidgetsXProductXGrid extends ProductBase
                 'label' => __('Columns'),
                 'type' => ControlsManager::NUMBER,
                 'min' => 1,
+                'max' => 12,
                 'default' => 4,
                 'tablet_default' => 3,
                 'mobile_default' => 1,
-                'selectors' => [
-                    '{{WRAPPER}} .ce-product-grid' => 'grid-template-columns: repeat({{VALUE}}, minmax(0, 1fr));',
-                ],
+                'prefix_class' => 'elementor-grid%s-',
                 'style_transfer' => true,
                 'separator' => 'before',
             ]
@@ -262,7 +262,7 @@ class ModulesXCatalogXWidgetsXProductXGrid extends ProductBase
 
     protected function render()
     {
-        if (empty($this->context->currency->id)) {
+        if (empty($GLOBALS['context']->currency->id)) {
             return;
         }
         $settings = $this->getSettingsForDisplay();
@@ -289,14 +289,9 @@ class ModulesXCatalogXWidgetsXProductXGrid extends ProductBase
         if ('' !== $settings['heading']) {
             $this->addRenderAttribute('heading', 'class', 'elementor-heading-title');
             $settings['heading_display'] && $this->addRenderAttribute('heading', 'class', 'ce-display-' . $settings['heading_display']);
-
             $this->addInlineEditingAttributes('heading');
-            printf(
-                '<%1$s %2$s>%3$s</%1$s>',
-                $settings['heading_size'],
-                $this->getRenderAttributeString('heading'),
-                $settings['heading']
-            );
+
+            echo "<{$settings['heading_size']} {$this->getRenderAttributeString('heading')}>{$settings['heading']}</{$settings['heading_size']}>";
         }
 
         if ('custom' === $settings['skin']) {
@@ -304,7 +299,7 @@ class ModulesXCatalogXWidgetsXProductXGrid extends ProductBase
             $settings['qv_icon_align'] = $this->getSettings('qv_icon_align');
             $settings['atc_icon_align'] = $this->getSettings('atc_icon_align');
 
-            echo '<div class="ce-product-grid">';
+            echo '<div class="ce-product-grid elementor-grid">';
             foreach ($products as $product) {
                 echo $this->fetchMiniature($settings, $product);
             }
@@ -313,9 +308,9 @@ class ModulesXCatalogXWidgetsXProductXGrid extends ProductBase
             if (!$tpl = static::getSkinTemplate($settings['skin'])) {
                 return;
             }
-            echo '<div class="ce-product-grid">';
+            echo '<div class="ce-product-grid elementor-grid">';
             foreach ($products as $product) {
-                echo $this->context->smarty->fetch($tpl, null, null, ['product' => $product]);
+                echo $GLOBALS['smarty']->fetch($tpl, null, null, ['product' => $product]);
             }
             echo '</div>';
         }

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of the ramsey/uuid library
  *
@@ -11,12 +12,10 @@
  * @link https://packagist.org/packages/ramsey/uuid Packagist
  * @link https://github.com/ramsey/uuid GitHub
  */
+namespace PrestaShop\Module\PsAccounts\Vendor\Ramsey\Uuid\Converter\Number;
 
-namespace Ramsey\Uuid\Converter\Number;
-
-use Moontoast\Math\BigNumber;
-use Ramsey\Uuid\Converter\NumberConverterInterface;
-
+use PrestaShop\Module\PsAccounts\Vendor\Moontoast\Math\BigNumber;
+use PrestaShop\Module\PsAccounts\Vendor\Ramsey\Uuid\Converter\NumberConverterInterface;
 /**
  * BigNumberConverter converts UUIDs from hexadecimal characters into
  * moontoast/math `BigNumber` representations of integers and vice versa
@@ -32,10 +31,8 @@ class BigNumberConverter implements NumberConverterInterface
     public function fromHex($hex)
     {
         $number = BigNumber::convertToBase10($hex, 16);
-
         return new BigNumber($number);
     }
-
     /**
      * Converts an integer or `Moontoast\Math\BigNumber` integer representation
      * into a hexadecimal string representation
@@ -48,7 +45,6 @@ class BigNumberConverter implements NumberConverterInterface
         if (!$integer instanceof BigNumber) {
             $integer = new BigNumber($integer);
         }
-
         return BigNumber::convertFromBase10($integer, 16);
     }
 }

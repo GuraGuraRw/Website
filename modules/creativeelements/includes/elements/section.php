@@ -12,6 +12,8 @@ if (!defined('_PS_VERSION_')) {
     exit;
 }
 
+use CE\CoreXSchemesXManager as SchemesManager;
+
 /**
  * Elementor section element.
  *
@@ -96,6 +98,11 @@ class ElementSection extends ElementBase
     public function getIcon()
     {
         return 'eicon-columns';
+    }
+
+    protected function isDynamicContent()
+    {
+        return false;
     }
 
     /**
@@ -822,7 +829,7 @@ class ElementSection extends ElementBase
             GroupControlTypography::getType(),
             [
                 'name' => 'menu_typography',
-                'selector' => '{{WRAPPER}} .elementor-nav--main',
+                'selector' => '{{WRAPPER}} .elementor-nav--main a.elementor-item',
                 'separator' => 'before',
             ]
         );
@@ -1922,9 +1929,8 @@ class ElementSection extends ElementBase
 
         $this->endControlsSection();
 
-        // Section Responsive
         $this->startControlsSection(
-            '_section_responsive',
+            '_section_responsive_order',
             [
                 'label' => __('Responsive'),
                 'tab' => ControlsManager::TAB_ADVANCED,
@@ -1951,22 +1957,40 @@ class ElementSection extends ElementBase
             ]
         );
 
-        // $this->addControl(
-        //     'heading_visibility',
-        //     [
-        //         'label' => __('Visibility'),
-        //         'type' => ControlsManager::HEADING,
-        //         'separator' => 'before',
-        //     ]
-        // );
+        $this->endControlsSection();
 
-        $this->addControl(
+        $this->startControlsSection(
+            '_section_responsive',
+            [
+                'label' => __('Visibility'),
+                'tab' => ControlsManager::TAB_ADVANCED,
+            ]
+        );
+
+        _CE_ADMIN_ && $this->addControl(
             'responsive_description',
             [
-                'raw' => __('Responsive visibility will take effect only on preview or live page, and not while editing in Creative Elements.'),
+                'raw' => '<strong>' . __('Please note!') . '</strong> ' .
+                    __('These options are not considered best practice for responsive web design and should not be used too frequently.'),
                 'type' => ControlsManager::RAW_HTML,
-                'content_classes' => 'elementor-descriptor',
-                'separator' => 'before',
+                'content_classes' => 'elementor-panel-alert elementor-panel-alert-warning',
+                'conditions' => [
+                    'relation' => 'or',
+                    'terms' => [
+                        [
+                            'name' => 'hide_desktop',
+                            'value' => 'hidden-desktop',
+                        ],
+                        [
+                            'name' => 'hide_tablet',
+                            'value' => 'hidden-tablet',
+                        ],
+                        [
+                            'name' => 'hide_mobile',
+                            'value' => 'hidden-phone',
+                        ],
+                    ],
+                ],
             ]
         );
 
@@ -2003,6 +2027,7 @@ class ElementSection extends ElementBase
                 'label_on' => __('Hide'),
                 'label_off' => __('Show'),
                 'return_value' => 'hidden-phone',
+                'description' => __('Responsive visibility will take effect only on preview or live page, and not while editing in Creative Elements.'),
             ]
         );
 
@@ -2101,7 +2126,7 @@ class ElementSection extends ElementBase
             ]);
 
             if ('none' !== $settings['pointer']) {
-                $animation_type = call_user_func('CE\ModulesXThemeXWidgetsXTraitsXNav::getPointerAnimationType', $settings['pointer']);
+                $animation_type = ModulesXThemeXWidgetsXTraitsXNav::getPointerAnimationType($settings['pointer']);
 
                 $this->addRenderAttribute('tabs', 'class', [
                     'e--pointer-' . $settings['pointer'],
@@ -2249,8 +2274,8 @@ class ElementSection extends ElementBase
         if (!is_file($shape_path) || !is_readable($shape_path)) {
             return;
         } ?>
-        <div class="elementor-shape elementor-shape-<?php echo esc_attr($side); ?>" data-negative="<?php var_export($negative); ?>">
-            <?php echo call_user_func('file_get_contents', $shape_path); ?>
+        <div class="elementor-shape elementor-shape-<?php echo esc_attr($side); ?>" data-negative="<?php echo $negative ? 'true' : 'false'; ?>">
+            <?php echo @call_user_func('file_get_contents', $shape_path); ?>
         </div>
         <?php
     }

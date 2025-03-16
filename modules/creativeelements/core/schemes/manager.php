@@ -328,16 +328,7 @@ class CoreXSchemesXManager
                 $enabled_schemes[] = $schemes_type;
             }
 
-            /*
-             * Enabled schemes.
-             *
-             * Filters the list of enabled schemes.
-             *
-             * @since 1.0.0
-             *
-             * @param array $enabled_schemes The list of enabled schemes
-             */
-            $enabled_schemes = apply_filters('elementor/schemes/enabled_schemes', $enabled_schemes);
+            // $enabled_schemes = apply_filters('elementor/schemes/enabled_schemes', $enabled_schemes);
 
             self::$_enabled_schemes = $enabled_schemes;
         }

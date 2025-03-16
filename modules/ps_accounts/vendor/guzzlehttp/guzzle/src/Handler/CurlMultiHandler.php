@@ -5,7 +5,7 @@ namespace PrestaShop\Module\PsAccounts\Vendor\GuzzleHttp\Handler;
 use PrestaShop\Module\PsAccounts\Vendor\GuzzleHttp\Promise as P;
 use PrestaShop\Module\PsAccounts\Vendor\GuzzleHttp\Promise\Promise;
 use PrestaShop\Module\PsAccounts\Vendor\GuzzleHttp\Utils;
-use Psr\Http\Message\RequestInterface;
+use PrestaShop\Module\PsAccounts\Vendor\Psr\Http\Message\RequestInterface;
 /**
  * Returns an asynchronous response using curl_multi_* functions.
  *

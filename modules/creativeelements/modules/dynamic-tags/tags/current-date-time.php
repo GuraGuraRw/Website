@@ -80,7 +80,7 @@ class ModulesXDynamicTagsXTagsXCurrentDateTime extends Tag
             'custom_format',
             [
                 'label' => __('Custom Format'),
-                'default' => \Context::getContext()->language->date_format_full,
+                'default' => $GLOBALS['language']->date_format_full,
                 'description' => sprintf(
                     '<a href="%s" target="_blank">%s</a>',
                     'https://www.php.net/manual/datetime.format.php#refsect1-datetime.format-parameters',
@@ -100,7 +100,7 @@ class ModulesXDynamicTagsXTagsXCurrentDateTime extends Tag
         if ('custom' === $settings['date_format']) {
             $format = $settings['custom_format'];
         } else {
-            $language = \Context::getContext()->language;
+            $language = $GLOBALS['language'];
             $date_format = $settings['date_format'];
             $time_format = $settings['time_format'];
             $format = '';

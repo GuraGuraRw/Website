@@ -54,7 +54,7 @@ trait CarouselTrait
                 ],
                 'options' => $options,
                 'selectors' => [
-                    '{{WRAPPER}} .swiper-container:not(.swiper-container-initialized) .swiper-wrapper' => 'grid-template-columns: repeat({{VALUE}}, 1fr);',
+                    '{{WRAPPER}} .swiper:not(.swiper-initialized) .swiper-wrapper' => 'grid-template-columns: repeat({{VALUE}}, 1fr);',
                 ],
                 'render_type' => 'template',
                 'classes' => 'select2-numeric',
@@ -282,11 +282,12 @@ trait CarouselTrait
                 'type' => ControlsManager::SELECT,
                 'default' => 'slide',
                 'options' => [
-                    'slide' => __('Slide'),
-                    'fade' => __('Fade'),
-                    'cube' => __('Cube'),
-                    'flip' => __('Flip'),
+                    'cards' => __('Cards'),
                     'coverflow' => __('Coverflow'),
+                    'cube' => __('Cube'),
+                    'fade' => __('Fade'),
+                    'flip' => __('Flip'),
+                    'slide' => __('Slide'),
                 ],
                 'condition' => [
                     'slides_to_show' => '1',
@@ -376,8 +377,7 @@ trait CarouselTrait
                     ],
                 ],
                 'selectors' => [
-                    '{{WRAPPER}} .elementor-swiper-button i' => 'font-size: {{SIZE}}{{UNIT}};',
-                    '{{WRAPPER}} .elementor-swiper-button svg' => 'width: {{SIZE}}{{UNIT}}; height: {{SIZE}}{{UNIT}};',
+                    '{{WRAPPER}} .elementor-swiper-button' => 'font-size: {{SIZE}}{{UNIT}};',
                 ],
                 'condition' => [
                     'navigation' => ['arrows', 'both'],
@@ -391,8 +391,7 @@ trait CarouselTrait
                 'label' => __('Color'),
                 'type' => ControlsManager::COLOR,
                 'selectors' => [
-                    '{{WRAPPER}} .elementor-swiper-button i' => 'color: {{VALUE}};',
-                    '{{WRAPPER}} .elementor-swiper-button svg' => 'fill: {{VALUE}};',
+                    '{{WRAPPER}} .elementor-swiper-button' => 'color: {{VALUE}};',
                 ],
                 'condition' => [
                     'navigation' => ['arrows', 'both'],
@@ -403,7 +402,7 @@ trait CarouselTrait
         $this->addControl(
             'heading_style_dots',
             [
-                'label' => __('Dots'),
+                'label' => __('Pagination'),
                 'type' => ControlsManager::HEADING,
                 'condition' => [
                     'navigation' => ['dots', 'both'],
@@ -449,9 +448,24 @@ trait CarouselTrait
         );
 
         $this->addControl(
-            'dots_color',
+            'dots_inactive_color',
             [
                 'label' => __('Color'),
+                'type' => ControlsManager::COLOR,
+                'selectors' => [
+                    // The opacity property will override the default inactive dot color which is opacity 0.2.
+                    '{{WRAPPER}} .swiper-pagination-bullet:not(.swiper-pagination-bullet-active)' => 'background: {{VALUE}}; opacity: 1',
+                ],
+                'condition' => [
+                    'navigation' => ['dots', 'both'],
+                ],
+            ]
+        );
+
+        $this->addControl(
+            'dots_color',
+            [
+                'label' => __('Active Color'),
                 'type' => ControlsManager::COLOR,
                 'selectors' => [
                     '{{WRAPPER}} .swiper-pagination-bullet' => 'background: {{VALUE}};',
@@ -471,25 +485,21 @@ trait CarouselTrait
             return;
         }
         $this->addRenderAttribute('carousel', 'class', 'swiper-wrapper');
-
-        $show_dots = in_array($settings['navigation'], ['dots', 'both']);
-        $show_arrows = in_array($settings['navigation'], ['arrows', 'both']); ?>
-        <div class="elementor-carousel-wrapper swiper-container" dir="<?php echo esc_attr($settings['direction']); ?>">
-            <div <?php $this->printRenderAttributeString('carousel'); ?>>
-                <?php echo implode('', $slides); ?>
-            </div>
+        ?>
+        <div class="elementor-carousel-wrapper swiper" dir="<?php echo esc_attr($settings['direction']); ?>">
+            <div <?php $this->printRenderAttributeString('carousel'); ?>><?php echo implode('', $slides); ?></div>
         <?php if (count($slides) > 1) { ?>
-            <?php if ($show_arrows) { ?>
+            <?php if ('arrows' === $settings['navigation'] || 'both' === $settings['navigation']) { ?>
                 <div class="elementor-swiper-button elementor-swiper-button-prev" role="button" tabindex="0">
                     <?php IconsManager::renderIcon($settings['navigation_previous_icon'], ['aria-hidden' => 'true']); ?>
-                    <span class="elementor-screen-only"><?php _e('Previous'); ?></span>
+                    <span class="elementor-screen-only"><?php _e('Previous', 'Shop.Theme.Global'); ?></span>
                 </div>
                 <div class="elementor-swiper-button elementor-swiper-button-next" role="button" tabindex="0">
                     <?php IconsManager::renderIcon($settings['navigation_next_icon'], ['aria-hidden' => 'true']); ?>
-                    <span class="elementor-screen-only"><?php _e('Next'); ?></span>
+                    <span class="elementor-screen-only"><?php _e('Next', 'Shop.Theme.Global'); ?></span>
                 </div>
             <?php } ?>
-            <?php if ($show_dots) { ?>
+            <?php if ('dots' === $settings['navigation'] || 'both' === $settings['navigation']) { ?>
                 <div class="swiper-pagination"></div>
             <?php } ?>
         <?php } ?>

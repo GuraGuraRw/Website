@@ -18,73 +18,67 @@ function upgrade_module_2_10_1($module)
     $module->registerHook('displayOverrideTemplate');
     $module->registerHook('filterProductSearch', null, 1);
 
-    // Clear caches
-    CE\Plugin::instance()->files_manager->clearCache();
-    Media::clearCache();
-
     // Alter DB tables character set
-    $ps = _DB_PREFIX_;
     $db = Db::getInstance();
-    $res = $db->execute("ALTER TABLE `{$ps}ce_meta` CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci")
-        && $db->execute("ALTER TABLE `{$ps}ce_revision` CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci")
-        && $db->execute("ALTER TABLE `{$ps}ce_template` CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci")
-        && $db->execute("ALTER TABLE `{$ps}ce_content` CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci")
-        && $db->execute("ALTER TABLE `{$ps}ce_content_shop` CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci")
-        && $db->execute("ALTER TABLE `{$ps}ce_content_lang` CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci")
-        && $db->execute("ALTER TABLE `{$ps}ce_theme` CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci")
-        && $db->execute("ALTER TABLE `{$ps}ce_theme_shop` CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci")
-        && $db->execute("ALTER TABLE `{$ps}ce_theme_lang` CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci")
-        && $db->execute("ALTER TABLE `{$ps}ce_icon_set` CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci")
-        && $db->execute("ALTER TABLE `{$ps}ce_font` CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
+    $res = $db->execute('ALTER TABLE ' . _DB_PREFIX_ . 'ce_meta CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci')
+        && $db->execute('ALTER TABLE ' . _DB_PREFIX_ . 'ce_revision CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci')
+        && $db->execute('ALTER TABLE ' . _DB_PREFIX_ . 'ce_template CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci')
+        && $db->execute('ALTER TABLE ' . _DB_PREFIX_ . 'ce_content CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci')
+        && $db->execute('ALTER TABLE ' . _DB_PREFIX_ . 'ce_content_shop CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci')
+        && $db->execute('ALTER TABLE ' . _DB_PREFIX_ . 'ce_content_lang CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci')
+        && $db->execute('ALTER TABLE ' . _DB_PREFIX_ . 'ce_theme CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci')
+        && $db->execute('ALTER TABLE ' . _DB_PREFIX_ . 'ce_theme_shop CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci')
+        && $db->execute('ALTER TABLE ' . _DB_PREFIX_ . 'ce_theme_lang CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci')
+        && $db->execute('ALTER TABLE ' . _DB_PREFIX_ . 'ce_icon_set CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci')
+        && $db->execute('ALTER TABLE ' . _DB_PREFIX_ . 'ce_font CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci');
 
     // Remove useless files
-    foreach ([
-        'classes/assets/CEAssetManager-1.6.php',
-        'core/base/header-footer-base.php',
-        'core/base/theme-document.php',
-        'core/base/theme-page-document.php',
-        'core/document-types/content.php',
-        'core/document-types/footer.php',
-        'core/document-types/header.php',
-        'includes/editor.php',
-        'includes/base/widget-category-base.php',
-        'includes/base/widget-product-base.php',
-        'includes/managers/schemes.php',
-        'includes/widgets/ajax-search.php',
-        'includes/widgets/animated-headline.php',
-        'includes/widgets/breadcrumb.php',
-        'includes/widgets/call-to-action.php',
-        'includes/widgets/category-tree.php',
-        'includes/widgets/contact-form.php',
-        'includes/widgets/countdown.php',
-        'includes/widgets/currency-selector.php',
-        'includes/widgets/email-subscription.php',
-        'includes/widgets/facebook-button.php',
-        'includes/widgets/facebook-page.php',
-        'includes/widgets/flip-box.php',
-        'includes/widgets/image-hotspot.php',
-        'includes/widgets/image-slider.php',
-        'includes/widgets/language-selector.php',
-        'includes/widgets/layer-slider.php',
-        'includes/widgets/module.php',
-        'includes/widgets/nav-menu.php',
-        'includes/widgets/shopping-cart.php',
-        'includes/widgets/sign-in.php',
-        'includes/widgets/site-logo.php',
-        'includes/widgets/site-title.php',
-        'includes/widgets/testimonial-carousel.php',
-        'includes/widgets/trustedshops-reviews.php',
-        'modules/catalog/widgets/manufacturer-image.php',
-        'modules/dynamic-tags/tags/cart-rule-date-time.php',
-        'modules/dynamic-tags/tags/specific-price-rule-date-time.php',
-        'views/css/admin.css',
-        'views/css/media.css',
-        'views/js/admin.js',
-        'views/templates/front/preview-1.6.tpl',
-        'views/templates/front/theme/layouts/layout-product-block.tpl',
-    ] as $file) {
-        file_exists(_CE_PATH_ . $file) && unlink(_CE_PATH_ . $file);
-    }
+    array_map('unlink', array_filter([
+        _CE_PATH_ . 'classes/assets/CEAssetManager-1.6.php',
+        _CE_PATH_ . 'core/base/header-footer-base.php',
+        _CE_PATH_ . 'core/base/theme-document.php',
+        _CE_PATH_ . 'core/base/theme-page-document.php',
+        _CE_PATH_ . 'core/document-types/content.php',
+        _CE_PATH_ . 'core/document-types/footer.php',
+        _CE_PATH_ . 'core/document-types/header.php',
+        _CE_PATH_ . 'includes/editor.php',
+        _CE_PATH_ . 'includes/base/widget-category-base.php',
+        _CE_PATH_ . 'includes/base/widget-product-base.php',
+        _CE_PATH_ . 'includes/managers/schemes.php',
+        _CE_PATH_ . 'includes/widgets/ajax-search.php',
+        _CE_PATH_ . 'includes/widgets/animated-headline.php',
+        _CE_PATH_ . 'includes/widgets/breadcrumb.php',
+        _CE_PATH_ . 'includes/widgets/call-to-action.php',
+        _CE_PATH_ . 'includes/widgets/category-tree.php',
+        _CE_PATH_ . 'includes/widgets/contact-form.php',
+        _CE_PATH_ . 'includes/widgets/countdown.php',
+        _CE_PATH_ . 'includes/widgets/currency-selector.php',
+        _CE_PATH_ . 'includes/widgets/email-subscription.php',
+        _CE_PATH_ . 'includes/widgets/facebook-button.php',
+        _CE_PATH_ . 'includes/widgets/facebook-page.php',
+        _CE_PATH_ . 'includes/widgets/flip-box.php',
+        _CE_PATH_ . 'includes/widgets/image-hotspot.php',
+        _CE_PATH_ . 'includes/widgets/image-slider.php',
+        _CE_PATH_ . 'includes/widgets/language-selector.php',
+        _CE_PATH_ . 'includes/widgets/layer-slider.php',
+        _CE_PATH_ . 'includes/widgets/module.php',
+        _CE_PATH_ . 'includes/widgets/nav-menu.php',
+        _CE_PATH_ . 'includes/widgets/shopping-cart.php',
+        _CE_PATH_ . 'includes/widgets/sign-in.php',
+        _CE_PATH_ . 'includes/widgets/site-logo.php',
+        _CE_PATH_ . 'includes/widgets/site-title.php',
+        _CE_PATH_ . 'includes/widgets/testimonial-carousel.php',
+        _CE_PATH_ . 'includes/widgets/trustedshops-reviews.php',
+        _CE_PATH_ . 'modules/catalog/widgets/manufacturer-image.php',
+        _CE_PATH_ . 'modules/dynamic-tags/tags/cart-rule-date-time.php',
+        _CE_PATH_ . 'modules/dynamic-tags/tags/specific-price-rule-date-time.php',
+        _CE_PATH_ . 'views/css/admin.css',
+        _CE_PATH_ . 'views/css/media.css',
+        _CE_PATH_ . 'views/js/admin.js',
+        _CE_PATH_ . 'views/templates/front/preview-1.6.tpl',
+        _CE_PATH_ . 'views/templates/front/theme/layouts/layout-product-block.tpl',
+    ], 'file_exists'));
+
     foreach ([
         'includes/schemes',
         'includes/traits',

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of the ramsey/uuid library
  *
@@ -11,15 +12,13 @@
  * @link https://packagist.org/packages/ramsey/uuid Packagist
  * @link https://github.com/ramsey/uuid GitHub
  */
-
-namespace Ramsey\Uuid\Codec;
+namespace PrestaShop\Module\PsAccounts\Vendor\Ramsey\Uuid\Codec;
 
 use InvalidArgumentException;
-use Ramsey\Uuid\Builder\UuidBuilderInterface;
-use Ramsey\Uuid\Exception\InvalidUuidStringException;
-use Ramsey\Uuid\Uuid;
-use Ramsey\Uuid\UuidInterface;
-
+use PrestaShop\Module\PsAccounts\Vendor\Ramsey\Uuid\Builder\UuidBuilderInterface;
+use PrestaShop\Module\PsAccounts\Vendor\Ramsey\Uuid\Exception\InvalidUuidStringException;
+use PrestaShop\Module\PsAccounts\Vendor\Ramsey\Uuid\Uuid;
+use PrestaShop\Module\PsAccounts\Vendor\Ramsey\Uuid\UuidInterface;
 /**
  * StringCodec encodes and decodes RFC 4122 UUIDs
  *
@@ -31,7 +30,6 @@ class StringCodec implements CodecInterface
      * @var UuidBuilderInterface
      */
     private $builder;
-
     /**
      * Constructs a StringCodec for use encoding and decoding UUIDs
      *
@@ -41,7 +39,6 @@ class StringCodec implements CodecInterface
     {
         $this->builder = $builder;
     }
-
     /**
      * Encodes a UuidInterface as a string representation of a UUID
      *
@@ -50,14 +47,9 @@ class StringCodec implements CodecInterface
      */
     public function encode(UuidInterface $uuid)
     {
-        $fields = array_values($uuid->getFieldsHex());
-
-        return vsprintf(
-            '%08s-%04s-%04s-%02s%02s-%012s',
-            $fields
-        );
+        $fields = \array_values($uuid->getFieldsHex());
+        return \vsprintf('%08s-%04s-%04s-%02s%02s-%012s', $fields);
     }
-
     /**
      * Encodes a UuidInterface as a binary representation of a UUID
      *
@@ -66,9 +58,8 @@ class StringCodec implements CodecInterface
      */
     public function encodeBinary(UuidInterface $uuid)
     {
-        return hex2bin($uuid->getHex());
+        return \hex2bin($uuid->getHex());
     }
-
     /**
      * Decodes a string representation of a UUID into a UuidInterface object instance
      *
@@ -80,10 +71,8 @@ class StringCodec implements CodecInterface
     {
         $components = $this->extractComponents($encodedUuid);
         $fields = $this->getFields($components);
-
         return $this->builder->build($this, $fields);
     }
-
     /**
      * Decodes a binary representation of a UUID into a UuidInterface object instance
      *
@@ -93,15 +82,12 @@ class StringCodec implements CodecInterface
      */
     public function decodeBytes($bytes)
     {
-        if (strlen($bytes) !== 16) {
+        if (\strlen($bytes) !== 16) {
             throw new InvalidArgumentException('$bytes string should contain 16 characters.');
         }
-
-        $hexUuid = unpack('H*', $bytes);
-
+        $hexUuid = \unpack('H*', $bytes);
         return $this->decode($hexUuid[1]);
     }
-
     /**
      * Returns the UUID builder
      *
@@ -111,7 +97,6 @@ class StringCodec implements CodecInterface
     {
         return $this->builder;
     }
-
     /**
      * Returns an array of UUID components (the UUID exploded on its dashes)
      *
@@ -121,34 +106,17 @@ class StringCodec implements CodecInterface
      */
     protected function extractComponents($encodedUuid)
     {
-        $nameParsed = str_replace([
-            'urn:',
-            'uuid:',
-            '{',
-            '}',
-            '-'
-        ], '', $encodedUuid);
-
+        $nameParsed = \str_replace(['urn:', 'uuid:', '{', '}', '-'], '', $encodedUuid);
         // We have stripped out the dashes and are breaking up the string using
         // substr(). In this way, we can accept a full hex value that doesn't
         // contain dashes.
-        $components = [
-            substr($nameParsed, 0, 8),
-            substr($nameParsed, 8, 4),
-            substr($nameParsed, 12, 4),
-            substr($nameParsed, 16, 4),
-            substr($nameParsed, 20)
-        ];
-
-        $nameParsed = implode('-', $components);
-
+        $components = [\substr($nameParsed, 0, 8), \substr($nameParsed, 8, 4), \substr($nameParsed, 12, 4), \substr($nameParsed, 16, 4), \substr($nameParsed, 20)];
+        $nameParsed = \implode('-', $components);
         if (!Uuid::isValid($nameParsed)) {
             throw new InvalidUuidStringException('Invalid UUID string: ' . $encodedUuid);
         }
-
         return $components;
     }
-
     /**
      * Returns the fields that make up this UUID
      *
@@ -158,13 +126,6 @@ class StringCodec implements CodecInterface
      */
     protected function getFields(array $components)
     {
-        return [
-            'time_low' => str_pad($components[0], 8, '0', STR_PAD_LEFT),
-            'time_mid' => str_pad($components[1], 4, '0', STR_PAD_LEFT),
-            'time_hi_and_version' => str_pad($components[2], 4, '0', STR_PAD_LEFT),
-            'clock_seq_hi_and_reserved' => str_pad(substr($components[3], 0, 2), 2, '0', STR_PAD_LEFT),
-            'clock_seq_low' => str_pad(substr($components[3], 2), 2, '0', STR_PAD_LEFT),
-            'node' => str_pad($components[4], 12, '0', STR_PAD_LEFT)
-        ];
+        return ['time_low' => \str_pad($components[0], 8, '0', \STR_PAD_LEFT), 'time_mid' => \str_pad($components[1], 4, '0', \STR_PAD_LEFT), 'time_hi_and_version' => \str_pad($components[2], 4, '0', \STR_PAD_LEFT), 'clock_seq_hi_and_reserved' => \str_pad(\substr($components[3], 0, 2), 2, '0', \STR_PAD_LEFT), 'clock_seq_low' => \str_pad(\substr($components[3], 2), 2, '0', \STR_PAD_LEFT), 'node' => \str_pad($components[4], 12, '0', \STR_PAD_LEFT)];
     }
 }

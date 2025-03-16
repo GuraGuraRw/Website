@@ -21,6 +21,8 @@ if (!defined('_PS_VERSION_')) {
  */
 class WidgetImageBox extends WidgetBase
 {
+    const HELP_URL = 'http://docs.webshopworks.com/creative-elements/86-widgets/general-widgets/304-image-box-widget';
+
     /**
      * Get widget name.
      *
@@ -75,6 +77,11 @@ class WidgetImageBox extends WidgetBase
     public function getKeywords()
     {
         return ['image', 'photo', 'visual', 'box'];
+    }
+
+    protected function isDynamicContent()
+    {
+        return false;
     }
 
     /**
@@ -572,23 +579,14 @@ class WidgetImageBox extends WidgetBase
                     $title_html = '<a ' . $this->getRenderAttributeString('link') . '>' . $title_html . '</a>';
                 }
 
-                $html .= sprintf(
-                    '<%1$s %2$s>%3$s</%1$s>',
-                    $settings['title_size'],
-                    $this->getRenderAttributeString('title_text'),
-                    $title_html
-                );
+                $html .= "<{$settings['title_size']} {$this->getRenderAttributeString('title_text')}>$title_html</{$settings['title_size']}>";
             }
 
             if ('' !== $settings['description_text']) {
                 $this->addRenderAttribute('description_text', 'class', 'elementor-image-box-description');
                 $this->addInlineEditingAttributes('description_text');
 
-                $html .= sprintf(
-                    '<p %1$s>%2$s</p>',
-                    $this->getRenderAttributeString('description_text'),
-                    $settings['description_text']
-                );
+                $html .= "<p {$this->getRenderAttributeString('description_text')}>{$settings['description_text']}</p>";
             }
 
             $html .= '</div>';

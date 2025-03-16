@@ -1,6 +1,6 @@
 <?php
 /**
- * Creative Elements - live PageBuilder
+ * Creative Elements - live Theme & Page Builder
  *
  * @author    WebshopWorks, Elementor
  * @copyright 2019-2024 WebshopWorks.com
@@ -45,12 +45,13 @@ class ModulesXCatalogXWidgetsXProductXMiniatureXImage extends ProductImage
             ? '{if $product.cover}{$image = $product.cover}'
             : "{if isset(\$product.images[$index])}{\$image = \$product.images[$index]}";
         echo $settings['show_no_image']
-            ? '{else}{$image = call_user_func("CE\Helper::getNoImage")}{/if}' : ''; ?>
+            ? '{else}{$image = $urls.no_picture_image}{/if}' : ''; ?>
         {$caption = <?php echo $settings['show_caption'] ? '$image.legend' : '""'; ?>}
         {$image_by_size = $image.bySize[<?php var_export($settings['image_size']); ?>]}
+        {$ratio = round($image_by_size.width / $image_by_size.height, 3)}
         {$srcset = ["{$image_by_size.url} {$image_by_size.width}w"]}
         {foreach $image.bySize as $size => $img}
-            {if <?php var_export($settings['image_size']); ?> !== $size}
+            {if <?php var_export($settings['image_size']); ?> !== $size && round($img.width / $img.height, 3) === $ratio}
                 {$srcset[] = "{$img.url} {$img.width}w"}
             {/if}
         {/foreach}
@@ -59,7 +60,7 @@ class ModulesXCatalogXWidgetsXProductXMiniatureXImage extends ProductImage
             <figure class="ce-caption">
         {/if}
             <a href="{$product.url}">
-                <img src="{$image_by_size.url}" srcset="{implode(', ', $srcset)}" alt="{$caption}" loading="lazy"
+                <img src="{$image_by_size.url}" srcset="{implode(', ', $srcset)}" alt="{$image.legend}"{if empty($loading_eager)} loading="lazy"{/if}
                 <?php if ($settings['hover_animation']) { ?>
                     class="<?php echo esc_attr("elementor-animation-{$settings['hover_animation']}"); ?>"
                 <?php } ?>

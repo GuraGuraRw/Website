@@ -1,6 +1,6 @@
 <?php
 /**
- * 2024 Packlink
+ * 2025 Packlink
  *
  * NOTICE OF LICENSE
  *
@@ -10,7 +10,7 @@
  * http://www.apache.org/licenses/LICENSE-2.0.txt
  *
  * @author    Packlink <support@packlink.com>
- * @copyright 2024 Packlink Shipping S.L
+ * @copyright 2025 Packlink Shipping S.L
  * @license   http://www.apache.org/licenses/LICENSE-2.0.txt  Apache License 2.0
  */
 if (!defined('_PS_VERSION_')) {
@@ -27,8 +27,8 @@ class Order extends OrderCore
      */
     /*
     * module: packlink
-    * date: 2025-01-18 18:07:31
-    * version: 3.2.21
+    * date: 2025-02-18 11:59:09
+    * version: 3.2.22
     */
     public $packlink_order_draft;
     /**
@@ -36,8 +36,8 @@ class Order extends OrderCore
      */
     /*
     * module: packlink
-    * date: 2025-01-18 18:07:31
-    * version: 3.2.21
+    * date: 2025-02-18 11:59:09
+    * version: 3.2.22
     */
     public function __construct($id = null, $id_lang = null)
     {
@@ -49,8 +49,8 @@ class Order extends OrderCore
      */
     /*
     * module: packlink
-    * date: 2025-01-18 18:07:31
-    * version: 3.2.21
+    * date: 2025-02-18 11:59:09
+    * version: 3.2.22
     */
     private function initializePacklinkHandler()
     {

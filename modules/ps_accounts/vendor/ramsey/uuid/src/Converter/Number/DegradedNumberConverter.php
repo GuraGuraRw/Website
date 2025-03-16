@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of the ramsey/uuid library
  *
@@ -11,12 +12,10 @@
  * @link https://packagist.org/packages/ramsey/uuid Packagist
  * @link https://github.com/ramsey/uuid GitHub
  */
+namespace PrestaShop\Module\PsAccounts\Vendor\Ramsey\Uuid\Converter\Number;
 
-namespace Ramsey\Uuid\Converter\Number;
-
-use Ramsey\Uuid\Exception\UnsatisfiedDependencyException;
-use Ramsey\Uuid\Converter\NumberConverterInterface;
-
+use PrestaShop\Module\PsAccounts\Vendor\Ramsey\Uuid\Exception\UnsatisfiedDependencyException;
+use PrestaShop\Module\PsAccounts\Vendor\Ramsey\Uuid\Converter\NumberConverterInterface;
 /**
  * DegradedNumberConverter throws `UnsatisfiedDependencyException` exceptions
  * if attempting to use number conversion functionality in an environment that
@@ -33,13 +32,8 @@ class DegradedNumberConverter implements NumberConverterInterface
      */
     public function fromHex($hex)
     {
-        throw new UnsatisfiedDependencyException(
-            'Cannot call ' . __METHOD__ . ' without support for large '
-            . 'integers, since integer is an unsigned '
-            . '128-bit integer; Moontoast\Math\BigNumber is required.'
-        );
+        throw new UnsatisfiedDependencyException('Cannot call ' . __METHOD__ . ' without support for large ' . 'integers, since integer is an unsigned ' . '128-bit integer; Moontoast\\Math\\BigNumber is required.');
     }
-
     /**
      * Throws an `UnsatisfiedDependencyException`
      *
@@ -49,10 +43,6 @@ class DegradedNumberConverter implements NumberConverterInterface
      */
     public function toHex($integer)
     {
-        throw new UnsatisfiedDependencyException(
-            'Cannot call ' . __METHOD__ . ' without support for large '
-            . 'integers, since integer is an unsigned '
-            . '128-bit integer; Moontoast\Math\BigNumber is required. '
-        );
+        throw new UnsatisfiedDependencyException('Cannot call ' . __METHOD__ . ' without support for large ' . 'integers, since integer is an unsigned ' . '128-bit integer; Moontoast\\Math\\BigNumber is required. ');
     }
 }

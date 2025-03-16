@@ -39,6 +39,11 @@ class ModulesXPremiumXWidgetsXFacebookButton extends WidgetBase
         return ['facebook', 'fb', 'social', 'embed', 'button', 'like', 'share', 'recommend', 'follow'];
     }
 
+    protected function isDynamicContent()
+    {
+        return false;
+    }
+
     public function getHeight($layout, $size, $share)
     {
         $small = 'small' === $size;
@@ -155,7 +160,7 @@ class ModulesXPremiumXWidgetsXFacebookButton extends WidgetBase
         } elseif (!empty($settings['url']) && \Validate::isAbsoluteUrl($settings['url'])) {
             $url = $settings['url'];
         } else {
-            return print \Context::getContext()->getTranslator()->trans('Invalid URL', [], 'Admin.Notifications.Error');
+            return _e('Invalid URL', 'Admin.Notifications.Error');
         }
 
         $this->addRenderAttribute('frame', [

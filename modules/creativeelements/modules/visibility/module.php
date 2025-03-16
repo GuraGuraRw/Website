@@ -91,7 +91,7 @@ class ModulesXVisibilityXModule extends BaseModule
         static $options;
 
         if (null === $options) {
-            $groups = \Group::getGroups(\Context::getContext()->language->id);
+            $groups = \Group::getGroups($GLOBALS['language']->id);
 
             foreach ($groups as &$group) {
                 $options[$group['id_group']] = $group['name'];
@@ -101,21 +101,14 @@ class ModulesXVisibilityXModule extends BaseModule
         return $options;
     }
 
-    public function registerControls(ControlsStack $element, array $args)
+    public function registerControls(ElementBase $element, array $args)
     {
-        $element->startControlsSection(
-            '_section_visibility',
-            [
-                'label' => __('Visibility'),
-                'tab' => ControlsManager::TAB_ADVANCED,
-            ]
-        );
-
         $element->addControl(
             'schedule',
             [
                 'label' => __('Schedule'),
                 'type' => ControlsManager::SWITCHER,
+                'separator' => 'before',
             ]
         );
 
@@ -181,8 +174,6 @@ class ModulesXVisibilityXModule extends BaseModule
                 ]
             );
         }
-
-        $element->endControlsSection();
     }
 
     public function __construct()
@@ -191,8 +182,8 @@ class ModulesXVisibilityXModule extends BaseModule
             $this->children = [];
         };
 
-        if (!is_admin() && \Configuration::get('elementor_remove_hidden')) {
-            $mobile_detect = \Context::getContext()->mobile_detect;
+        if (!_CE_ADMIN_ && \Configuration::get('elementor_remove_hidden') && !\Configuration::get('elementor_element_cache_ttl')) {
+            $mobile_detect = $GLOBALS['context']->mobile_detect;
             $this->device = $mobile_detect->isTablet() ? 'tablet' : ($mobile_detect->isMobile() ? 'mobile' : 'desktop');
 
             add_action('elementor/frontend/section/before_render', [$this, 'renderElementByDevice']);
@@ -205,14 +196,13 @@ class ModulesXVisibilityXModule extends BaseModule
         }
 
         if (\Configuration::get('elementor_visibility')) {
-            if (!is_admin()) {
+            if (!_CE_ADMIN_) {
                 add_filter('elementor/frontend/section/should_render', [$this, 'isElementVisibleBySchedule']);
                 add_filter('elementor/frontend/column/should_render', [$this, 'isElementVisibleBySchedule']);
                 add_filter('elementor/frontend/widget/should_render', [$this, 'isElementVisibleBySchedule']);
 
                 if (\Group::isFeatureActive()) {
-                    $id_customer = \Context::getContext()->customer->id;
-                    $this->groups = \Customer::getGroupsStatic($id_customer);
+                    $this->groups = \Customer::getGroupsStatic($GLOBALS['customer']->id);
 
                     add_filter('elementor/frontend/section/should_render', [$this, 'isElementVisibleByGroup']);
                     add_filter('elementor/frontend/column/should_render', [$this, 'isElementVisibleByGroup']);
@@ -220,9 +210,9 @@ class ModulesXVisibilityXModule extends BaseModule
                 }
             }
 
-            add_action('elementor/element/section/_section_responsive/before_section_start', [$this, 'registerControls']);
-            add_action('elementor/element/column/_section_responsive/before_section_start', [$this, 'registerControls']);
-            add_action('elementor/element/common/_section_responsive/before_section_start', [$this, 'registerControls']);
+            add_action('elementor/element/section/_section_responsive/before_section_end', [$this, 'registerControls']);
+            add_action('elementor/element/column/_section_responsive/before_section_end', [$this, 'registerControls']);
+            add_action('elementor/element/common/_section_responsive/before_section_end', [$this, 'registerControls']);
         }
     }
 }

@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>{{ 'Rollback to your previous version'|trans }}</title>
+        <link type="text/css" rel="stylesheet" href="{{ psBaseUri }}modules/ets_upgrade/views/css/rollback.css"/>
+        <script src="{{ psBaseUri }}modules/ets_upgrade/views/js/jquery-1.11.0.min.js"></script>
+        <script src="{{ psBaseUri }}modules/ets_upgrade/views/js/jquery.xml2json.js"></script>
+        {% if jsParams is defined %}<script type="text/javascript">
+            var ets_autoup_input = {{ jsParams|json_encode|raw }};
+        </script>{% endif %}
+        <script src="{{ psBaseUri }}modules/ets_upgrade/views/js/jquery.form.js"></script>
+        <script src="{{ psBaseUri }}modules/ets_upgrade/views/js/upgrade.function.js"></script>
+        <script src="{{ psBaseUri }}modules/ets_upgrade/views/js/rollback.js"></script>
+    </head>
+    <body class="bootstrap ets_autoup_rollback_wrap">
+        <div class="ets_autoup_panel">
+            <div class="ets_autoup_form">
+                <form class="ets_autoup_backup_form" action="{{ currentIndex ~ 'rollback.php' }}" enctype="multipart/form-data" method="POST">
+                    <img src="{{ imageDir|raw }}rollback.png" alt="{{ 'Rollback to your previous version'|trans }}"/>
+                    {% if errorMessage is defined or submitKey is empty %}
+                        <h4 class="panel-heading">{{ 'Rollback to your previous version'|trans }}</h4>
+                        {% if errorMessage %}<div class="alert alert-danger">{{ errorMessage }}</div>{% endif %}
+                        <div class="panel">
+                            <div class="form-group flex-center flex">
+                                <label class="form-control">{{ 'Access key'|trans }}</label>
+                                <input id="ets_autoup_backUpKey" type="text" name="key" autocomplete="off" value="{{ submitKey }}">
+                                <button class="ets_autoup_submit" name="ets_autoup_submit" type="submit">{{ 'Submit'|trans }}</button>
+                                {% if md5KeyCheck %}<p class="ets_autoup_help_block alert-info">
+                                    {{ 'If you lost the access key, you can find it in: %s'|trans([md5KeyCheck]) }}
+                                </p>{% endif %}
+                            </div>
+                        </div>
+                    {% else %}
+                        <input id="ets_autoup_backUpKey" type="hidden" name="key" autocomplete="off" value="{{ submitKey }}">
+                        {% include '@ModuleAutoUpgrade/block/rollbackForm.twig' %}
+                        <div class="ets_autoup_overload ets_autoup_popup">
+                            <div class="table">
+                                <div class="table-cell">
+                                    <div class="ets_autoup_wrapper">
+                                        <div class="ets_autoup_content">
+                                            {% include '@ModuleAutoUpgrade/block/activityLog.twig' %}
+                                            <div class="ets_autoup_warning_php_version" style="display: none;">
+                                                <p class="ets_autoup_warning alert alert-warning">
+                                                    <svg width="40" height="40" viewBox="0 0 1792 1792" xmlns="http://www.w3.org/2000/svg"><path d="M896 128q209 0 385.5 103t279.5 279.5 103 385.5-103 385.5-279.5 279.5-385.5 103-385.5-103-279.5-279.5-103-385.5 103-385.5 279.5-279.5 385.5-103zm128 1247v-190q0-14-9-23.5t-22-9.5h-192q-13 0-23 10t-10 23v190q0 13 10 23t23 10h192q13 0 22-9.5t9-23.5zm-2-344l18-621q0-12-10-18-10-8-24-8h-220q-14 0-24 8-10 6-10 18l17 621q0 10 10 17.5t24 7.5h185q14 0 23.5-7.5t10.5-17.5z"/></svg>
+                                                    <span>{{ 'Please downgrade your PHP version'|trans }}&nbsp;</span><span class="ets_autoup_downgrade_php_version"></span>
+                                                </p>
+                                            </div>
+                                            <div class="ets_autoup_actions text-center" style="display:none;">
+                                                <a href="{{ linkBo|raw }}" target="_blank" class="btn_autoup_view_bo btn btn-default">{{ 'View BO'|trans }}</a>
+                                                <a href="{{ linkFo|raw }}" target="_blank" class="btn_autoup_view_fo btn btn-default">{{ 'View Store'|trans }}</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+                </form>
+            </div>
+        </div>
+    </body>
+</html>

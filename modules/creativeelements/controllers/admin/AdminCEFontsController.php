@@ -40,7 +40,7 @@ class AdminCEFontsController extends ModuleAdminController
                 'title' => $this->l('Font Name'),
             ],
             'preview' => [
-                'title' => $this->l('Preview'),
+                'title' => $this->trans('Preview', [], 'Admin.Actions'),
                 'class' => 'ce-font-preview',
                 'orderby' => false,
                 'search' => false,
@@ -49,7 +49,7 @@ class AdminCEFontsController extends ModuleAdminController
 
         $this->bulk_actions = [
             'delete' => [
-                'text' => $this->l('Delete'),
+                'text' => $this->trans('Delete', [], 'Admin.Actions'),
                 'icon' => 'icon-trash text-danger',
                 'confirm' => $this->trans('Delete selected items?', [], 'Admin.Notifications.Info'),
             ],
@@ -220,11 +220,8 @@ class AdminCEFontsController extends ModuleAdminController
         return parent::renderForm();
     }
 
-    protected function l($string, $module = 'creativeelements', $addslashes = false, $htmlentities = true)
+    protected function l($string, $ctx = '', $addslashes = false, $htmlentities = true)
     {
-        $js = $addslashes || !$htmlentities;
-        $str = Translate::getModuleTranslation($module, $string, '', null, $js, _CE_LOCALE_);
-
-        return $htmlentities ? $str : stripslashes($str);
+        return Translate::getModuleTranslation($this->module, $string, $ctx, null, $addslashes, _CE_LOCALE_, false, $htmlentities);
     }
 }

@@ -66,7 +66,6 @@ class ModulesXDynamicTagsXTagsXCustomColors extends DataTag
             $color = urlencode($custom_color['color']);
             $items[] = [
                 'image' => [
-                    'id' => '',
                     'url' => 'data:image/svg+xml,' .
                         "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1' style='background:$color'></svg>",
                     'alt' => $custom_color['color'],
@@ -75,6 +74,7 @@ class ModulesXDynamicTagsXTagsXCustomColors extends DataTag
                     'url' => '',
                 ],
                 'caption' => $this->getSettings('show_caption') ? $custom_color['color'] : '',
+                'description' => '',
             ];
         }
 

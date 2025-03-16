@@ -18,6 +18,12 @@ class ModulesXThemeXWidgetsXLanguageSelector extends WidgetBase
 {
     use NavTrait;
 
+    protected $lang_flag;
+
+    protected $lang_code;
+
+    protected $lang_name;
+
     public function getName()
     {
         return 'language-selector';
@@ -133,7 +139,7 @@ class ModulesXThemeXWidgetsXLanguageSelector extends WidgetBase
     protected function render()
     {
         $settings = $this->getSettingsForDisplay();
-        $context = \Context::getContext();
+        $context = $GLOBALS['context'];
         $languages = \Language::getLanguages(true, $context->shop->id);
 
         if (count($languages) <= 1 || !$settings['content']) {
@@ -156,7 +162,7 @@ class ModulesXThemeXWidgetsXLanguageSelector extends WidgetBase
         ];
         foreach ($languages as &$lang) {
             $lang['current'] = $id_lang == $lang['id_lang'];
-            $lang['url'] = $context->link->getLanguageLink($lang['id_lang']);
+            $lang['url'] = Helper::$link->getLanguageLink($lang['id_lang']);
 
             if ($url_fix) {
                 // Remove rewritten URL from home page

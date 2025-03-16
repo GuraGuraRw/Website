@@ -14,6 +14,8 @@ if (!defined('_PS_VERSION_')) {
 
 class ModulesXCatalogXWidgetsXProductXShare extends WidgetSocialIcons
 {
+    const HELP_URL = '';
+
     public function getName()
     {
         return 'product-share';
@@ -37,6 +39,11 @@ class ModulesXCatalogXWidgetsXProductXShare extends WidgetSocialIcons
     public function getKeywords()
     {
         return ['shop', 'store', 'share', 'social', 'product'];
+    }
+
+    protected function isDynamicContent()
+    {
+        return true;
     }
 
     protected function getSocialIconListControls()
@@ -110,10 +117,10 @@ class ModulesXCatalogXWidgetsXProductXShare extends WidgetSocialIcons
 
     protected function render()
     {
-        $context = \Context::getContext();
+        $controller = $GLOBALS['context']->controller;
 
-        if ($context->controller instanceof \ProductController) {
-            $product = $context->controller->getProduct();
+        if ($controller instanceof \ProductController) {
+            $product = $controller->getProduct();
             $image_cover_id = $product->getCover($product->id);
 
             if (is_array($image_cover_id) && isset($image_cover_id['id_image'])) {
@@ -121,9 +128,9 @@ class ModulesXCatalogXWidgetsXProductXShare extends WidgetSocialIcons
             } else {
                 $image_cover_id = 0;
             }
-            $url = urlencode(addcslashes($context->link->getProductLink($product), "'"));
+            $url = urlencode(addcslashes(Helper::$link->getProductLink($product), "'"));
             $name = urlencode(addcslashes($product->name, "'"));
-            $img = urlencode(addcslashes($context->link->getImageLink($product->link_rewrite, $image_cover_id), "'"));
+            $img = urlencode(addcslashes(Helper::$link->getImageLink($product->link_rewrite, $image_cover_id), "'"));
         } else {
             $url = '';
             $name = '';

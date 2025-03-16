@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of the ramsey/uuid library
  *
@@ -11,12 +12,10 @@
  * @link https://packagist.org/packages/ramsey/uuid Packagist
  * @link https://github.com/ramsey/uuid GitHub
  */
+namespace PrestaShop\Module\PsAccounts\Vendor\Ramsey\Uuid\Converter\Time;
 
-namespace Ramsey\Uuid\Converter\Time;
-
-use Ramsey\Uuid\Converter\TimeConverterInterface;
-use Ramsey\Uuid\Exception\UnsatisfiedDependencyException;
-
+use PrestaShop\Module\PsAccounts\Vendor\Ramsey\Uuid\Converter\TimeConverterInterface;
+use PrestaShop\Module\PsAccounts\Vendor\Ramsey\Uuid\Exception\UnsatisfiedDependencyException;
 /**
  * DegradedTimeConverter throws `UnsatisfiedDependencyException` exceptions
  * if attempting to use time conversion functionality in an environment that
@@ -34,9 +33,6 @@ class DegradedTimeConverter implements TimeConverterInterface
      */
     public function calculateTime($seconds, $microSeconds)
     {
-        throw new UnsatisfiedDependencyException(
-            'When calling ' . __METHOD__ . ' on a 32-bit system, '
-            . 'Moontoast\Math\BigNumber must be present.'
-        );
+        throw new UnsatisfiedDependencyException('When calling ' . __METHOD__ . ' on a 32-bit system, ' . 'Moontoast\\Math\\BigNumber must be present.');
     }
 }

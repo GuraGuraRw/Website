@@ -3,7 +3,7 @@
 namespace PrestaShop\Module\PsAccounts\Vendor\GuzzleHttp\Handler;
 
 use PrestaShop\Module\PsAccounts\Vendor\GuzzleHttp\Psr7;
-use Psr\Http\Message\RequestInterface;
+use PrestaShop\Module\PsAccounts\Vendor\Psr\Http\Message\RequestInterface;
 /**
  * HTTP handler that uses cURL easy handles as a transport layer.
  *

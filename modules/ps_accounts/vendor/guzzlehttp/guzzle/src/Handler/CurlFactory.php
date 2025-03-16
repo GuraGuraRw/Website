@@ -8,7 +8,7 @@ use PrestaShop\Module\PsAccounts\Vendor\GuzzleHttp\Promise\FulfilledPromise;
 use PrestaShop\Module\PsAccounts\Vendor\GuzzleHttp\Psr7;
 use PrestaShop\Module\PsAccounts\Vendor\GuzzleHttp\Psr7\LazyOpenStream;
 use PrestaShop\Module\PsAccounts\Vendor\GuzzleHttp\TransferStats;
-use Psr\Http\Message\RequestInterface;
+use PrestaShop\Module\PsAccounts\Vendor\Psr\Http\Message\RequestInterface;
 /**
  * Creates curl resources from a request
  */

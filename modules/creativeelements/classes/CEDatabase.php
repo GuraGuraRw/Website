@@ -12,7 +12,8 @@ if (!defined('_PS_VERSION_')) {
 
 class CEDatabase
 {
-    private static $hooks = [
+    const HOOKS = [
+        'dashboardZoneOne',
         'displayBackOfficeHeader',
         'displayHeader',
         'displayOverrideTemplate',
@@ -20,6 +21,7 @@ class CEDatabase
         'overrideLayoutTemplate',
         'CETemplate',
         // Actions
+        'actionClearCompileCache',
         'actionFrontControllerAfterInit',
         'actionFrontControllerInitAfter',
         'actionObjectCERevisionDeleteAfter',
@@ -77,8 +79,8 @@ class CEDatabase
             ]),
             'elementor_load_animate' => 1,
             'elementor_load_fontawesome' => 1,
+            'elementor_load_sticky' => 1,
             'elementor_load_swiper' => 1,
-            'elementor_load_waypoints' => 1,
         ];
         foreach ($defaults as $key => $value) {
             Configuration::hasKey($key) || Configuration::updateValue($key, $value);
@@ -90,60 +92,58 @@ class CEDatabase
     public static function createTables()
     {
         $db = Db::getInstance();
-        $ps = _DB_PREFIX_;
-        $engine = _MYSQL_ENGINE_;
 
-        return $db->execute("
-            CREATE TABLE IF NOT EXISTS `{$ps}ce_meta` (
+        return $db->execute('
+            CREATE TABLE IF NOT EXISTS ' . _DB_PREFIX_ . 'ce_meta (
                 `id_ce_meta` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
                 `id` bigint(20) UNSIGNED NOT NULL DEFAULT 0,
                 `name` varchar(255) DEFAULT NULL,
                 `value` longtext,
                 PRIMARY KEY (`id_ce_meta`),
                 KEY `id` (`id`),
-                KEY `name` (`name`)
-            ) ENGINE=$engine DEFAULT CHARSET=utf8mb4 DEFAULT COLLATE=utf8mb4_unicode_ci;
-        ") && $db->execute("
-            CREATE TABLE IF NOT EXISTS `{$ps}ce_revision` (
+                KEY `name` (`name`(191))
+            ) ENGINE=' . _MYSQL_ENGINE_ . ' DEFAULT CHARSET=utf8mb4 DEFAULT COLLATE=utf8mb4_unicode_ci;
+        ') && $db->execute('
+            CREATE TABLE IF NOT EXISTS ' . _DB_PREFIX_ . 'ce_revision (
                 `id_ce_revision` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
                 `parent` bigint(20) UNSIGNED NOT NULL,
                 `id_employee` int(10) UNSIGNED NOT NULL,
                 `title` varchar(255) NOT NULL,
-                `type` varchar(64) NOT NULL DEFAULT '',
+                `type` varchar(64) NOT NULL DEFAULT "",
                 `content` longtext NOT NULL,
                 `active` tinyint(1) UNSIGNED NOT NULL DEFAULT 0,
                 `date_upd` datetime NOT NULL,
                 PRIMARY KEY (`id_ce_revision`),
-                KEY `id` (`parent`),
-                KEY `date_add` (`date_upd`)
-            ) ENGINE=$engine DEFAULT CHARSET=utf8mb4 DEFAULT COLLATE=utf8mb4_unicode_ci;
-        ") && $db->execute("
-            CREATE TABLE IF NOT EXISTS `{$ps}ce_template` (
+                KEY `parent` (`parent`),
+                KEY `date_upd` (`date_upd`)
+            ) ENGINE=' . _MYSQL_ENGINE_ . ' DEFAULT CHARSET=utf8mb4 DEFAULT COLLATE=utf8mb4_unicode_ci;
+        ') && $db->execute('
+            CREATE TABLE IF NOT EXISTS ' . _DB_PREFIX_ . 'ce_template (
                 `id_ce_template` int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
                 `id_employee` int(10) UNSIGNED NOT NULL,
-                `title` varchar(128) NOT NULL DEFAULT '',
-                `type` varchar(64) NOT NULL DEFAULT '',
+                `title` varchar(128) NOT NULL DEFAULT "",
+                `type` varchar(64) NOT NULL DEFAULT "",
                 `content` longtext,
                 `position` int(10) UNSIGNED NOT NULL DEFAULT 0,
                 `active` tinyint(1) UNSIGNED NOT NULL DEFAULT 0,
                 `date_add` datetime NOT NULL,
                 `date_upd` datetime NOT NULL,
                 PRIMARY KEY (`id_ce_template`)
-            ) ENGINE=$engine DEFAULT CHARSET=utf8mb4 DEFAULT COLLATE=utf8mb4_unicode_ci;
-        ") && $db->execute("
-            CREATE TABLE IF NOT EXISTS `{$ps}ce_content` (
+            ) ENGINE=' . _MYSQL_ENGINE_ . ' DEFAULT CHARSET=utf8mb4 DEFAULT COLLATE=utf8mb4_unicode_ci;
+        ') && $db->execute('
+            CREATE TABLE IF NOT EXISTS ' . _DB_PREFIX_ . 'ce_content (
                 `id_ce_content` int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
                 `id_employee` int(10) UNSIGNED NOT NULL,
                 `id_product` int(10) UNSIGNED NOT NULL DEFAULT 0,
-                `hook` varchar(64) NOT NULL DEFAULT '',
+                `hook` varchar(64) NOT NULL DEFAULT "",
                 `position` int(10) UNSIGNED NOT NULL DEFAULT 0,
                 `active` tinyint(1) UNSIGNED NOT NULL DEFAULT 0,
                 `date_add` datetime NOT NULL,
                 `date_upd` datetime NOT NULL,
                 PRIMARY KEY (`id_ce_content`)
-            ) ENGINE=$engine DEFAULT CHARSET=utf8mb4 DEFAULT COLLATE=utf8mb4_unicode_ci;
-        ") && $db->execute("
-            CREATE TABLE IF NOT EXISTS `{$ps}ce_content_shop` (
+            ) ENGINE=' . _MYSQL_ENGINE_ . ' DEFAULT CHARSET=utf8mb4 DEFAULT COLLATE=utf8mb4_unicode_ci;
+        ') && $db->execute('
+            CREATE TABLE IF NOT EXISTS ' . _DB_PREFIX_ . 'ce_content_shop (
                 `id_ce_content` int(10) UNSIGNED NOT NULL,
                 `id_shop` int(10) UNSIGNED NOT NULL,
                 `position` int(10) UNSIGNED NOT NULL DEFAULT 0,
@@ -152,29 +152,29 @@ class CEDatabase
                 `date_upd` datetime NOT NULL,
                 PRIMARY KEY (`id_ce_content`,`id_shop`),
                 KEY `id_shop` (`id_shop`)
-            ) ENGINE=$engine DEFAULT CHARSET=utf8mb4 DEFAULT COLLATE=utf8mb4_unicode_ci;
-        ") && $db->execute("
-            CREATE TABLE IF NOT EXISTS `{$ps}ce_content_lang` (
+            ) ENGINE=' . _MYSQL_ENGINE_ . ' DEFAULT CHARSET=utf8mb4 DEFAULT COLLATE=utf8mb4_unicode_ci;
+        ') && $db->execute('
+            CREATE TABLE IF NOT EXISTS ' . _DB_PREFIX_ . 'ce_content_lang (
                 `id_ce_content` int(10) UNSIGNED NOT NULL,
                 `id_lang` int(10) UNSIGNED NOT NULL,
                 `id_shop` int(10) UNSIGNED NOT NULL DEFAULT 1,
-                `title` varchar(128) NOT NULL DEFAULT '',
+                `title` varchar(128) NOT NULL DEFAULT "",
                 `content` longtext,
                 PRIMARY KEY (`id_ce_content`,`id_shop`,`id_lang`)
-            ) ENGINE=$engine DEFAULT CHARSET=utf8mb4 DEFAULT COLLATE=utf8mb4_unicode_ci;
-        ") && $db->execute("
-            CREATE TABLE IF NOT EXISTS `{$ps}ce_theme` (
+            ) ENGINE=' . _MYSQL_ENGINE_ . ' DEFAULT CHARSET=utf8mb4 DEFAULT COLLATE=utf8mb4_unicode_ci;
+        ') && $db->execute('
+            CREATE TABLE IF NOT EXISTS ' . _DB_PREFIX_ . 'ce_theme (
                 `id_ce_theme` int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
                 `id_employee` int(10) UNSIGNED NOT NULL,
-                `type` varchar(64) NOT NULL DEFAULT '',
+                `type` varchar(64) NOT NULL DEFAULT "",
                 `position` int(10) UNSIGNED NOT NULL DEFAULT 0,
                 `active` tinyint(1) UNSIGNED NOT NULL DEFAULT 0,
                 `date_add` datetime NOT NULL,
                 `date_upd` datetime NOT NULL,
                 PRIMARY KEY (`id_ce_theme`)
-            ) ENGINE=$engine DEFAULT CHARSET=utf8mb4 DEFAULT COLLATE=utf8mb4_unicode_ci;
-        ") && $db->execute("
-            CREATE TABLE IF NOT EXISTS `{$ps}ce_theme_shop` (
+            ) ENGINE=' . _MYSQL_ENGINE_ . ' DEFAULT CHARSET=utf8mb4 DEFAULT COLLATE=utf8mb4_unicode_ci;
+        ') && $db->execute('
+            CREATE TABLE IF NOT EXISTS ' . _DB_PREFIX_ . 'ce_theme_shop (
                 `id_ce_theme` int(10) UNSIGNED NOT NULL,
                 `id_shop` int(10) UNSIGNED NOT NULL,
                 `position` int(10) UNSIGNED NOT NULL DEFAULT 0,
@@ -183,31 +183,31 @@ class CEDatabase
                 `date_upd` datetime NOT NULL,
                 PRIMARY KEY (`id_ce_theme`,`id_shop`),
                 KEY `id_shop` (`id_shop`)
-            ) ENGINE=$engine DEFAULT CHARSET=utf8mb4 DEFAULT COLLATE=utf8mb4_unicode_ci;
-        ") && $db->execute("
-            CREATE TABLE IF NOT EXISTS `{$ps}ce_theme_lang` (
+            ) ENGINE=' . _MYSQL_ENGINE_ . ' DEFAULT CHARSET=utf8mb4 DEFAULT COLLATE=utf8mb4_unicode_ci;
+        ') && $db->execute('
+            CREATE TABLE IF NOT EXISTS ' . _DB_PREFIX_ . 'ce_theme_lang (
                 `id_ce_theme` int(10) UNSIGNED NOT NULL,
                 `id_lang` int(10) UNSIGNED NOT NULL,
                 `id_shop` int(10) UNSIGNED NOT NULL DEFAULT 1,
-                `title` varchar(128) NOT NULL DEFAULT '',
+                `title` varchar(128) NOT NULL DEFAULT "",
                 `content` text,
                 PRIMARY KEY (`id_ce_theme`,`id_shop`,`id_lang`)
-            ) ENGINE=$engine DEFAULT CHARSET=utf8mb4 DEFAULT COLLATE=utf8mb4_unicode_ci;
-        ") && $db->execute("
-            CREATE TABLE IF NOT EXISTS `{$ps}ce_font` (
+            ) ENGINE=' . _MYSQL_ENGINE_ . ' DEFAULT CHARSET=utf8mb4 DEFAULT COLLATE=utf8mb4_unicode_ci;
+        ') && $db->execute('
+            CREATE TABLE IF NOT EXISTS ' . _DB_PREFIX_ . 'ce_font (
                 `id_ce_font` int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
-                `family` varchar(128) NOT NULL DEFAULT '',
+                `family` varchar(128) NOT NULL DEFAULT "",
                 `files` text,
                 PRIMARY KEY (`id_ce_font`)
-            ) ENGINE=$engine DEFAULT CHARSET=utf8mb4 DEFAULT COLLATE=utf8mb4_unicode_ci;
-        ") && $db->execute("
-            CREATE TABLE IF NOT EXISTS `{$ps}ce_icon_set` (
+            ) ENGINE=' . _MYSQL_ENGINE_ . ' DEFAULT CHARSET=utf8mb4 DEFAULT COLLATE=utf8mb4_unicode_ci;
+        ') && $db->execute('
+            CREATE TABLE IF NOT EXISTS ' . _DB_PREFIX_ . 'ce_icon_set (
                 `id_ce_icon_set` int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
-                `name` varchar(128) NOT NULL DEFAULT '',
+                `name` varchar(128) NOT NULL DEFAULT "",
                 `config` longtext,
                 PRIMARY KEY (`id_ce_icon_set`)
-            ) ENGINE=$engine DEFAULT CHARSET=utf8mb4 DEFAULT COLLATE=utf8mb4_unicode_ci;
-        ");
+            ) ENGINE=' . _MYSQL_ENGINE_ . ' DEFAULT CHARSET=utf8mb4 DEFAULT COLLATE=utf8mb4_unicode_ci;
+        ');
     }
 
     public static function updateTabs()
@@ -321,19 +321,18 @@ class CEDatabase
 
     public static function getHooks($all = true)
     {
-        $hooks = self::$hooks;
+        $hooks = self::HOOKS;
 
         if ($all) {
-            $ce_content = _DB_PREFIX_ . 'ce_content';
-            $rows = Db::getInstance()->executeS("SELECT DISTINCT hook FROM $ce_content");
+            $rows = Db::getInstance()->executeS(
+                'SELECT DISTINCT `hook` FROM ' . _DB_PREFIX_ . 'ce_content'
+            ) ?: [];
 
-            if ($rows) {
-                foreach ($rows as &$row) {
-                    $hook = $row['hook'];
+            foreach ($rows as &$row) {
+                $hook = $row['hook'];
 
-                    if ($hook && !in_array($hook, $hooks)) {
-                        $hooks[] = $hook;
-                    }
+                if ($hook && !in_array($hook, $hooks)) {
+                    $hooks[] = $hook;
                 }
             }
         }

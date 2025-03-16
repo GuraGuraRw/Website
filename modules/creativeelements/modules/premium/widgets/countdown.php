@@ -39,6 +39,11 @@ class ModulesXPremiumXWidgetsXCountdown extends WidgetBase
         return ['countdown', 'number', 'timer', 'time', 'date'];
     }
 
+    protected function isDynamicContent()
+    {
+        return false;
+    }
+
     protected function _registerControls()
     {
         $this->startControlsSection(
@@ -57,6 +62,7 @@ class ModulesXPremiumXWidgetsXCountdown extends WidgetBase
                     'active' => true,
                 ],
                 'default' => date('Y-m-d H:i', strtotime('+1 month')),
+                'save_default' => true,
                 'description' => sprintf(__('Date set according to your timezone: %s.'), Utils::getTimezoneString()),
             ]
         );
@@ -119,7 +125,6 @@ class ModulesXPremiumXWidgetsXCountdown extends WidgetBase
             [
                 'label' => __('Hours'),
                 'type' => ControlsManager::SWITCHER,
-                'separator' => '',
                 'label_on' => __('Show'),
                 'label_off' => __('Hide'),
                 'default' => 'yes',
@@ -131,7 +136,6 @@ class ModulesXPremiumXWidgetsXCountdown extends WidgetBase
             [
                 'label' => __('Minutes'),
                 'type' => ControlsManager::SWITCHER,
-                'separator' => '',
                 'label_on' => __('Show'),
                 'label_off' => __('Hide'),
                 'default' => 'yes',
@@ -143,7 +147,6 @@ class ModulesXPremiumXWidgetsXCountdown extends WidgetBase
             [
                 'label' => __('Seconds'),
                 'type' => ControlsManager::SWITCHER,
-                'separator' => '',
                 'label_on' => __('Show'),
                 'label_off' => __('Hide'),
                 'default' => 'yes',
@@ -177,7 +180,6 @@ class ModulesXPremiumXWidgetsXCountdown extends WidgetBase
             [
                 'label' => __('Days'),
                 'type' => ControlsManager::TEXT,
-                'separator' => '',
                 'default' => __('Days'),
                 'placeholder' => __('Days'),
                 'condition' => [
@@ -193,7 +195,6 @@ class ModulesXPremiumXWidgetsXCountdown extends WidgetBase
             [
                 'label' => __('Hours'),
                 'type' => ControlsManager::TEXT,
-                'separator' => '',
                 'default' => __('Hours'),
                 'placeholder' => __('Hours'),
                 'condition' => [
@@ -209,7 +210,6 @@ class ModulesXPremiumXWidgetsXCountdown extends WidgetBase
             [
                 'label' => __('Minutes'),
                 'type' => ControlsManager::TEXT,
-                'separator' => '',
                 'default' => __('Minutes'),
                 'placeholder' => __('Minutes'),
                 'condition' => [
@@ -225,7 +225,6 @@ class ModulesXPremiumXWidgetsXCountdown extends WidgetBase
             [
                 'label' => __('Seconds'),
                 'type' => ControlsManager::TEXT,
-                'separator' => '',
                 'default' => __('Seconds'),
                 'placeholder' => __('Seconds'),
                 'condition' => [
@@ -240,23 +239,24 @@ class ModulesXPremiumXWidgetsXCountdown extends WidgetBase
             'expire_actions',
             [
                 'label' => __('Actions After Expire'),
+                'label_block' => true,
                 'type' => ControlsManager::SELECT2,
+                'multiple' => true,
                 'options' => [
                     'redirect' => __('Redirect'),
                     'hide' => __('Hide'),
+                    'hide_element' => __('Hide Element'),
                     'message' => __('Show Message'),
                 ],
-                'label_block' => true,
                 'separator' => 'before',
                 'render_type' => 'none',
-                'multiple' => true,
             ]
         );
 
         $this->addControl(
             'message_after_expire',
             [
-                'label' => __('Message'),
+                'label' => __('Message', 'Shop.Forms.Labels'),
                 'type' => ControlsManager::TEXTAREA,
                 'dynamic' => [
                     'active' => true,
@@ -281,12 +281,32 @@ class ModulesXPremiumXWidgetsXCountdown extends WidgetBase
                 'dynamic' => [
                     'active' => true,
                 ],
+                'render_type' => 'none',
                 'conditions' => [
                     'terms' => [
                         [
                             'name' => 'expire_actions',
                             'operator' => 'contains',
                             'value' => 'redirect',
+                        ],
+                    ],
+                ],
+            ]
+        );
+
+        $this->addControl(
+            'hide_element',
+            [
+                'label' => __('Hide Element'),
+                'type' => ControlsManager::TEXT,
+                'placeholder' => __('CSS Selector'),
+                'render_type' => 'none',
+                'conditions' => [
+                    'terms' => [
+                        [
+                            'name' => 'expire_actions',
+                            'operator' => 'contains',
+                            'value' => 'hide_element',
                         ],
                     ],
                 ],
@@ -376,10 +396,8 @@ class ModulesXPremiumXWidgetsXCountdown extends WidgetBase
                     'size' => 10,
                 ],
                 'selectors' => [
-                    'body:not(.lang-rtl) {{WRAPPER}} .elementor-countdown-item:not(:first-of-type)' => 'margin-left: calc({{SIZE}}{{UNIT}}/2);',
-                    'body:not(.lang-rtl) {{WRAPPER}} .elementor-countdown-item:not(:last-of-type)' => 'margin-right: calc({{SIZE}}{{UNIT}}/2);',
-                    'body.lang-rtl {{WRAPPER}} .elementor-countdown-item:not(:first-of-type)' => 'margin-right: calc({{SIZE}}{{UNIT}}/2);',
-                    'body.lang-rtl {{WRAPPER}} .elementor-countdown-item:not(:last-of-type)' => 'margin-left: calc({{SIZE}}{{UNIT}}/2);',
+                    '{{WRAPPER}} .elementor-countdown-item:not(:first-of-type)' => 'margin-inline-start: calc({{SIZE}}{{UNIT}}/2);',
+                    '{{WRAPPER}} .elementor-countdown-item:not(:last-of-type)' => 'margin-inline-end: calc({{SIZE}}{{UNIT}}/2);',
                 ],
             ]
         );
@@ -476,7 +494,7 @@ class ModulesXPremiumXWidgetsXCountdown extends WidgetBase
         $this->startControlsSection(
             'section_expire_message_style',
             [
-                'label' => __('Message'),
+                'label' => __('Message', 'Shop.Forms.Labels'),
                 'tab' => ControlsManager::TAB_STYLE,
                 'conditions' => [
                     'terms' => [
@@ -619,17 +637,19 @@ class ModulesXPremiumXWidgetsXCountdown extends WidgetBase
         }
         $actions = [];
 
-        foreach ($settings['expire_actions'] as &$action) {
-            $action_to_run = ['type' => $action];
+        foreach ($settings['expire_actions'] as &$expire_action) {
+            $action = ['type' => $expire_action];
 
-            if ('redirect' === $action) {
+            if ('redirect' === $expire_action) {
                 if (empty($settings['expire_redirect_url']['url'])) {
                     continue;
                 }
-                $action_to_run['redirect_url'] = $settings['expire_redirect_url']['url'];
-                $action_to_run['redirect_is_external'] = $settings['expire_redirect_url']['is_external'];
+                $action['redirect_url'] = $settings['expire_redirect_url']['url'];
+                $action['redirect_is_external'] = $settings['expire_redirect_url']['is_external'];
+            } elseif ('hide_element' === $expire_action) {
+                $action['hide_element'] = $settings['hide_element'];
             }
-            $actions[] = $action_to_run;
+            $actions[] = $action;
         }
 
         return $actions;
@@ -637,16 +657,15 @@ class ModulesXPremiumXWidgetsXCountdown extends WidgetBase
 
     protected function render()
     {
-        $settings = $this->getSettingsForDisplay(); ?>
-        <div class="elementor-countdown-wrapper"
-            data-date="<?php echo strtotime($settings['due_date']); ?>"
-            data-expire-actions='<?php echo json_encode($this->getActions($settings)); ?>'>
+        $settings = $this->getSettingsForDisplay();
+        ?>
+        <div class="elementor-countdown-wrapper" data-date="<?php echo strtotime($settings['due_date']); ?>" data-expire-actions='<?php echo json_encode($this->getActions($settings)); ?>'>
             <?php echo $this->getStrftime($settings); ?>
         </div>
-        <?php if (in_array('message', (array) $settings['expire_actions'])) { ?>
-            <div class="elementor-countdown-expire--message"><?php echo $settings['message_after_expire']; ?></div>
-        <?php } ?>
         <?php
+        if (in_array('message', (array) $settings['expire_actions'])) {
+            echo '<div class="elementor-countdown-expire--message">' . $settings['message_after_expire'] . '</div>';
+        }
     }
 
     public function renderPlainContent()

@@ -18,17 +18,17 @@
  * @copyright Since 2007 PrestaShop SA and Contributors
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
-namespace PrestaShop\OAuth2\Client\Provider;
+namespace PrestaShop\Module\PsAccounts\Vendor\PrestaShop\OAuth2\Client\Provider;
 
 use PrestaShop\Module\PsAccounts\Vendor\League\OAuth2\Client\Provider\AbstractProvider;
 use PrestaShop\Module\PsAccounts\Vendor\League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use PrestaShop\Module\PsAccounts\Vendor\League\OAuth2\Client\Token\AccessToken;
 use PrestaShop\Module\PsAccounts\Vendor\League\OAuth2\Client\Tool\BearerAuthorizationTrait;
-use Psr\Http\Message\ResponseInterface;
+use PrestaShop\Module\PsAccounts\Vendor\Psr\Http\Message\ResponseInterface;
 class PrestaShop extends AbstractProvider
 {
     use BearerAuthorizationTrait;
-    use \PrestaShop\OAuth2\Client\Provider\LogoutTrait;
+    use LogoutTrait;
     /**
      * @var string If set, will be sent as the "prompt" parameter
      *
@@ -80,15 +80,32 @@ class PrestaShop extends AbstractProvider
         /* @phpstan-ignore-next-line */
         if (!isset($this->wellKnown)) {
             try {
-                $this->wellKnown = new \PrestaShop\OAuth2\Client\Provider\WellKnown($this->getOauth2Url(), $this->verify);
+                $this->wellKnown = new WellKnown($this->fetchWellKnown($this->getOauth2Url(), $this->verify));
             } catch (\Error $e) {
             } catch (\Exception $e) {
             }
             if (isset($e)) {
-                $this->wellKnown = new \PrestaShop\OAuth2\Client\Provider\WellKnown();
+                $this->wellKnown = new WellKnown();
             }
         }
         return $this->wellKnown;
+    }
+    /**
+     * @param string $url
+     * @param bool $secure
+     *
+     * @return array
+     *
+     * @throws \Exception
+     */
+    protected function fetchWellKnown($url, $secure = \true)
+    {
+        $wellKnownUrl = $url;
+        if (\strpos($wellKnownUrl, '/.well-known') === \false) {
+            $wellKnownUrl = \preg_replace('/\\/?$/', '/.well-known/openid-configuration', $wellKnownUrl);
+        }
+        $response = $this->getResponse($this->getRequest('GET', $wellKnownUrl));
+        return \json_decode($response->getBody(), \true);
     }
     /**
      * @return string
@@ -176,7 +193,7 @@ class PrestaShop extends AbstractProvider
      */
     protected function createResourceOwner(array $response, AccessToken $token)
     {
-        return new \PrestaShop\OAuth2\Client\Provider\PrestaShopUser($response);
+        return new PrestaShopUser($response);
     }
     /**
      * Requests and returns the resource owner of given access token.

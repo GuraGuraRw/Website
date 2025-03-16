@@ -14,6 +14,8 @@ if (!defined('_PS_VERSION_')) {
 
 class ModulesXCatalogXWidgetsXProductXFeatures extends WidgetHeading
 {
+    const HELP_URL = '';
+
     const REMOTE_RENDER = true;
 
     public function getName()
@@ -41,6 +43,11 @@ class ModulesXCatalogXWidgetsXProductXFeatures extends WidgetHeading
         return ['shop', 'store', 'product', 'features', 'information'];
     }
 
+    protected function isDynamicContent()
+    {
+        return true;
+    }
+
     protected function _registerControls()
     {
         parent::_registerControls();
@@ -61,14 +68,14 @@ class ModulesXCatalogXWidgetsXProductXFeatures extends WidgetHeading
             'default' => 'h3',
         ]);
 
-        $this->addControl(
+        _CE_ADMIN_ && $this->addControl(
             'configure',
             [
                 'label' => __('Product Features'),
                 'type' => ControlsManager::BUTTON,
                 'text' => '<i class="eicon-external-link-square"></i>' . __('Configure'),
                 'link' => [
-                    'url' => \Context::getContext()->link->getAdminLink('AdminFeatures'),
+                    'url' => Helper::$link->getAdminLink('AdminFeatures'),
                     'is_external' => true,
                 ],
                 'separator' => 'before',
@@ -396,7 +403,7 @@ class ModulesXCatalogXWidgetsXProductXFeatures extends WidgetHeading
 
     protected function render()
     {
-        $product = &\Context::getContext()->smarty->tpl_vars['product']->value;
+        $product = $GLOBALS['smarty']->tpl_vars['product']->value;
 
         if (!$product['grouped_features']) {
             return;
@@ -406,12 +413,8 @@ class ModulesXCatalogXWidgetsXProductXFeatures extends WidgetHeading
         if ('' !== $settings['title']) {
             $this->addRenderAttribute('title', 'class', 'elementor-heading-title');
             $settings['size'] && $this->addRenderAttribute('title', 'class', 'ce-display-' . $settings['size']);
-            printf(
-                '<%1$s %2$s>%3$s</%1$s>',
-                $settings['header_size'],
-                $this->getRenderAttributeString('title'),
-                $settings['title']
-            );
+
+            echo "<{$settings['header_size']} {$this->getRenderAttributeString('title')}>{$settings['title']}</{$settings['header_size']}>";
         } ?>
         <table class="ce-product-features">
         <?php foreach ($product['grouped_features'] as $feature) { ?>
@@ -433,12 +436,8 @@ class ModulesXCatalogXWidgetsXProductXFeatures extends WidgetHeading
         if ('' !== $settings['title']) {
             $this->addRenderAttribute('title', 'class', 'elementor-heading-title');
             $settings['size'] && $this->addRenderAttribute('title', 'class', 'ce-display-' . $settings['size']);
-            printf(
-                '<%1$s %2$s>%3$s</%1$s>',
-                $settings['header_size'],
-                $this->getRenderAttributeString('title'),
-                $settings['title']
-            );
+
+            echo "<{$settings['header_size']} {$this->getRenderAttributeString('title')}>{$settings['title']}</{$settings['header_size']}>";
         } ?>
         <table class="ce-product-features">
         {foreach $product['grouped_features'] as $feature}

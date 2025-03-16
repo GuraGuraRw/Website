@@ -7,8 +7,8 @@ use PrestaShop\Module\PsAccounts\Vendor\GuzzleHttp\HandlerStack;
 use PrestaShop\Module\PsAccounts\Vendor\GuzzleHttp\Promise\PromiseInterface;
 use PrestaShop\Module\PsAccounts\Vendor\GuzzleHttp\Promise\RejectedPromise;
 use PrestaShop\Module\PsAccounts\Vendor\GuzzleHttp\TransferStats;
-use Psr\Http\Message\RequestInterface;
-use Psr\Http\Message\ResponseInterface;
+use PrestaShop\Module\PsAccounts\Vendor\Psr\Http\Message\RequestInterface;
+use PrestaShop\Module\PsAccounts\Vendor\Psr\Http\Message\ResponseInterface;
 /**
  * Handler that returns responses or throw exceptions from a queue.
  */
@@ -88,7 +88,7 @@ class MockHandler implements \Countable
                     \fwrite($sink, $contents);
                 } elseif (\is_string($sink)) {
                     \file_put_contents($sink, $contents);
-                } elseif ($sink instanceof \Psr\Http\Message\StreamInterface) {
+                } elseif ($sink instanceof \PrestaShop\Module\PsAccounts\Vendor\Psr\Http\Message\StreamInterface) {
                     $sink->write($contents);
                 }
             }

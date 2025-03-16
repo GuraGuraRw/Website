@@ -2,11 +2,6 @@ services:
   _defaults:
     public: true
 
-  mbo.accounts.data_provider:
-    class: PrestaShop\Module\Mbo\Accounts\Provider\AccountsDataProvider
-    arguments:
-      - "5.2.5"
-
   mbo.ps_accounts.installer:
     class: 'PrestaShop\PsAccountsInstaller\Installer\Installer'
     public: true
@@ -18,3 +13,8 @@ services:
     public: true
     arguments:
       - "@mbo.ps_accounts.installer"
+
+  mbo.accounts.data_provider:
+    class: PrestaShop\Module\Mbo\Accounts\Provider\AccountsDataProvider
+    arguments:
+      - "5.2.5"

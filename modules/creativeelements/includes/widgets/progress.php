@@ -21,6 +21,8 @@ if (!defined('_PS_VERSION_')) {
  */
 class WidgetProgress extends WidgetBase
 {
+    const HELP_URL = 'http://docs.webshopworks.com/creative-elements/86-widgets/general-widgets/308-progress-bar-widget';
+
     /**
      * Get widget name.
      *
@@ -75,6 +77,11 @@ class WidgetProgress extends WidgetBase
     public function getKeywords()
     {
         return ['progress', 'bar'];
+    }
+
+    protected function isDynamicContent()
+    {
+        return false;
     }
 
     /**
@@ -265,7 +272,7 @@ class WidgetProgress extends WidgetBase
         $this->startControlsSection(
             'section_title',
             [
-                'label' => __('Title Style'),
+                'label' => __('Title'),
                 'tab' => ControlsManager::TAB_STYLE,
             ]
         );

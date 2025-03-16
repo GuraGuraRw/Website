@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of the ramsey/uuid library
  *
@@ -11,14 +12,12 @@
  * @link https://packagist.org/packages/ramsey/uuid Packagist
  * @link https://github.com/ramsey/uuid GitHub
  */
-
-namespace Ramsey\Uuid;
+namespace PrestaShop\Module\PsAccounts\Vendor\Ramsey\Uuid;
 
 use DateTime;
-use Moontoast\Math\BigNumber;
-use Ramsey\Uuid\Exception\UnsatisfiedDependencyException;
-use Ramsey\Uuid\Exception\UnsupportedOperationException;
-
+use PrestaShop\Module\PsAccounts\Vendor\Moontoast\Math\BigNumber;
+use PrestaShop\Module\PsAccounts\Vendor\Ramsey\Uuid\Exception\UnsatisfiedDependencyException;
+use PrestaShop\Module\PsAccounts\Vendor\Ramsey\Uuid\Exception\UnsupportedOperationException;
 /**
  * DegradedUuid represents an RFC 4122 UUID on 32-bit systems
  *
@@ -34,18 +33,14 @@ class DegradedUuid extends Uuid
         if ($this->getVersion() != 1) {
             throw new UnsupportedOperationException('Not a time-based UUID');
         }
-
         $time = $this->converter->fromHex($this->getTimestampHex());
-
         $ts = new BigNumber($time, 20);
         $ts->subtract('122192928000000000');
         $ts->divide('10000000.0');
         $ts->floor();
         $unixTime = $ts->getValue();
-
         return new DateTime("@{$unixTime}");
     }
-
     /**
      * For degraded UUIDs, throws an `UnsatisfiedDependencyException` when
      * called on a 32-bit system
@@ -54,13 +49,8 @@ class DegradedUuid extends Uuid
      */
     public function getFields()
     {
-        throw new UnsatisfiedDependencyException(
-            'Cannot call ' . __METHOD__ . ' on a 32-bit system, since some '
-            . 'values overflow the system max integer value'
-            . '; consider calling getFieldsHex instead'
-        );
+        throw new UnsatisfiedDependencyException('Cannot call ' . __METHOD__ . ' on a 32-bit system, since some ' . 'values overflow the system max integer value' . '; consider calling getFieldsHex instead');
     }
-
     /**
      * For degraded UUIDs, throws an `UnsatisfiedDependencyException` when
      * called on a 32-bit system
@@ -69,14 +59,8 @@ class DegradedUuid extends Uuid
      */
     public function getNode()
     {
-        throw new UnsatisfiedDependencyException(
-            'Cannot call ' . __METHOD__ . ' on a 32-bit system, since node '
-            . 'is an unsigned 48-bit integer and can overflow the system '
-            . 'max integer value'
-            . '; consider calling getNodeHex instead'
-        );
+        throw new UnsatisfiedDependencyException('Cannot call ' . __METHOD__ . ' on a 32-bit system, since node ' . 'is an unsigned 48-bit integer and can overflow the system ' . 'max integer value' . '; consider calling getNodeHex instead');
     }
-
     /**
      * For degraded UUIDs, throws an `UnsatisfiedDependencyException` when
      * called on a 32-bit system
@@ -85,14 +69,8 @@ class DegradedUuid extends Uuid
      */
     public function getTimeLow()
     {
-        throw new UnsatisfiedDependencyException(
-            'Cannot call ' . __METHOD__ . ' on a 32-bit system, since time_low '
-            . 'is an unsigned 32-bit integer and can overflow the system '
-            . 'max integer value'
-            . '; consider calling getTimeLowHex instead'
-        );
+        throw new UnsatisfiedDependencyException('Cannot call ' . __METHOD__ . ' on a 32-bit system, since time_low ' . 'is an unsigned 32-bit integer and can overflow the system ' . 'max integer value' . '; consider calling getTimeLowHex instead');
     }
-
     /**
      * For degraded UUIDs, throws an `UnsatisfiedDependencyException` when
      * called on a 32-bit system
@@ -105,12 +83,6 @@ class DegradedUuid extends Uuid
         if ($this->getVersion() != 1) {
             throw new UnsupportedOperationException('Not a time-based UUID');
         }
-
-        throw new UnsatisfiedDependencyException(
-            'Cannot call ' . __METHOD__ . ' on a 32-bit system, since timestamp '
-            . 'is an unsigned 60-bit integer and can overflow the system '
-            . 'max integer value'
-            . '; consider calling getTimestampHex instead'
-        );
+        throw new UnsatisfiedDependencyException('Cannot call ' . __METHOD__ . ' on a 32-bit system, since timestamp ' . 'is an unsigned 60-bit integer and can overflow the system ' . 'max integer value' . '; consider calling getTimestampHex instead');
     }
 }

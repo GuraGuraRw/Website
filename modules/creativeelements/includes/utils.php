@@ -61,18 +61,7 @@ class Utils
 
         $is_supported = self::isPostTypeSupport($post_type);
 
-        /*
-         * Is post support.
-         *
-         * Filters whether the post supports editing with Elementor.
-         *
-         * @since 2.2.0
-         *
-         * @param bool $is_supported Whether the post type supports editing with Elementor
-         * @param int $post_id Post ID
-         * @param string $post_type Post type
-         */
-        $is_supported = apply_filters('elementor/utils/is_post_support', $is_supported, $post_id, $post_type);
+        // $is_supported = apply_filters('elementor/utils/is_post_support', $is_supported, $post_id, $post_type);
 
         return $is_supported;
     }
@@ -115,16 +104,8 @@ class Utils
     public static function getPlaceholderImageSrc()
     {
         $placeholder_image = basename(_MODULE_DIR_) . '/creativeelements/views/img/placeholder.png';
-        /*
-         * Get placeholder image source.
-         *
-         * Filters the source of the default placeholder image used by Elementor.
-         *
-         * @since 1.0.0
-         *
-         * @param string $placeholder_image The source of the default placeholder image
-         */
-        $placeholder_image = apply_filters('elementor/utils/get_placeholder_image_src', $placeholder_image);
+
+        // $placeholder_image = apply_filters('elementor/utils/get_placeholder_image_src', $placeholder_image);
 
         return $placeholder_image;
     }
@@ -229,33 +210,21 @@ class Utils
         foreach ($attributes as $attribute_key => $attribute_values) {
             if ([] === $attribute_values) {
                 $rendered_attributes[] = $attribute_key;
-
+            }
+            if (!$attribute_values) {
                 continue;
             }
             if (is_array($attribute_values)) {
                 $attribute_values = implode(' ', $attribute_values);
             }
 
-            $rendered_attributes[] = sprintf('%1$s="%2$s"', $attribute_key, esc_attr($attribute_values));
+            $rendered_attributes[] = $attribute_key . '="' . esc_attr($attribute_values) . '"';
         }
 
         return implode(' ', $rendered_attributes);
     }
 
-    public static function getMetaViewport($context = '')
-    {
-        $meta_tag = '<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />';
-        /*
-         * Viewport meta tag.
-         *
-         * Filters the Elementor preview URL.
-         *
-         * @since 2.5.0
-         *
-         * @param string $meta_tag Viewport meta tag
-         */
-        return apply_filters('elementor/template/viewport_tag', $meta_tag, $context);
-    }
+    // public static function getMetaViewport($context = '')
 
     // public static function printJsConfig($handle, $js_var, $config) - Use wp_localize_script instead
 

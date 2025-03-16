@@ -240,7 +240,7 @@ class CoreXSettingsXPageXManager extends CSSManager
             $settings = [];
         }
 
-        if (is_admin() && Utils::isCptCustomTemplatesSupported(get_post($id))) {
+        if (_CE_ADMIN_ && Utils::isCptCustomTemplatesSupported(get_post($id))) {
             $saved_template = get_post_meta($id, '_wp_page_template', true);
 
             if ($saved_template) {

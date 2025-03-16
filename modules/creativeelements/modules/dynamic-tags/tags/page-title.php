@@ -41,7 +41,7 @@ class ModulesXDynamicTagsXTagsXPageTitle extends Tag
 
     public function render()
     {
-        $breadcrumb = \Context::getContext()->smarty->tpl_vars['breadcrumb']->value;
+        $breadcrumb = $GLOBALS['smarty']->tpl_vars['breadcrumb']->value;
 
         echo esc_html($breadcrumb['links'][$breadcrumb['count'] - 1]['title']);
     }

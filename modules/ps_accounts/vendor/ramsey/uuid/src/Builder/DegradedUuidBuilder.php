@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of the ramsey/uuid library
  *
@@ -11,13 +12,11 @@
  * @link https://packagist.org/packages/ramsey/uuid Packagist
  * @link https://github.com/ramsey/uuid GitHub
  */
+namespace PrestaShop\Module\PsAccounts\Vendor\Ramsey\Uuid\Builder;
 
-namespace Ramsey\Uuid\Builder;
-
-use Ramsey\Uuid\Codec\CodecInterface;
-use Ramsey\Uuid\Converter\NumberConverterInterface;
-use Ramsey\Uuid\DegradedUuid;
-
+use PrestaShop\Module\PsAccounts\Vendor\Ramsey\Uuid\Codec\CodecInterface;
+use PrestaShop\Module\PsAccounts\Vendor\Ramsey\Uuid\Converter\NumberConverterInterface;
+use PrestaShop\Module\PsAccounts\Vendor\Ramsey\Uuid\DegradedUuid;
 /**
  * DegradedUuidBuilder builds instances of DegradedUuid
  */
@@ -27,7 +26,6 @@ class DegradedUuidBuilder implements UuidBuilderInterface
      * @var NumberConverterInterface
      */
     private $converter;
-
     /**
      * Constructs the DegradedUuidBuilder
      *
@@ -37,7 +35,6 @@ class DegradedUuidBuilder implements UuidBuilderInterface
     {
         $this->converter = $converter;
     }
-
     /**
      * Builds a DegradedUuid
      *

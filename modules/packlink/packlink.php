@@ -1,6 +1,6 @@
 <?php
 /**
- * 2024 Packlink
+ * 2025 Packlink
  *
  * NOTICE OF LICENSE
  *
@@ -10,7 +10,7 @@
  * http://www.apache.org/licenses/LICENSE-2.0.txt
  *
  * @author    Packlink <support@packlink.com>
- * @copyright 2024 Packlink Shipping S.L
+ * @copyright 2025 Packlink Shipping S.L
  * @license   http://www.apache.org/licenses/LICENSE-2.0.txt  Apache License 2.0
  */
 /** @noinspection PhpUnusedParameterInspection */
@@ -59,7 +59,7 @@ class Packlink extends CarrierModule
         $this->module_key = 'a7a3a395043ca3a09d703f7d1c74a107';
         $this->name = 'packlink';
         $this->tab = 'shipping_logistics';
-        $this->version = '3.2.21';
+        $this->version = '3.2.22';
         $this->author = $this->l('Packlink Shipping S.L.');
         $this->need_instance = 0;
         $this->ps_versions_compliancy = array('min' => '1.6.0.14', 'max' => _PS_VERSION_);

@@ -1,6 +1,6 @@
 <?php
 /**
- * 2024 Packlink
+ * 2025 Packlink
  *
  * NOTICE OF LICENSE
  *
@@ -10,7 +10,7 @@
  * http://www.apache.org/licenses/LICENSE-2.0.txt
  *
  * @author    Packlink <support@packlink.com>
- * @copyright 2024 Packlink Shipping S.L
+ * @copyright 2025 Packlink Shipping S.L
  * @license   http://www.apache.org/licenses/LICENSE-2.0.txt  Apache License 2.0
  */
 namespace Packlink\PrestaShop\Classes\Repositories;
@@ -19,6 +19,7 @@ if (!defined('_PS_VERSION_')) {
     exit;
 }
 
+use Db;
 use Packlink\BusinessLogic\Order\Exceptions\OrderNotFound;
 
 /**
@@ -45,8 +46,12 @@ class OrderRepository
         $order = $this->getOrder($orderId);
 
         if ((int)$order->getCurrentState() !== $stateId) {
-            $order->setCurrentState($stateId);
-            $order->save();
+            $updateSuccess = $this->updateOrderStateInDb($orderId, $stateId, $order->getCurrentState(), $order->date_upd);
+
+            if ($updateSuccess) {
+                $order->setCurrentState($stateId);
+                $order->save();
+            }
         }
     }
 
@@ -87,5 +92,33 @@ class OrderRepository
         }
 
         return $order;
+    }
+
+    /**
+     * Updates the order state in the database if the current state and update time match.
+     *
+     * @param int $orderId The order ID.
+     * @param int $stateId The new state ID.
+     * @param int $currentState The current state of the order.
+     * @param string $currentDateUpd The current update time of the order.
+     *
+     * @return bool True if the update affected rows, false otherwise.
+     */
+    private function updateOrderStateInDb($orderId, $stateId, $currentState, $currentDateUpd)
+    {
+        $db = Db::getInstance();
+        $newUpdateTime = date('Y-m-d H:i:s', time());
+
+        $query = "
+        UPDATE " . _DB_PREFIX_ . "orders
+        SET current_state = $stateId, date_upd = '$newUpdateTime'
+        WHERE id_order = $orderId
+          AND current_state = $currentState
+          AND date_upd = '$currentDateUpd'
+    ";
+
+        $db->execute($query);
+
+        return $db->Affected_Rows() > 0;
     }
 }

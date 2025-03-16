@@ -9,8 +9,10 @@
     {$ce_layout=$layout}
 {elseif file_exists("{$smarty.const._PS_THEME_DIR_}templates/catalog/listing/prices-drop.tpl")}
     {$ce_layout='[1]catalog/listing/prices-drop.tpl'}
-{elseif $smarty.const._PARENT_THEME_NAME_}
+{elseif $smarty.const._PARENT_THEME_NAME_ && file_exists("{$smarty.const._PS_PARENT_THEME_DIR_}templates/catalog/listing/prices-drop.tpl")}
     {$ce_layout='parent:catalog/listing/prices-drop.tpl'}
+{else}
+    {$ce_layout='catalog/listing/product-list.tpl'}
 {/if}
 
 {extends $ce_layout}

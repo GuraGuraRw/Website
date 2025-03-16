@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of the ramsey/uuid library
  *
@@ -11,11 +12,9 @@
  * @link https://packagist.org/packages/ramsey/uuid Packagist
  * @link https://github.com/ramsey/uuid GitHub
  */
-
-namespace Ramsey\Uuid\Generator;
+namespace PrestaShop\Module\PsAccounts\Vendor\Ramsey\Uuid\Generator;
 
 use Exception;
-
 /**
  * RandomBytesGenerator provides functionality to generate strings of random
  * binary data using `random_bytes()` function in PHP 7+ or paragonie/random_compat
@@ -34,6 +33,6 @@ class RandomBytesGenerator implements RandomGeneratorInterface
      */
     public function generate($length)
     {
-        return random_bytes($length);
+        return \random_bytes($length);
     }
 }

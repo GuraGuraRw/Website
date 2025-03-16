@@ -1,13 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Prestashop\ModuleLibGuzzleAdapter;
 
 class VersionDetection
 {
-    /**
-     * @return int|null
-     */
-    public function getGuzzleMajorVersionNumber()
+    public function getGuzzleMajorVersionNumber(): ?int
     {
         // Guzzle 7 and above
         if (defined('\GuzzleHttp\ClientInterface::MAJOR_VERSION')) {

@@ -21,6 +21,8 @@ if (!defined('_PS_VERSION_')) {
  */
 class WidgetIconBox extends WidgetBase
 {
+    const HELP_URL = 'http://docs.webshopworks.com/creative-elements/86-widgets/general-widgets/303-icon-box-widget';
+
     /**
      * Get widget name.
      *
@@ -75,6 +77,11 @@ class WidgetIconBox extends WidgetBase
     public function getKeywords()
     {
         return ['icon box', 'icon'];
+    }
+
+    protected function isDynamicContent()
+    {
+        return false;
     }
 
     /**
@@ -679,11 +686,9 @@ class WidgetIconBox extends WidgetBase
         view.addInlineEditingAttributes( 'description_text' );
         #>
         <div class="elementor-icon-box-wrapper">
-        <# if ( icon = elementor.helpers.getBcIcon(view, settings, 'icon', {'aria-hidden': true}) ) { #>
+        <# if ( icon = elementor.helpers.getBcIcon( view, settings, 'icon' ) ) { #>
             <div class="elementor-icon-box-icon">
-                <{{{ iconTag + ' ' + link }}} class="elementor-icon elementor-animation-{{ settings.hover_animation }}">
-                    {{{ icon }}}
-                </{{{ iconTag }}}>
+                <{{{ iconTag + ' ' + link }}} class="elementor-icon elementor-animation-{{ settings.hover_animation }}">{{{ icon }}}</{{{ iconTag }}}>
             </div>
         <# } #>
             <div class="elementor-icon-box-content">

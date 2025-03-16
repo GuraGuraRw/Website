@@ -39,6 +39,11 @@ class ModulesXPremiumXWidgetsXImageHotspot extends WidgetBase
         return ['image', 'photo', 'hotspot'];
     }
 
+    protected function isDynamicContent()
+    {
+        return false;
+    }
+
     protected function _registerControls()
     {
         $this->startControlsSection(
@@ -740,7 +745,7 @@ class ModulesXPremiumXWidgetsXImageHotspot extends WidgetBase
         if (!settings.image.url) {
             return;
         }
-        var icon = elementor.helpers.getBcIcon(view, settings, 'icon', {'aria-hidden': true}),
+        var icon = elementor.helpers.getBcIcon( view, settings, 'icon' ),
             displayClass = settings.title_display ? 'ce-display-' + settings.title_display : '';
         #>
         <div class="elementor-image-hotspot">

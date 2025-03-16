@@ -52,7 +52,11 @@ class Helper
         'displayrightcolumnproduct',
     ];
 
-    public static $section_stack = [];
+    public static $section_stack = [null];
+
+    public static $translator;
+
+    public static $link;
 
     public static function getFirstTabIndex($section)
     {
@@ -67,41 +71,31 @@ class Helper
 
     public static function getColorAttributeGroupNames($id_lang, $id_shop)
     {
-        $id_lang = (int) $id_lang;
-        $id_shop = (int) $id_shop;
-
-        if (!\Cache::isStored($cache_id = "CE\Helper::getColorAttributeGroupNames-$id_lang-$id_shop")) {
-            $ps = _DB_PREFIX_;
-            \Cache::store($cache_id, $result = \Db::getInstance()->executeS("
-                SELECT IF(f.`url_name`, f.`url_name`, l.`public_name`) AS `name` FROM `{$ps}attribute_group` a
-                INNER JOIN `{$ps}attribute_group_shop` s ON a.`id_attribute_group` = s.`id_attribute_group` AND s.`id_shop` = $id_shop
-                INNER JOIN `{$ps}attribute_group_lang` l ON a.`id_attribute_group` = l.`id_attribute_group` AND l.`id_lang` = $id_lang
-                LEFT JOIN `{$ps}layered_indexable_attribute_group_lang_value` f ON a.`id_attribute_group` = f.`id_attribute_group` AND f.`id_lang` = $id_lang
-                WHERE a.`is_color_group` = 1
-            "));
-
-            return $result;
+        if (\Cache::isStored($cache_id = "CE\Helper::getColorAttributeGroupNames-$id_lang-$id_shop")) {
+            return \Cache::retrieve($cache_id);
         }
+        \Cache::store($cache_id, $result = \Db::getInstance()->executeS('
+            SELECT IF(f.`url_name`, f.`url_name`, l.`public_name`) AS `name` FROM ' . _DB_PREFIX_ . 'attribute_group a
+            INNER JOIN ' . _DB_PREFIX_ . 'attribute_group_shop s ON a.`id_attribute_group` = s.`id_attribute_group` AND s.`id_shop` = ' . (int) $id_shop . '
+            INNER JOIN ' . _DB_PREFIX_ . 'attribute_group_lang l ON a.`id_attribute_group` = l.`id_attribute_group` AND l.`id_lang` = ' . (int) $id_lang . '
+            LEFT JOIN ' . _DB_PREFIX_ . 'layered_indexable_attribute_group_lang_value f ON a.`id_attribute_group` = f.`id_attribute_group` AND f.`id_lang` = ' . (int) $id_lang . '
+            WHERE a.`is_color_group` = 1
+        '));
 
-        return \Cache::retrieve($cache_id);
+        return $result;
     }
 
     public static function getLastUpdatedProductId($id_shop)
     {
-        $ps = _DB_PREFIX_;
-        $id_shop = (int) $id_shop;
-
         return \Db::getInstance()->getValue(
-            "SELECT `id_product` FROM `{$ps}product_shop` WHERE `id_shop` = $id_shop ORDER BY `active` DESC, `date_upd` DESC"
+            'SELECT `id_product` FROM ' . _DB_PREFIX_ . 'product_shop WHERE `id_shop` = ' . (int) $id_shop . ' ORDER BY `active` DESC, `date_upd` DESC'
         );
     }
 
     public static function getLastUpdatedManufacturerId()
     {
-        $ps = _DB_PREFIX_;
-
         return \Db::getInstance()->getValue(
-            "SELECT `id_manufacturer` FROM `{$ps}manufacturer` WHERE `active` = 1 ORDER BY `date_upd` DESC"
+            'SELECT `id_manufacturer` FROM ' . _DB_PREFIX_ . 'manufacturer WHERE `active` = 1 ORDER BY `date_upd` DESC'
         );
     }
 
@@ -112,7 +106,7 @@ class Helper
 
     public static function getAjaxProductsListLink()
     {
-        if (!is_admin()) {
+        if (!_CE_ADMIN_) {
             return '';
         }
 
@@ -153,7 +147,7 @@ class Helper
             $url = __PS_BASE_URI__ . $url;
 
             if (_MEDIA_SERVER_1_ || $full) {
-                $url = \Context::getContext()->link->getMediaLink($url);
+                $url = self::$link->getMediaLink($url);
             }
         }
 
@@ -167,28 +161,9 @@ class Helper
         return self::getMediaLink('img/p/' . implode('/', str_split("$id")) . ($size ? "/$id-$size.jpg" : "/$id.jpg"));
     }
 
-    public static function getNoImage()
-    {
-        static $image;
-
-        if (null === $image) {
-            $context = \Context::getContext();
-            $imageRetriever = new \PrestaShop\PrestaShop\Adapter\Image\ImageRetriever($context->link);
-
-            $image = method_exists($imageRetriever, 'getNoPictureImage')
-                ? $imageRetriever->getNoPictureImage($context->language)
-                : $imageRetriever->getImage(
-                    new \Product(0, false, $context->language->id),
-                    $context->language->iso_code . '-default'
-                );
-        }
-
-        return $image;
-    }
-
     public static function getSettingsLink()
     {
-        return \Context::getContext()->link->getAdminLink('AdminCESettings');
+        return _CE_ADMIN_ ? self::$link->getAdminLink('AdminCESettings') : '';
     }
 
     public static function getClearAllLink()
@@ -207,8 +182,7 @@ class Helper
         if (null !== $facets) {
             return $facets;
         }
-        $context = \Context::getContext();
-        $result = $context->smarty->tpl_vars['listing']->value['result'];
+        $result = $GLOBALS['smarty']->tpl_vars['listing']->value['result'];
 
         return $facets = (
             $facetCollection = $result->getFacetCollection()
@@ -238,26 +212,38 @@ class Helper
             }
 
             return $facets;
-        }, $context->controller, 'FrontController')->__invoke() : [];
+        }, $GLOBALS['context']->controller, 'FrontController')->__invoke() : [];
     }
 
     public static function isAdminImport()
     {
         return isset(${'_POST'}['submitOptionsce_template']);
     }
+
+    public static function minifyHtml($content)
+    {
+        $content = preg_replace('/>\s+</', '><', trim($content));
+
+        return preg_replace_callback('/="{&quot;[^"]+"/', function ($match) {
+            $json = str_replace('&quot;', '"', $match[0]);
+            $json[strlen($json) - 1] = $json[1] = "'";
+
+            return $json;
+        }, $content);
+    }
 }
+
+Helper::$translator = $GLOBALS['context']->getTranslator();
+Helper::$link = &$GLOBALS['context']->link;
 
 function callback_hash(callable $callback)
 {
     if (is_array($callback)) {
-        if (is_string($callback[0])) {
-            return strtolower(implode('::', $callback));
-        }
         if (is_object($callback[0])) {
             return spl_object_hash($callback[0]) . '->' . strtolower($callback[1]);
         }
-    }
-    if (is_object($callback)) {
+        $callback = $callback[0] . '::' . $callback[1];
+    } elseif (is_object($callback)) {
         return spl_object_hash($callback);
     }
 
@@ -282,7 +268,7 @@ function remove_action($tag, $callback, $priority = 10)
     if (is_string($callback) && '\\' !== $callback[0]) {
         $callback = '\\' . __NAMESPACE__ . '\\' . $callback;
     }
-    unset(Helper::$actions[$tag][$priority][callback_hash($callback)]);
+    unset(Helper::$actions[$tag][(int) $priority][callback_hash($callback)]);
 
     return true;
 }
@@ -333,6 +319,16 @@ function has_filter($tag, $function_to_check = false)
     return isset(Helper::$filters[$tag]);
 }
 
+function remove_filter($tag, $callback, $priority = 10)
+{
+    if (is_string($callback) && '\\' !== $callback[0]) {
+        $callback = '\\' . __NAMESPACE__ . '\\' . $callback;
+    }
+    unset(Helper::$filters[$tag][(int) $priority][callback_hash($callback)]);
+
+    return true;
+}
+
 // function current_filter()
 // {
 //     return end(Helper::$current_filter);
@@ -366,6 +362,11 @@ function remove_all_filters($tag, $priority = false)
         unset(Helper::$filters[$tag]);
     }
 
+    return true;
+}
+
+function __return_true()
+{
     return true;
 }
 
@@ -409,7 +410,7 @@ function wp_register_script($handle, $src, array $deps = [], $ver = false, $in_f
     return true;
 }
 
-if (is_admin() || \Tools::getValue('render') === 'widget') {
+if (_CE_ADMIN_ || \Tools::getValue('render') === 'widget') {
     function wp_enqueue_style($handle, $src = '', array $deps = [], $ver = false, $media = 'all')
     {
         $src && wp_register_style($handle, $src, $deps, $ver, $media);
@@ -503,7 +504,7 @@ function wp_localize_script($handle, $object_name, $l10n)
 
 function wp_enqueue_scripts()
 {
-    if (is_admin()) {
+    if (_CE_ADMIN_) {
         wp_enqueue_script('jquery', _CE_ASSETS_URL_ . 'lib/jquery/jquery.js', [], '1.12.4');
         wp_enqueue_script('jquery-ui', _CE_ASSETS_URL_ . 'lib/jquery/jquery-ui.min.js', ['jquery'], '1.11.4.custom', true);
 
@@ -564,12 +565,10 @@ function _print_script(&$args)
     empty($args['src']) || print '<script src="' . $args['src'] . '" id="' . $args['hndl'] . '-js"></script>' . PHP_EOL;
 }
 
-function print_og_image()
+function print_class(array $classes)
 {
-    if ($og_image = get_post_meta(get_the_ID(), '_og_image', true)) {
-        $og_image_url = Helper::getMediaLink($og_image, true);
-
-        echo '<meta property="og:image" content="' . esc_attr($og_image_url) . '">' . PHP_EOL;
+    foreach ($classes as $key => $value) {
+        $value && print ' ' . (is_int($key) ? $value : $key);
     }
 }
 
@@ -578,15 +577,15 @@ function set_transient($transient, $value, $expiration = 0)
     $expiration = (int) $expiration;
     $tr_timeout = '_tr_to_' . $transient;
     $tr_option = '_tr_' . $transient;
-    $id_shop = \Context::getContext()->shop->id;
+    $id_shop = $GLOBALS['context']->shop->id;
 
     if (false === get_post_meta($id_shop, $tr_option, true)) {
-        if ($expiration) {
-            update_post_meta($id_shop, $tr_timeout, time() + $expiration);
-        }
+        $expiration && update_post_meta($id_shop, $tr_timeout, time() + $expiration);
+
         $result = update_post_meta($id_shop, $tr_option, $value);
     } else {
         $update = true;
+
         if ($expiration) {
             if (false === get_post_meta($id_shop, $tr_timeout, true)) {
                 update_post_meta($id_shop, $tr_timeout, time() + $expiration);
@@ -596,9 +595,7 @@ function set_transient($transient, $value, $expiration = 0)
                 update_post_meta($id_shop, $tr_timeout, time() + $expiration);
             }
         }
-        if ($update) {
-            $result = update_post_meta($id_shop, $tr_option, $value);
-        }
+        $update && $result = update_post_meta($id_shop, $tr_option, $value);
     }
 
     return $result;
@@ -608,12 +605,12 @@ function get_transient($transient)
 {
     $tr_option = '_tr_' . $transient;
     $tr_timeout = '_tr_to_' . $transient;
-    $id_shop = \Context::getContext()->shop->id;
+    $id_shop = $GLOBALS['context']->shop->id;
     $timeout = get_post_meta($id_shop, $tr_timeout, true);
 
     if (false !== $timeout && $timeout < time()) {
-        delete_option($tr_option);
-        delete_option($tr_timeout);
+        delete_post_meta($id_shop, $tr_option);
+        delete_post_meta($id_shop, $tr_timeout);
 
         return false;
     }
@@ -621,72 +618,103 @@ function get_transient($transient)
     return get_post_meta($id_shop, $tr_option, true);
 }
 
-function __($text, $module = 'creativeelements')
+// Fix: When switching language, global $laguage doesn't update
+$GLOBALS['language'] = $GLOBALS['context']->language;
+
+define('_CE_LOCALE_', in_array($lang = substr($GLOBALS['language']->locale, 0, 2), ['en', 'fr', 'es', 'it', 'de'])
+    ? "$lang-" . strtoupper($lang)
+    : $GLOBALS['language']->locale
+);
+
+function __($text, $domain = 'creativeelements', array $params = [])
 {
-    return translate($text, $module);
+    return $domain[0] < 'a' ? Helper::$translator->trans($text, $params, $domain, _CE_LOCALE_) : trans($text, $domain);
 }
 
-function _e($text, $module = 'creativeelements')
+function _e($text, $domain = 'creativeelements', array $params = [])
 {
-    echo translate($text, $module);
+    echo $domain[0] < 'a' ? Helper::$translator->trans($text, $params, $domain, _CE_LOCALE_) : trans($text, $domain);
 }
 
 function _x($text, $ctx, $module = 'creativeelements')
 {
-    return translate($text, $module, $ctx);
+    return trans($text, $module, $ctx);
 }
 
 function _n($single, $plural, $number, $module = 'creativeelements')
 {
-    return translate($number > 1 ? $plural : $single, $module);
+    return trans($number > 1 ? $plural : $single, $module);
 }
 
-$context = \Context::getContext();
-
-if (isset(${'_GET'}['en']) || 'en' === $locale = substr($context->language->locale ?: $context->language->iso_code, 0, 2)) {
-    define('_CE_LOCALE_', 'en-EN');
-
-    function translate($text, $module = 'creativeelements', $ctx = '')
+if ('en' === $lang || isset(${'_GET'}['en'])) {
+    function trans($text)
     {
         return $text;
     }
 
-    function esc_attr_e($text, $module = 'creativeelements')
+    function esc_attr__($text)
     {
-        echo htmlspecialchars($text, ENT_QUOTES, 'UTF-8');
+        return htmlspecialchars($text, ENT_QUOTES);
+    }
+
+    function esc_attr_e($text)
+    {
+        echo htmlspecialchars($text, ENT_QUOTES);
     }
 } else {
-    define('_CE_LOCALE_', "$locale-" . strtoupper($locale));
-
-    function translate($text, $module = 'creativeelements', $ctx = '')
-    {
-        $src = $ctx ? str_replace(' ', '_', strtolower($ctx)) : '';
-
-        return stripslashes(\Translate::getModuleTranslation($module, $text, $src, null, true, _CE_LOCALE_));
+    if (version_compare(_PS_VERSION_, '1.7.6', '<')) {
+        function trans($text, $module, $ctx = '')
+        {
+            return stripslashes(\Translate::getModuleTranslation($module, $text, $ctx ? str_replace(' ', '_', $ctx) : '', null, true, _CE_LOCALE_));
+        }
+    } else {
+        function trans($text, $module, $ctx = '')
+        {
+            return \Translate::getModuleTranslation($module, $text, $ctx ? str_replace(' ', '_', $ctx) : '', null, false, _CE_LOCALE_, false, false);
+        }
     }
 
-    function esc_attr_e($text, $module = 'creativeelements')
+    function esc_attr__($text, $domain = 'creativeelements', array $params = [])
     {
-        echo \Translate::getModuleTranslation($module, $text, '', null, false, _CE_LOCALE_);
+        return $domain[0] < 'a'
+            ? htmlspecialchars(Helper::$translator->trans($text, $params, $domain, _CE_LOCALE_), ENT_QUOTES)
+            : \Translate::getModuleTranslation($domain, $text, '', null, false, _CE_LOCALE_, false);
+    }
+
+    function esc_attr_e($text, $domain = 'creativeelements', array $params = [])
+    {
+        echo $domain[0] < 'a'
+            ? htmlspecialchars(Helper::$translator->trans($text, $params, $domain, _CE_LOCALE_), ENT_QUOTES)
+            : \Translate::getModuleTranslation($domain, $text, '', null, false, _CE_LOCALE_, false);
     }
 }
 
-if ($context->controller instanceof \AdminCEEditorController) {
+/**
+ * @deprecated Since 2.12
+ */
+function translate($text, $module, $ctx = '')
+{
+    @trigger_error(__FUNCTION__ . ' is deprecated since version 2.12. Use CE\trans instead.', E_USER_DEPRECATED);
+
+    return trans($text, $module, $ctx);
+}
+
+if ($GLOBALS['context']->controller instanceof \AdminCEEditorController) {
     $uid = get_the_ID();
 
-    if (!empty($uid->id_lang) && $uid->id_lang != $context->language->id) {
-        $context->language = new \Language($uid->id_lang);
+    if (!empty($uid->id_lang) && $uid->id_lang != $GLOBALS['language']->id) {
+        $GLOBALS['context']->language = $GLOBALS['language'] = new \Language($uid->id_lang);
     }
 }
 
 function esc_attr($text)
 {
-    return htmlspecialchars($text, ENT_QUOTES, 'UTF-8');
+    return htmlspecialchars($text, ENT_QUOTES);
 }
 
 function esc_html($text)
 {
-    return htmlspecialchars($text, ENT_QUOTES, 'UTF-8');
+    return htmlspecialchars($text, ENT_QUOTES);
 }
 
 function esc_url($url)
@@ -717,51 +745,56 @@ function home_url()
     return __PS_BASE_URI__;
 }
 
-function wp_send_json($response)
+function wp_send_json($response, $status_code = null)
 {
-    headers_sent() || header('Content-Type: application/json; charset=utf-8');
+    if (!headers_sent()) {
+        header('Content-Type: application/json; charset=utf-8');
 
+        null !== $status_code && http_response_code($status_code);
+    }
     exit(json_encode($response, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
 }
 
-function wp_send_json_success($data = null)
+function wp_send_json_success($data = null, $status_code = null)
 {
     $response = ['success' => true];
     if (isset($data)) {
         $response['data'] = $data;
     }
-    wp_send_json($response);
+    wp_send_json($response, $status_code);
 }
 
-function wp_send_json_error($data = null)
+function wp_send_json_error($data = null, $status_code = null)
 {
     $response = ['success' => false];
     if (isset($data)) {
         $response['data'] = $data;
     }
-    wp_send_json($response);
+    wp_send_json($response, $status_code);
 }
 
 function get_locale()
 {
-    return \Context::getContext()->language->iso_code;
+    return $GLOBALS['language']->iso_code;
 }
 
 function is_rtl()
 {
-    return (bool) \Context::getContext()->language->is_rtl;
+    return (bool) $GLOBALS['language']->is_rtl;
 }
 
+/**
+ * @deprecated Since 2.12
+ */
 function is_admin()
 {
-    // fix: _PS_ADMIN_DIR_ is defined on frontend by cronjobs module
-    return defined('_PS_BO_ALL_THEMES_DIR_');
+    @trigger_error(__FUNCTION__ . ' is deprecated since version 2.12. Use _CE_ADMIN_ instead.', E_USER_DEPRECATED);
+
+    return _CE_ADMIN_;
 }
 
 function is_singular()
 {
-    // todo: set false when editing theme
-    // Should be false when revision?
     return UId::$_ID && UId::$_ID->id_type !== UId::CONTENT;
 }
 
@@ -780,17 +813,15 @@ function wp_referer()
 
 function wp_http()
 {
-    $context = \Context::getContext();
-    $module_key = $context->controller->module->module_key;
+    $controller = $GLOBALS['context']->controller;
+    $module_key = isset($controller->module->module_key) ? $controller->module->module_key : '';
 
     return [
-        'user_agent' => $_SERVER['SERVER_SOFTWARE'] .
-            ' PrestaShop/' . _PS_VERSION_ . ' CreativeElements/' . _CE_VERSION_,
+        'user_agent' => $_SERVER['SERVER_SOFTWARE'] . ' PrestaShop/' . _PS_VERSION_ . ' CreativeElements/' . _CE_VERSION_,
         'max_redirects' => 5,
         'header' => [
             'Cache-Control: no-cache',
-            'Cookie: ' . md5(substr(_COOKIE_KEY_, 0, 24) . $module_key) .
-                '=' . hash('sha256', _COOKIE_IV_ . date('Y-m-d')),
+            'Cookie: ' . call_user_func('md5', substr(_COOKIE_KEY_, 0, 24) . $module_key) . '=' . hash('sha256', _COOKIE_IV_ . date('Y-m-d')),
             'Pragma: no-cache',
             'Referer: ' . wp_referer(),
         ],
@@ -804,7 +835,7 @@ function is_preview()
 
 function is_customize_preview()
 {
-    return \Context::getContext()->controller instanceof \CreativeElementsPreviewModuleFrontController;
+    return $GLOBALS['context']->controller instanceof \CreativeElementsPreviewModuleFrontController;
 }
 
 function get_option($option, $default = false)
@@ -854,16 +885,9 @@ function get_current_user_id()
 {
     static $id_employee;
 
-    if (null === $id_employee) {
-        if (is_admin()) {
-            $ctx = \Context::getContext();
-            $id_employee = isset($ctx->employee->id) ? (int) $ctx->employee->id : 0;
-        } else {
-            $lifetime = max((int) \Configuration::get('PS_COOKIE_LIFETIME_BO'), 1);
-            $cookie = new \Cookie('psAdmin', '', time() + $lifetime * 3600);
-            $id_employee = isset($cookie->id_employee) ? (int) $cookie->id_employee : 0;
-        }
-    }
+    null === $id_employee && $id_employee = _CE_ADMIN_ ? (int) $GLOBALS['employee']->id : (
+        \CreativeElements::getPreviewUId(false) ? (int) $_REQUEST['id_employee'] : 0
+    );
 
     return $id_employee;
 }
@@ -925,7 +949,9 @@ function wp_remote_post($url, array $args = [])
 
     $http['header'] = implode("\r\n", $http['header']);
 
-    return \Tools::file_get_contents($url, false, stream_context_create(['http' => $http]), $http['timeout']);
+    return in_array(ini_get('allow_url_fopen'), ['On', 'on', '1'])
+        ? @call_user_func('file_get_contents', $url, false, stream_context_create(['http' => $http]))
+        : false;
 }
 
 function wp_remote_get($url, array $args = [])
@@ -959,7 +985,9 @@ function wp_remote_get($url, array $args = [])
 
     $http['header'] = implode("\r\n", $http['header']);
 
-    return \Tools::file_get_contents($url, false, stream_context_create(['http' => $http]), $http['timeout']);
+    return in_array(ini_get('allow_url_fopen'), ['On', 'on', '1'])
+        ? @call_user_func('file_get_contents', $url, false, stream_context_create(['http' => $http]))
+        : false;
 }
 
 const MINUTE_IN_SECONDS = 60;
@@ -1035,7 +1063,7 @@ function do_shortcode($content)
     }
 
     return preg_replace_callback(
-        '`(<p>\s*)?\{(hook|\$\w+(?:\.\w+|->\w+)*|widget|include|l)([^\}]*)\}(\s*</p>)?`',
+        '`(<p>\s*)?\{(\w+|\$\w+(?:\.\w+|->\w+)*)([^}]*)\}(\s*</p>)?`',
         'CE\parse_shortcode',
         $content
     );
@@ -1053,32 +1081,21 @@ function parse_shortcode($match)
             $result = "Unknown modifier: $modifier";
         } elseif ($modifier === '|json_encode') {
             $result = esc_attr(json_encode($result, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
-        } elseif (is_array($result) || $result instanceof AbstractLazyArray) {
-            $array = [];
-            foreach ($result as $key => $value) {
-                $array[$key] = is_array($value) ? 'Array(…)' : (
-                    is_object($value) ? get_class($value) . ' Object(…)' : $value
-                );
-            }
-            $result = '<pre>' . print_r($array, true) . '</pre>';
-        } elseif (is_object($result)) {
-            $object = (object) [];
-            foreach ($result as $key => $value) {
-                $object->$key = is_array($value) ? 'Array(…)' : (
-                    is_object($value) ? get_class($value) . ' Object(…)' : $value
-                );
-            }
-            $result = '<pre>' . get_class($result) . substr(print_r($object, true), 8) . '</pre>';
+        } elseif (is_array($result) || is_object($result)) {
+            ob_start();
+            dump($result instanceof AbstractLazyArray ? $result->jsonSerialize() : $result);
+            $result = ob_get_clean();
         } elseif (!$modifier) {
             $result = esc_attr((string) $result);
         }
 
         return ($match[1] xor $match[4]) ? $match[1] . $result . $match[4] : $result;
     }
-    if (!preg_match_all('`\s+(\w+)\s*=\s*(\$?\w+|".*?"|\'.*?\'|\[.*?\])`', $match[3], $args, PREG_SET_ORDER)) {
+    if (!function_exists($func = 'smarty' . $match[2])
+        || !preg_match_all('`\s+(\w+)\s*=\s*(\$?\w+|".*?"|\'.*?\'|\[.*?\])`', $match[3], $args, PREG_SET_ORDER)
+    ) {
         return $match[0];
     }
-    $func = 'smarty' . $match[2];
     $params = [];
     $smarty = null;
 
@@ -1139,7 +1156,7 @@ function parse_native($native)
     }
     $result = json_decode($native);
 
-    return json_last_error() === JSON_ERROR_NONE ? $result : $native;
+    return null !== $result || 'null' === $native ? $result : $native;
 }
 
 function parse_var($var)
@@ -1148,7 +1165,7 @@ function parse_var($var)
 
     preg_match_all('/(^\$|\.|->)(\w+)/', $var, $matches);
 
-    $vars = &\Context::getContext()->smarty->tpl_vars;
+    $vars = &$GLOBALS['smarty']->tpl_vars;
     $count = count($matches[0]);
     $prefixes = &$matches[1];
     $keys = &$matches[2];
@@ -1193,8 +1210,7 @@ function wp_nonce_tick()
 
 function wp_create_nonce($action = -1)
 {
-    $employee = \Context::getContext()->employee;
-    $id = isset($employee->id) ? (int) $employee->id : 0;
+    $id = _CE_ADMIN_ ? (int) $GLOBALS['employee']->id : 0;
     $tick = wp_nonce_tick();
     $salt = \Tools::hashIV('nonce');
 

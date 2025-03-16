@@ -79,6 +79,7 @@ class CoreXModulesManager
             'premium',
             'theme',
             'catalog',
+            'customer',
             'misc',
             'fonts-manager',
             'custom-css',

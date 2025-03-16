@@ -21,6 +21,8 @@ if (!defined('_PS_VERSION_')) {
  */
 class WidgetStarRating extends WidgetBase
 {
+    const HELP_URL = 'http://docs.webshopworks.com/creative-elements/86-widgets/general-widgets/353-star-rating-widget';
+
     /**
      * Get widget name.
      *
@@ -75,6 +77,11 @@ class WidgetStarRating extends WidgetBase
     public function getKeywords()
     {
         return ['star', 'rating', 'rate', 'review'];
+    }
+
+    protected function isDynamicContent()
+    {
+        return false;
     }
 
     /**
@@ -254,8 +261,7 @@ class WidgetStarRating extends WidgetBase
                     ],
                 ],
                 'selectors' => [
-                    'body:not(.lang-rtl) {{WRAPPER}}:not(.elementor-star-rating--align-justify) .elementor-star-rating__title' => 'margin-right: {{SIZE}}{{UNIT}}',
-                    'body.lang-rtl {{WRAPPER}}:not(.elementor-star-rating--align-justify) .elementor-star-rating__title' => 'margin-left: {{SIZE}}{{UNIT}}',
+                    '{{WRAPPER}}:not(.elementor-star-rating--align-justify) .elementor-star-rating__title' => 'margin-inline-end: {{SIZE}}{{UNIT}}',
                 ],
             ]
         );
@@ -292,8 +298,7 @@ class WidgetStarRating extends WidgetBase
                     ],
                 ],
                 'selectors' => [
-                    'body:not(.lang-rtl) {{WRAPPER}} .elementor-star-rating i:not(:last-of-type)' => 'margin-right: {{SIZE}}{{UNIT}}',
-                    'body.lang-rtl {{WRAPPER}} .elementor-star-rating i:not(:last-of-type)' => 'margin-left: {{SIZE}}{{UNIT}}',
+                    '{{WRAPPER}} .elementor-star-rating i:not(:last-of-type)' => 'margin-inline-end: {{SIZE}}{{UNIT}}',
                 ],
             ]
         );

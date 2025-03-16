@@ -46,8 +46,7 @@
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
  * @link      http://phpseclib.sourceforge.net
  */
-
-namespace phpseclib\Crypt;
+namespace PrestaShop\Module\PsAccounts\Vendor\phpseclib\Crypt;
 
 /**
  * Pure-PHP implementation of AES.
@@ -71,7 +70,6 @@ class AES extends Rijndael
     {
         return;
     }
-
     /**
      * Sets the key length
      *

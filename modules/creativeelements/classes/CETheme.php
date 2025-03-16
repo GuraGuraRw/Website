@@ -36,10 +36,7 @@ class CETheme extends CETemplate
         $result = parent::delete();
 
         if ($result && 'product-miniature' === $this->type) {
-            array_map(
-                'unlink',
-                glob(_CE_TEMPLATES_ . "front/theme/catalog/_partials/miniatures/product-{$this->id}17????.tpl")
-            );
+            array_map('unlink', glob(_CE_TEMPLATES_ . "front/theme/catalog/_partials/miniatures/product-{$this->id}17????.tpl"));
         }
 
         return $result;
@@ -47,20 +44,13 @@ class CETheme extends CETemplate
 
     public static function getOptions($type, $id_lang, $id_shop)
     {
-        $db = Db::getInstance();
-        $table = _DB_PREFIX_ . 'ce_theme';
-        $id_lang = (int) $id_lang;
-        $id_shop = (int) $id_shop;
-        $type = $db->escape($type);
-        $res = $db->executeS("
-            SELECT t.id_ce_theme AS `value`, CONCAT('#', t.id_ce_theme, ' ', tl.title) AS `name` FROM $table AS t
-            INNER JOIN {$table}_shop as ts ON t.id_ce_theme = ts.id_ce_theme
-            INNER JOIN {$table}_lang as tl ON t.id_ce_theme = tl.id_ce_theme AND ts.id_shop = tl.id_shop
-            WHERE ts.active = 1 AND ts.id_shop = $id_shop AND tl.id_lang = $id_lang AND t.type = '$type'
-            ORDER BY tl.title
-        ");
-
-        return $res ?: [];
+        return Db::getInstance()->executeS('
+            SELECT t.`id_ce_theme` AS `value`, CONCAT("#", t.`id_ce_theme`, " ", tl.`title`) AS `name` FROM ' . _DB_PREFIX_ . 'ce_theme t
+            INNER JOIN ' . _DB_PREFIX_ . 'ce_theme_shop ts ON t.`id_ce_theme` = ts.`id_ce_theme`
+            INNER JOIN ' . _DB_PREFIX_ . 'ce_theme_lang tl ON t.`id_ce_theme` = tl.`id_ce_theme` AND ts.`id_shop` = tl.`id_shop`
+            WHERE ts.`active` = 1 AND ts.`id_shop` = ' . (int) $id_shop . ' AND tl.`id_lang` = ' . (int) $id_lang . ' AND t.`type` = "' . pSQL($type) . '"
+            ORDER BY tl.`title`
+        ') ?: [];
     }
 }
 

@@ -14,7 +14,7 @@ if (!defined('_PS_VERSION_')) {
 
 use CE\CoreXDynamicTagsXDataTag as DataTag;
 use CE\ModulesXCatalogXControlsXSelectManufacturer as SelectManufacturer;
-use CE\ModulesXDynamicTagsXModule as Module;
+use CE\ModulesXDynamicTagsXModule as TagsModule;
 
 class ModulesXCatalogXTagsXManufacturerImage extends DataTag
 {
@@ -32,12 +32,12 @@ class ModulesXCatalogXTagsXManufacturerImage extends DataTag
 
     public function getGroup()
     {
-        return Module::CATALOG_GROUP;
+        return TagsModule::CATALOG_GROUP;
     }
 
     public function getCategories()
     {
-        return [Module::IMAGE_CATEGORY];
+        return [TagsModule::IMAGE_CATEGORY];
     }
 
     public function getPanelTemplateSettingKey()
@@ -56,7 +56,7 @@ class ModulesXCatalogXTagsXManufacturerImage extends DataTag
                 'select2options' => [
                     'allowClear' => false,
                 ],
-                'extend' => [
+                'options' => [
                     '0' => __('Current'),
                 ],
                 'default' => 0,
@@ -75,12 +75,9 @@ class ModulesXCatalogXTagsXManufacturerImage extends DataTag
 
     public function getValue(array $options = [])
     {
-        $context = \Context::getContext();
-        $vars = &$context->smarty->tpl_vars;
-        $value = [
-            'id' => '',
-            'url' => '',
-        ];
+        $vars = &$GLOBALS['smarty']->tpl_vars;
+        $value = ['url' => ''];
+
         if (!$id_manufacturer = $this->getSettings('id_manufacturer')) {
             if (!empty($vars['manufacturer']->value['id'])) {
                 $id_manufacturer = $vars['manufacturer']->value['id'];
@@ -91,10 +88,10 @@ class ModulesXCatalogXTagsXManufacturerImage extends DataTag
             }
         }
         if ($id_manufacturer) {
-            $value['url'] = $context->link->getManufacturerImageLink($id_manufacturer, $size = $this->getSettings('image_size'));
+            $value['url'] = Helper::$link->getManufacturerImageLink($id_manufacturer, $size = $this->getSettings('image_size'));
             empty($value['alt']) && $value['alt'] = __('Brand');
 
-            $size && ($image_type = @\ImageType::getImagesTypes('manufacturers')[$size]) && $value += [
+            $size && ($image_type = @array_column(\ImageType::getImagesTypes('manufacturers'), null, 'name')[$size]) && $value += [
                 'width' => $image_type['width'],
                 'height' => $image_type['height'],
             ];
@@ -108,7 +105,6 @@ class ModulesXCatalogXTagsXManufacturerImage extends DataTag
         $image_size = $this->getSettings('image_size') ?: 'null';
 
         return [
-            'id' => '',
             // Tmp fix: Absolute URLs need to contain ://
             'url' => '{*://*}' .
                 '{if $product.id_manufacturer}' .

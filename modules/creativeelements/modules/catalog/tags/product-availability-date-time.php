@@ -13,7 +13,7 @@ if (!defined('_PS_VERSION_')) {
 }
 
 use CE\CoreXDynamicTagsXDataTag as DataTag;
-use CE\ModulesXDynamicTagsXModule as Module;
+use CE\ModulesXDynamicTagsXModule as TagsModule;
 
 class ModulesXCatalogXTagsXProductAvailabilityDateTime extends DataTag
 {
@@ -26,24 +26,22 @@ class ModulesXCatalogXTagsXProductAvailabilityDateTime extends DataTag
 
     public function getTitle()
     {
-        return __('Product') . ' ' . __('Availability Date');
+        return __('Product Availability');
     }
 
     public function getGroup()
     {
-        return Module::CATALOG_GROUP;
+        return TagsModule::CATALOG_GROUP;
     }
 
     public function getCategories()
     {
-        return [Module::DATE_TIME_CATEGORY];
+        return [TagsModule::DATE_TIME_CATEGORY];
     }
 
     public function getValue(array $options = [])
     {
-        $product = &\Context::getContext()->smarty->tpl_vars['product']->value;
-
-        return $product['availability_date'];
+        return $GLOBALS['smarty']->tpl_vars['product']->value['availability_date'];
     }
 
     protected function getSmartyValue(array $options = [])

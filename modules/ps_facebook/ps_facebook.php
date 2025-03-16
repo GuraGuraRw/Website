@@ -54,6 +54,11 @@ class Ps_facebook extends Module
     public $controllerAdmin;
 
     /**
+     * @var string
+     */
+    public $name;
+
+    /**
      * @var bool
      */
     public $psVersionIs17;
@@ -89,7 +94,7 @@ class Ps_facebook extends Module
     {
         $this->name = 'ps_facebook';
         $this->tab = 'advertising_marketing';
-        $this->version = '1.37.0';
+        $this->version = '1.38.7';
         $this->author = 'PrestaShop';
         $this->need_instance = 0;
         $this->module_key = '860395eb54512ec72d98615805274591';
@@ -341,6 +346,11 @@ class Ps_facebook extends Module
         $eventDispatcher = $this->getService(EventDispatcher::class);
 
         return $eventDispatcher->dispatch(__FUNCTION__, $params);
+    }
+
+    public function getContext()
+    {
+        return $this->context;
     }
 
     public function hookActionObjectCustomerMessageAddAfter(array $params)

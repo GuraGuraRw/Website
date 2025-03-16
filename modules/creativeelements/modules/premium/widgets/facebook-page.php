@@ -39,6 +39,11 @@ class ModulesXPremiumXWidgetsXFacebookPage extends WidgetBase
         return ['facebook', 'fb', 'social', 'embed', 'page'];
     }
 
+    protected function isDynamicContent()
+    {
+        return false;
+    }
+
     protected function _registerControls()
     {
         $this->startControlsSection(

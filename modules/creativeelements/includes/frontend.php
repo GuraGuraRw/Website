@@ -143,7 +143,7 @@ class Frontend extends App
     public function __construct()
     {
         // We don't need this class in admin side, but in AJAX requests.
-        if (is_admin() && !wp_doing_ajax()) {
+        if (_CE_ADMIN_ && !wp_doing_ajax()) {
             return;
         }
 
@@ -200,12 +200,13 @@ class Frontend extends App
 
         $this->post_id = get_the_ID();
 
-        if (is_singular() && Plugin::$instance->db->isBuiltWithElementor($this->post_id)) {
+        // if (is_singular() && Plugin::$instance->db->isBuiltWithElementor($this->post_id)) {
+        if ($this->_has_elementor_in_page) {
             add_action('wp_enqueue_scripts', [$this, 'enqueueStyles']);
         }
 
         // Priority 7 to allow google fonts in header template to load in <head> tag
-        // add_action('wp_head', [$this, 'printFontsLinks'], 7);
+        add_action('wp_head', [$this, 'printFontsLinks'], 7);
         add_action('wp_footer', [$this, 'wpFooter']);
 
         // Add Edit with the Elementor in Admin Bar.
@@ -263,16 +264,6 @@ class Frontend extends App
             true
         );
 
-        \Configuration::get('elementor_load_waypoints') && wp_register_script(
-            'elementor-waypoints',
-            $this->getJsAssetsUrl('waypoints', 'views/lib/waypoints/'),
-            [
-                'jquery',
-            ],
-            '4.0.2',
-            true
-        );
-
         wp_register_script(
             'flatpickr',
             $this->getJsAssetsUrl('flatpickr', 'views/lib/flatpickr/'),
@@ -307,7 +298,7 @@ class Frontend extends App
             'swiper',
             $this->getJsAssetsUrl('swiper', 'views/lib/swiper/'),
             [],
-            '5.3.6.2',
+            '11.1.12',
             true
         );
 
@@ -320,7 +311,7 @@ class Frontend extends App
             '4.7.6',
             true
         );
-
+        /*
         wp_register_script(
             'elementor-gallery',
             $this->getJsAssetsUrl('e-gallery', 'views/lib/e-gallery/js/'),
@@ -330,7 +321,7 @@ class Frontend extends App
             '1.1.3',
             true
         );
-        /*
+
         wp_register_script(
             'share-link',
             $this->getJsAssetsUrl('share-link', 'views/lib/share-link/'),
@@ -347,11 +338,11 @@ class Frontend extends App
             [
                 'jquery',
             ],
-            '1.0.2',
+            '1.2.1',
             true
         );
 
-        wp_register_script(
+        \Configuration::get('elementor_load_sticky', null, null, null, 1) && wp_register_script(
             'elementor-sticky',
             $this->getJsAssetsUrl('jquery.sticky', 'views/lib/sticky/'),
             [
@@ -368,7 +359,6 @@ class Frontend extends App
             [
                 'elementor-frontend-modules',
                 'elementor-dialog',
-                'elementor-waypoints',
                 'elementor-sticky',
                 'swiper',
                 // 'share-link',
@@ -428,20 +418,27 @@ class Frontend extends App
             _CE_VERSION_
         );
 
+        \Configuration::get('elementor_load_swiper') && wp_register_style(
+            'swiper',
+            $this->getCssAssetsUrl('swiper', 'views/lib/swiper/css/'),
+            [],
+            '11.1.12'
+        );
+
         wp_register_style(
             'flatpickr',
             $this->getCssAssetsUrl('flatpickr', 'views/lib/flatpickr/'),
             [],
             '4.1.4'
         );
-
+        /*
         wp_register_style(
             'elementor-gallery',
             $this->getCssAssetsUrl('e-gallery', 'views/lib/e-gallery/css/'),
             [],
             '1.1.3'
         );
-
+        */
         $min_suffix = _PS_MODE_DEV_ ? '' : '.min';
 
         $direction_suffix = is_rtl() ? '-rtl' : '';
@@ -451,7 +448,7 @@ class Frontend extends App
         $has_custom_file = Responsive::hasCustomBreakpoints();
 
         if ($has_custom_file) {
-            $id_shop = (int) \Context::getContext()->shop->id;
+            $id_shop = (int) $GLOBALS['context']->shop->id;
 
             $frontend_file = new FrontendFile("$id_shop-" . $frontend_file_name, Responsive::getStylesheetTemplatesPath() . $frontend_file_name);
 
@@ -537,6 +534,7 @@ class Frontend extends App
 
         wp_enqueue_style('elementor-animations');
         wp_enqueue_style('elementor-frontend');
+        wp_enqueue_style('swiper');
         wp_enqueue_style('ce-icons');
 
         /*
@@ -556,12 +554,12 @@ class Frontend extends App
 
             do_action('elementor/frontend/after_enqueue_global');
 
-            $post_id = get_the_ID();
+            // $post_id = get_the_ID();
             // Check $post_id for virtual pages. check is singular because the $post_id is set to the first post on archive pages.
-            if ($post_id) {
-                $css_file = PostCSS::create($post_id);
-                $css_file->enqueue();
-            }
+            // if ($post_id) {
+            //     $css_file = PostCSS::create($post_id);
+            //     $css_file->enqueue();
+            // }
         }
     }
 
@@ -583,7 +581,7 @@ class Frontend extends App
         $this->enqueueStyles();
         $this->enqueueScripts();
 
-        $this->printFontsLinks();
+        // $this->printFontsLinks();
     }
 
     /**
@@ -774,7 +772,7 @@ class Frontend extends App
      */
     protected function parseGlobalCssCode()
     {
-        $id_shop = (int) \Context::getContext()->shop->id;
+        $id_shop = (int) $GLOBALS['context']->shop->id;
 
         $scheme_css_file = GlobalCSS::create("$id_shop-global.css");
         $scheme_css_file->enqueue();
@@ -805,7 +803,7 @@ class Frontend extends App
 
         $builder_content = $this->getBuilderContent($post_id);
 
-        if (!empty($builder_content)) {
+        if ($builder_content) {
             $content = $builder_content;
             // $this->removeContentFilters();
         }
@@ -842,24 +840,14 @@ class Frontend extends App
 
         $document = Plugin::$instance->documents->getDocForFrontend($post_id);
 
-        // Change the current post, so widgets can use `documents->get_current`.
+        // Change the current post, so widgets can use `documents->getCurrent`.
         Plugin::$instance->documents->switchToDocument($document);
 
         $data = $document->getElementsData();
 
-        /*
-         * Frontend builder content data.
-         *
-         * Filters the builder content in the frontend.
-         *
-         * @since 1.0.0
-         *
-         * @param array $data    The builder content
-         * @param int   $post_id The post ID
-         */
-        $data = apply_filters('elementor/frontend/builder_content_data', $data, $post_id);
+        // $data = apply_filters('elementor/frontend/builder_content_data', $data, $post_id);
 
-        if (empty($data)) {
+        if (!$data) {
             return '';
         }
 
@@ -890,18 +878,9 @@ class Frontend extends App
 
         // $content = $this->processMoreTag($content);
 
-        /*
-         * Frontend content.
-         *
-         * Filters the content in the frontend.
-         *
-         * @since 1.0.0
-         *
-         * @param string $content The content
-         */
-        $content = apply_filters('elementor/frontend/the_content', $content);
+        // $content = apply_filters('elementor/frontend/the_content', $content);
 
-        if (!empty($content)) {
+        if ($content) {
             $this->_has_elementor_in_page = true;
         }
 
@@ -977,7 +956,7 @@ class Frontend extends App
      *
      * @since 2.0.9
      *
-     * @return bool
+     * @return bool|null
      */
     public function hasElementorInPage($value = null)
     {

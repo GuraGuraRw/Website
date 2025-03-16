@@ -6,8 +6,8 @@ use PrestaShop\Module\PsAccounts\Vendor\GuzzleHttp\Cookie\CookieJarInterface;
 use PrestaShop\Module\PsAccounts\Vendor\GuzzleHttp\Exception\RequestException;
 use PrestaShop\Module\PsAccounts\Vendor\GuzzleHttp\Promise\RejectedPromise;
 use PrestaShop\Module\PsAccounts\Vendor\GuzzleHttp\Psr7;
-use Psr\Http\Message\ResponseInterface;
-use Psr\Log\LoggerInterface;
+use PrestaShop\Module\PsAccounts\Vendor\Psr\Http\Message\ResponseInterface;
+use PrestaShop\Module\PsAccounts\Vendor\Psr\Log\LoggerInterface;
 /**
  * Functions used to create and wrap handlers with handler middleware.
  */

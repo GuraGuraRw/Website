@@ -22,6 +22,8 @@ if (!defined('_PS_VERSION_')) {
  */
 class WidgetButton extends WidgetBase
 {
+    const HELP_URL = 'http://docs.webshopworks.com/creative-elements/85-widgets/basic-widgets/297-button-widget';
+
     /**
      * Get widget name.
      *
@@ -92,6 +94,11 @@ class WidgetButton extends WidgetBase
     public function getKeywords()
     {
         return ['button'];
+    }
+
+    protected function isDynamicContent()
+    {
+        return false;
     }
 
     /**
@@ -367,6 +374,20 @@ class WidgetButton extends WidgetBase
             ]
         );
 
+        $this->addControl(
+            'border_color',
+            [
+                'label' => __('Border Color'),
+                'type' => ControlsManager::COLOR,
+                'selectors' => [
+                    '{{WRAPPER}} a.elementor-button' => 'border-color: {{VALUE}};',
+                ],
+                'condition' => [
+                    'border_border!' => '',
+                ],
+            ]
+        );
+
         $this->endControlsTab();
 
         $this->startControlsTab(
@@ -403,11 +424,11 @@ class WidgetButton extends WidgetBase
             [
                 'label' => __('Border Color'),
                 'type' => ControlsManager::COLOR,
-                'condition' => [
-                    'border_border!' => '',
-                ],
                 'selectors' => [
                     '{{WRAPPER}} a.elementor-button:hover, {{WRAPPER}} a.elementor-button:focus' => 'border-color: {{VALUE}};',
+                ],
+                'condition' => [
+                    'border_border!' => '',
                 ],
             ]
         );
@@ -415,7 +436,7 @@ class WidgetButton extends WidgetBase
         $this->addControl(
             'hover_animation',
             [
-                'label' => __('Hover Animation'),
+                'label' => __('Animation'),
                 'type' => ControlsManager::HOVER_ANIMATION,
             ]
         );
@@ -428,7 +449,8 @@ class WidgetButton extends WidgetBase
             GroupControlBorder::getType(),
             [
                 'name' => 'border',
-                'selector' => '{{WRAPPER}} .elementor-button',
+                'exclude' => ['color'],
+                'selector' => '{{WRAPPER}} a.elementor-button',
                 'separator' => 'before',
             ]
         );
@@ -462,7 +484,6 @@ class WidgetButton extends WidgetBase
                 'selectors' => [
                     '{{WRAPPER}} a.elementor-button' => 'padding: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
                 ],
-                'separator' => 'before',
             ]
         );
 
@@ -553,10 +574,8 @@ class WidgetButton extends WidgetBase
         <div class="elementor-button-wrapper">
             <a id="{{ settings.button_css_id }}" {{{ view.getRenderAttributeString( 'button' ) }}} role="button">
                 <span class="elementor-button-content-wrapper">
-                <# if ( icon = elementor.helpers.getBcIcon(view, settings, 'icon', {'aria-hidden': true}) ) { #>
-                    <span class="elementor-button-icon elementor-align-icon-{{ settings.icon_align }}">
-                        {{{ icon }}}
-                    </span>
+                <# if ( icon = elementor.helpers.getBcIcon( view, settings, 'icon' ) ) { #>
+                    <span class="elementor-button-icon elementor-align-icon-{{ settings.icon_align }}">{{{ icon }}}</span>
                 <# } #>
                 <# if ( settings.text.trim() ) { #>
                     <span {{{ view.getRenderAttributeString( 'text' ) }}}>{{{ settings.text }}}</span>

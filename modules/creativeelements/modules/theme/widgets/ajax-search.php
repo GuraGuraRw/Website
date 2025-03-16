@@ -117,7 +117,7 @@ class ModulesXThemeXWidgetsXAjaxSearch extends WidgetBase
             [
                 'label' => __('Text'),
                 'type' => ControlsManager::TEXT,
-                'default' => __('Search'),
+                'default' => $search = Helper::$translator->trans('Search', [], 'Shop.Theme.Catalog'),
                 'condition' => [
                     'button_type' => 'text',
                     'skin' => 'classic',
@@ -275,7 +275,7 @@ class ModulesXThemeXWidgetsXAjaxSearch extends WidgetBase
             [
                 'label' => __('Placeholder'),
                 'type' => ControlsManager::TEXT,
-                'default' => __('Search') . '...',
+                'default' => $search . '...',
             ]
         );
 
@@ -361,7 +361,7 @@ class ModulesXThemeXWidgetsXAjaxSearch extends WidgetBase
         $this->addControl(
             'show_price',
             [
-                'label' => __('Price'),
+                'label' => __('Price', 'Shop.Theme.Catalog'),
                 'type' => ControlsManager::SWITCHER,
                 'label_on' => __('Show'),
                 'label_off' => __('Hide'),
@@ -393,23 +393,23 @@ class ModulesXThemeXWidgetsXAjaxSearch extends WidgetBase
         );
 
         $this->addControl(
-            'toggle_color',
-            [
-                'label' => __('Color'),
-                'type' => ControlsManager::COLOR,
-                'selectors' => [
-                    '{{WRAPPER}} .elementor-search__toggle' => 'color: {{VALUE}}; border-color: {{VALUE}}',
-                ],
-            ]
-        );
-
-        $this->addControl(
             'toggle_background_color',
             [
                 'label' => __('Background Color'),
                 'type' => ControlsManager::COLOR,
                 'selectors' => [
                     '{{WRAPPER}} .elementor-search__toggle i' => 'background-color: {{VALUE}}',
+                ],
+            ]
+        );
+
+        $this->addControl(
+            'toggle_color',
+            [
+                'label' => __('Icon Color'),
+                'type' => ControlsManager::COLOR,
+                'selectors' => [
+                    '{{WRAPPER}} .elementor-search__toggle' => 'color: {{VALUE}}; border-color: {{VALUE}}',
                 ],
             ]
         );
@@ -424,23 +424,23 @@ class ModulesXThemeXWidgetsXAjaxSearch extends WidgetBase
         );
 
         $this->addControl(
-            'toggle_color_hover',
-            [
-                'label' => __('Color'),
-                'type' => ControlsManager::COLOR,
-                'selectors' => [
-                    '{{WRAPPER}} .elementor-search__toggle:hover' => 'color: {{VALUE}}; border-color: {{VALUE}}',
-                ],
-            ]
-        );
-
-        $this->addControl(
             'toggle_background_color_hover',
             [
                 'label' => __('Background Color'),
                 'type' => ControlsManager::COLOR,
                 'selectors' => [
                     '{{WRAPPER}} .elementor-search__toggle i:hover' => 'background-color: {{VALUE}}',
+                ],
+            ]
+        );
+
+        $this->addControl(
+            'toggle_color_hover',
+            [
+                'label' => __('Icon Color'),
+                'type' => ControlsManager::COLOR,
+                'selectors' => [
+                    '{{WRAPPER}} .elementor-search__toggle:hover' => 'color: {{VALUE}}; border-color: {{VALUE}}',
                 ],
             ]
         );
@@ -477,7 +477,6 @@ class ModulesXThemeXWidgetsXAjaxSearch extends WidgetBase
                 'selectors' => [
                     '{{WRAPPER}} .elementor-search__toggle i' => 'border-width: {{SIZE}}{{UNIT}}',
                 ],
-                'separator' => 'before',
             ]
         );
 
@@ -530,6 +529,36 @@ class ModulesXThemeXWidgetsXAjaxSearch extends WidgetBase
                 ],
                 'selectors' => [
                     '{{WRAPPER}}.elementor-search--skin-topbar .elementor-search__container' => 'padding: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+                ],
+            ]
+        );
+
+        $this->addControl(
+            'heading_close_style',
+            [
+                'type' => ControlsManager::HEADING,
+                'label' => __('Close'),
+            ]
+        );
+
+        $this->addControl(
+            'close_color',
+            [
+                'label' => __('Icon Color'),
+                'type' => ControlsManager::COLOR,
+                'selectors' => [
+                    '{{WRAPPER}} .dialog-close-button' => 'color: {{VALUE}}',
+                ],
+            ]
+        );
+
+        $this->addControl(
+            'close_color_hover',
+            [
+                'label' => __('Icon Hover'),
+                'type' => ControlsManager::COLOR,
+                'selectors' => [
+                    '{{WRAPPER}} .dialog-close-button:hover' => 'color: {{VALUE}}',
                 ],
             ]
         );
@@ -775,7 +804,6 @@ class ModulesXThemeXWidgetsXAjaxSearch extends WidgetBase
             [
                 'type' => ControlsManager::HEADING,
                 'label' => __('Cancel'),
-                'separator' => 'before',
             ]
         );
 
@@ -980,7 +1008,7 @@ class ModulesXThemeXWidgetsXAjaxSearch extends WidgetBase
                 ],
                 'selectors' => [
                     '{{WRAPPER}}:not(.elementor-search--skin-topbar) .elementor-search__products' => 'width: {{SIZE}}{{UNIT}} !important',
-                    '{{WRAPPER}}.elementor-search--skin-topbar .elementor-search__container' => 'border-left-width: calc(50vw - {{SIZE}}{{UNIT}} / 2); border-right-width: calc(50vw - {{SIZE}}{{UNIT}} / 2)',
+                    '{{WRAPPER}}.elementor-search--skin-topbar .elementor-search__container' => 'border-width: 0 calc(50vw - {{SIZE}}{{UNIT}} / 2)',
                 ],
             ]
         );
@@ -1114,11 +1142,67 @@ class ModulesXThemeXWidgetsXAjaxSearch extends WidgetBase
                 'label' => __('Spacing'),
                 'type' => ControlsManager::SLIDER,
                 'selectors' => [
-                    'body:not(.lang-rtl) {{WRAPPER}} .elementor-search__product-image' => 'margin-right: {{SIZE}}{{UNIT}}',
-                    'body.lang-rtl {{WRAPPER}} .elementor-search__product-image' => 'margin-left: {{SIZE}}{{UNIT}}',
+                    '{{WRAPPER}} .elementor-search__product-image' => 'margin-inline-end: {{SIZE}}{{UNIT}}',
                 ],
                 'condition' => [
                     'show_image!' => '',
+                ],
+            ]
+        );
+
+        $this->addControl(
+            'heading_product_typography_style',
+            [
+                'type' => ControlsManager::HEADING,
+                'label' => __('Typography'),
+            ]
+        );
+
+        $this->addGroupControl(
+            GroupControlTypography::getType(),
+            [
+                'label' => __('Name'),
+                'name' => 'product_name_typography',
+                'scheme' => SchemeTypography::TYPOGRAPHY_1,
+                'selector' => '{{WRAPPER}} .elementor-search__product-name',
+            ]
+        );
+
+        $this->addGroupControl(
+            GroupControlTypography::getType(),
+            [
+                'label' => __('Category'),
+                'name' => 'product_category_typography',
+                'scheme' => SchemeTypography::TYPOGRAPHY_2,
+                'selector' => '{{WRAPPER}} .elementor-search__product-category',
+                'condition' => [
+                    'show_category!' => '',
+                ],
+            ]
+        );
+
+        $this->addGroupControl(
+            GroupControlTypography::getType(),
+            [
+                'label' => __('Description'),
+                'name' => 'product_description_typography',
+                'scheme' => SchemeTypography::TYPOGRAPHY_3,
+                'selector' => '{{WRAPPER}} .elementor-search__product-description',
+                'condition' => [
+                    'show_description!' => '',
+                ],
+            ]
+        );
+
+        $this->addGroupControl(
+            GroupControlTypography::getType(),
+            [
+                'label' => __('Price', 'Shop.Theme.Catalog'),
+                'name' => 'product_price_typography',
+                'scheme' => SchemeTypography::TYPOGRAPHY_1,
+                'selector' => '{{WRAPPER}} .elementor-search__product-price',
+                'condition' => [
+                    'show_price!' => '',
                 ],
             ]
         );
@@ -1205,7 +1289,7 @@ class ModulesXThemeXWidgetsXAjaxSearch extends WidgetBase
         $this->addControl(
             'product_price_color',
             [
-                'label' => __('Price'),
+                'label' => __('Price', 'Shop.Theme.Catalog'),
                 'type' => ControlsManager::COLOR,
                 'scheme' => [
                     'type' => SchemeColor::getType(),
@@ -1286,7 +1370,7 @@ class ModulesXThemeXWidgetsXAjaxSearch extends WidgetBase
         $this->addControl(
             'product_price_color_hover',
             [
-                'label' => __('Price'),
+                'label' => __('Price', 'Shop.Theme.Catalog'),
                 'type' => ControlsManager::COLOR,
                 'selectors' => [
                     '{{WRAPPER}} .ui-state-focus .elementor-search__product-price' => 'color: {{VALUE}}',
@@ -1301,82 +1385,21 @@ class ModulesXThemeXWidgetsXAjaxSearch extends WidgetBase
 
         $this->endControlsTabs();
 
-        $this->addControl(
-            'heading_product_typography_style',
-            [
-                'type' => ControlsManager::HEADING,
-                'label' => __('Typography'),
-                'separator' => 'before',
-            ]
-        );
-
-        $this->addGroupControl(
-            GroupControlTypography::getType(),
-            [
-                'label' => __('Name'),
-                'name' => 'product_name_typography',
-                'scheme' => SchemeTypography::TYPOGRAPHY_1,
-                'selector' => '{{WRAPPER}} .elementor-search__product-name',
-            ]
-        );
-
-        $this->addGroupControl(
-            GroupControlTypography::getType(),
-            [
-                'label' => __('Category'),
-                'name' => 'product_category_typography',
-                'scheme' => SchemeTypography::TYPOGRAPHY_2,
-                'selector' => '{{WRAPPER}} .elementor-search__product-category',
-                'condition' => [
-                    'show_category!' => '',
-                ],
-            ]
-        );
-
-        $this->addGroupControl(
-            GroupControlTypography::getType(),
-            [
-                'label' => __('Description'),
-                'name' => 'product_description_typography',
-                'scheme' => SchemeTypography::TYPOGRAPHY_3,
-                'selector' => '{{WRAPPER}} .elementor-search__product-description',
-                'condition' => [
-                    'show_description!' => '',
-                ],
-            ]
-        );
-
-        $this->addGroupControl(
-            GroupControlTypography::getType(),
-            [
-                'label' => __('Price'),
-                'name' => 'product_price_typography',
-                'scheme' => SchemeTypography::TYPOGRAPHY_1,
-                'selector' => '{{WRAPPER}} .elementor-search__product-price',
-                'condition' => [
-                    'show_price!' => '',
-                ],
-            ]
-        );
-
         $this->endControlsSection();
     }
 
     protected function render()
     {
         $settings = $this->getSettings();
+        $action = Helper::$link->getPageLink('search');
 
         $this->addRenderAttribute('input', [
             'placeholder' => $settings['placeholder'],
-            'class' => 'elementor-search__input',
-            'type' => 'search',
-            'name' => 's',
             'value' => \Tools::getValue('controller') === 'search' ? \Tools::getValue('s') : '',
             'minlength' => \Configuration::get('PS_SEARCH_MINWORDLEN'),
         ]); ?>
-        <form class="elementor-search" role="search"
-            action="<?php echo $action = \Context::getContext()->link->getPageLink('search'); ?>" method="get">
-        <?php if (strrpos($action, 'controller=search') !== false) { ?>
+        <form class="elementor-search" role="search" action="<?php echo esc_attr($action); ?>" method="get">
+        <?php if (strpos($action, 'controller=search') !== false) { ?>
             <input type="hidden" name="controller" value="search">
         <?php } ?>
         <?php if ('topbar' === $settings['skin']) { ?>
@@ -1395,7 +1418,7 @@ class ModulesXThemeXWidgetsXAjaxSearch extends WidgetBase
                 <div class="elementor-search__label"><?php echo $settings['label']; ?></div>
                 <div class="elementor-search__input-wrapper">
             <?php } ?>
-                <input <?php $this->printRenderAttributeString('input'); ?>>
+                <input class="elementor-search__input" type="search" name="s" <?php $this->printRenderAttributeString('input'); ?>>
                 <div class="elementor-search__icon elementor-search__clear"><i class="ceicon-close"></i></div>
             <?php if ('classic' === $settings['skin']) { ?>
                 <button class="elementor-search__submit" type="submit">
@@ -1421,30 +1444,30 @@ class ModulesXThemeXWidgetsXAjaxSearch extends WidgetBase
     protected function contentTemplate()
     {
         ?>
-        <# var actionLink = <?php echo json_encode(\Context::getContext()->link->getPageLink('search')); ?> #>
+        <# var actionLink = <?php echo json_encode(Helper::$link->getPageLink('search')); ?> #>
         <form class="elementor-search" action="{{ actionLink }}" role="search">
         <# if ( 'topbar' === settings.skin ) { #>
             <div class="elementor-search__toggle" role="button">
-                {{{ elementor.helpers.getBcIcon(view, settings, 'icon', {'aria-hidden': true}) }}}
+                {{{ elementor.helpers.getBcIcon( view, settings, 'icon' ) }}}
                 <span class="elementor-screen-only"><?php _e('Search'); ?></span>
             </div>
         <# } #>
             <div class="elementor-search__container">
             <# if ( 'minimal' === settings.skin ) { #>
                 <div class="elementor-search__icon">
-                    {{{ elementor.helpers.getBcIcon(view, settings, 'icon', {'aria-hidden': true}) }}}
+                    {{{ elementor.helpers.getBcIcon( view, settings, 'icon' ) }}}
                     <span class="elementor-screen-only"><?php _e('Search'); ?></span>
                 </div>
             <# } else if ( 'topbar' === settings.skin ) { #>
                 <div class="elementor-search__label">{{{ settings.label }}}</div>
                 <div class="elementor-search__input-wrapper">
             <# } #>
-                <input type="search" name="s" class="elementor-search__input" placeholder="{{ settings.placeholder }}">
+                <input class="elementor-search__input" type="search" name="s" placeholder="{{ settings.placeholder }}">
                 <div class="elementor-search__icon elementor-search__clear"><i class="ceicon-close"></i></div>
             <# if ( 'classic' === settings.skin ) { #>
                 <button class="elementor-search__submit" type="submit">
                 <# if ( 'icon' === settings.button_type ) { #>
-                    {{{ elementor.helpers.getBcIcon(view, settings, 'icon', {'aria-hidden': true}) }}}
+                    {{{ elementor.helpers.getBcIcon( view, settings, 'icon' ) }}}
                     <span class="elementor-screen-only"><?php _e('Submit'); ?></span>
                 <# } else if ( settings.button_text ) { #>
                     {{{ settings.button_text }}}

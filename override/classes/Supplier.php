@@ -6,13 +6,13 @@ class Supplier extends SupplierCore
 {
     /*
     * module: creativeelements
-    * date: 2024-08-06 20:43:00
+    * date: 2025-02-18 11:57:46
     * version: 2.10.1
     */
     const CE_OVERRIDE = true;
     /*
     * module: creativeelements
-    * date: 2024-08-06 20:43:00
+    * date: 2025-02-18 11:57:46
     * version: 2.10.1
     */
     public function __construct($id = null, $idLang = null)

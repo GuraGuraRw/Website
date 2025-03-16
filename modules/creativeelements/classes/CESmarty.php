@@ -20,7 +20,7 @@ class CESmarty
             return self::$tpls[$path];
         }
 
-        $tpl = Context::getContext()->smarty->createTemplate($path);
+        $tpl = $GLOBALS['smarty']->createTemplate($path);
         CE\do_action('smarty/before_fetch', $tpl->smarty);
         $tpl->fetch();
         CE\do_action('smarty/after_fetch', $tpl->smarty);
@@ -79,7 +79,7 @@ function smartyInclude(array $params)
     $file = $params['file'];
 
     try {
-        if (strrpos($file, '../') !== false || strcasecmp(substr($file, -4), '.tpl') !== 0) {
+        if (strpos($file, '../') !== false || strcasecmp(substr($file, -4), '.tpl') !== 0) {
             throw new Exception();
         }
 
@@ -87,8 +87,7 @@ function smartyInclude(array $params)
             $file = substr($file, 7);
 
             if (!file_exists($path = _PS_THEME_DIR_ . "modules/$file")
-                && (!_PARENT_THEME_NAME_
-                    || !file_exists($path = _PS_PARENT_THEME_DIR_ . "modules/$file"))
+                && (!_PARENT_THEME_NAME_ || !file_exists($path = _PS_PARENT_THEME_DIR_ . "modules/$file"))
                 && !file_exists($path = _PS_MODULE_DIR_ . $file)
             ) {
                 throw new Exception();
@@ -109,7 +108,7 @@ function smartyInclude(array $params)
         $compile_id = isset($params['compile_id']) ? $params['compile_id'] : null;
         unset($params['file'], $params['cache_id'], $params['compile_id']);
 
-        $out = Context::getContext()->smarty->fetch($path, $cache_id, $compile_id, $params);
+        $out = $GLOBALS['smarty']->fetch($path, $cache_id, $compile_id, $params);
     } catch (Exception $ex) {
         $out = $ex->getMessage() ?: "Failed including: '$file'";
     }
@@ -139,9 +138,30 @@ function smartyL(array $params)
     return empty($params['d']) ? $params['s'] : smartyTranslate($params, null);
 }
 
+function smartyCE(array $params)
+{
+    if (empty($params['element'])) {
+        return;
+    }
+
+    $data = json_decode(base64_decode($params['element']), true);
+
+    if (!$data || !is_array($data)) {
+        return;
+    }
+
+    ob_start();
+
+    if ($element = CE\Plugin::$instance->elements_manager->createElementInstance($data)) {
+        $element->printElement();
+    }
+
+    return ob_get_clean();
+}
+
 function ce__($text, $module = 'creativeelements')
 {
-    return CE\translate($text, $module);
+    return CE\trans($text, $module);
 }
 
 function ce_new($class, ...$args)
@@ -158,20 +178,15 @@ function ce_enqueue_miniature($uid)
     }
     $enqueued[$uid] = true;
 
-    $forceInline = (bool) CreativeElements::getPreviewUId();
-
-    if ($forceInline || !Context::getContext()->controller->ajax) {
-        $css_file = new CE\ModulesXCatalogXFilesXCSSXProductMiniature($uid, $forceInline);
-        $css_file->enqueue();
+    if (CreativeElements::getPreviewUId()
+        || CreativeElements::hasAdminToken('AdminCEThemes') && Tools::getValue('id_miniature') === substr($uid, 0, -6)
+    ) {
+        $preview_id = ($autosave = CE\wp_get_post_autosave($uid, (int) Tools::getValue('id_employee'))) ? $autosave->ID : $uid;
+    } else {
+        $preview_id = false;
     }
-}
+    CE\Plugin::instance()->frontend->hasElementorInPage(true);
 
-function array_export($array)
-{
-    echo preg_replace(['/\barray\s*\(/i', '/,\r?(\n\s*)\)/'], ['[', '$1]'], var_export($array, true));
-}
-
-function _q_c_($if, $then, $else)
-{
-    return $if ? $then : $else;
+    (new CE\ModulesXCatalogXFilesXCSSXMiniature($uid, $preview_id))
+        ->{Tools::getValue('render') === 'widget' ? 'printCss' : 'enqueue'}();
 }

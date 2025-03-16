@@ -18,10 +18,6 @@ class ModulesXCatalogXWidgetsXListingXFilters extends WidgetBase
 {
     const REMOTE_RENDER = true;
 
-    protected $context;
-
-    protected $translator;
-
     public function getName()
     {
         return 'listing-filters';
@@ -66,35 +62,34 @@ class ModulesXCatalogXWidgetsXListingXFilters extends WidgetBase
     protected function getFacetTypeOptions()
     {
         $options = [
-            'availability' => $this->translator->trans('Availability', [], 'Modules.Facetedsearch.Shop'),
-            'manufacturer' => $this->translator->trans('Brand', [], 'Modules.Facetedsearch.Shop'),
-            'category' => $this->translator->trans('Categories', [], 'Modules.Facetedsearch.Shop'),
-            'condition' => $this->translator->trans('Condition', [], 'Modules.Facetedsearch.Shop'),
-            'price' => $this->translator->trans('Price', [], 'Modules.Facetedsearch.Shop'),
-            'extras' => $this->translator->trans('Selections', [], 'Modules.Facetedsearch.Shop'),
-            'weight' => $this->translator->trans('Weight', [], 'Modules.Facetedsearch.Shop'),
+            'availability' => __('Availability', 'Modules.Facetedsearch.Shop'),
+            'manufacturer' => __('Brand', 'Modules.Facetedsearch.Shop'),
+            'category' => __('Categories', 'Modules.Facetedsearch.Shop'),
+            'condition' => __('Condition', 'Modules.Facetedsearch.Shop'),
+            'price' => __('Price', 'Modules.Facetedsearch.Shop'),
+            'extras' => __('Selections', 'Modules.Facetedsearch.Shop'),
+            'weight' => __('Weight', 'Modules.Facetedsearch.Shop'),
         ];
-        $ps = _DB_PREFIX_;
         $db = \Db::getInstance();
-        $id_lang = (int) $this->context->language->id;
+        $id_lang = $GLOBALS['language']->id;
 
-        if (\Combination::isFeatureActive() && $rows = $db->executeS("
-            SELECT ag.`id_attribute_group` AS id, agl.`name` FROM `{$ps}attribute_group` ag " .
-            \Shop::addSqlAssociation('attribute_group', 'ag') . "
-            LEFT JOIN `{$ps}attribute_group_lang` agl ON ag.`id_attribute_group` = agl.`id_attribute_group` AND `id_lang` = $id_lang
-        ")) {
-            $type = $this->translator->trans('Attribute', [], 'Admin.Global');
+        if (\Combination::isFeatureActive() && $rows = $db->executeS(
+            'SELECT ag.`id_attribute_group` AS id, agl.`name` FROM ' . _DB_PREFIX_ . 'attribute_group ag ' .
+            \Shop::addSqlAssociation('attribute_group', 'ag') .
+            'LEFT JOIN ' . _DB_PREFIX_ . 'attribute_group_lang agl ON ag.`id_attribute_group` = agl.`id_attribute_group` AND `id_lang` = ' . (int) $id_lang
+        )) {
+            $type = __('Attribute', 'Admin.Global');
 
             foreach ($rows as &$row) {
                 $options["attribute_group:{$row['id']}"] = "{$row['name']} ($type #{$row['id']})";
             }
         }
-        if ($rows = $db->executeS("
-            SELECT f.`id_feature` AS id, fl.`name` FROM `{$ps}feature` f " .
-            \Shop::addSqlAssociation('feature', 'f') . "
-            LEFT JOIN `{$ps}feature_lang` fl ON f.`id_feature` = fl.`id_feature` AND fl.`id_lang` = $id_lang
-        ")) {
-            $type = $this->translator->trans('Feature', [], 'Admin.Global');
+        if ($rows = $db->executeS(
+            'SELECT f.`id_feature` AS id, fl.`name` FROM ' . _DB_PREFIX_ . 'feature f ' .
+            \Shop::addSqlAssociation('feature', 'f') .
+            'LEFT JOIN ' . _DB_PREFIX_ . 'feature_lang fl ON f.`id_feature` = fl.`id_feature` AND fl.`id_lang` = ' . (int) $id_lang
+        )) {
+            $type = __('Feature', 'Admin.Global');
 
             foreach ($rows as &$row) {
                 $options["feature:{$row['id']}"] = "{$row['name']} ($type #{$row['id']})";
@@ -116,17 +111,18 @@ class ModulesXCatalogXWidgetsXListingXFilters extends WidgetBase
 
     protected function getNumberSpecification()
     {
-        $spec = !isset($this->context->currentLocale) || !method_exists($this->context->currentLocale, 'getNumberSpecification') ? [
+        $context = $GLOBALS['context'];
+        $spec = !isset($context->currentLocale) || !method_exists($context->currentLocale, 'getNumberSpecification') ? [
             'positivePattern' => $pattern = \Closure::bind(function () {
                 return $this->repository->locales[$this->getCulture()]['numbers']['decimalFormats-numberSystem-latn']['standard'];
-            }, $cldr = \Tools::getCldr($this->context), $cldr)->__invoke(),
+            }, $cldr = call_user_func('Tools::getCldr', $context), $cldr)->__invoke(),
             'negativePattern' => "-$pattern",
             'maxFractionDigits' => 3,
             'minFractionDigits' => 0,
             'groupingUsed' => true,
             'primaryGroupSize' => 3,
             'secondaryGroupSize' => 3,
-        ] : $this->context->currentLocale->getNumberSpecification()->toArray();
+        ] : $context->currentLocale->getNumberSpecification()->toArray();
 
         empty($spec['numberSymbols']) && $spec['numberSymbols'] = ['.', ',', ';', '%', '-', '+'];
 
@@ -135,8 +131,6 @@ class ModulesXCatalogXWidgetsXListingXFilters extends WidgetBase
 
     protected function _registerControls()
     {
-        $is_admin = is_admin();
-
         $this->startControlsSection(
             'section_filters',
             [
@@ -144,7 +138,7 @@ class ModulesXCatalogXWidgetsXListingXFilters extends WidgetBase
             ]
         );
 
-        $is_admin && !\Module::isEnabled('ps_facetedsearch') && $this->addControl(
+        _CE_ADMIN_ && !\Module::isEnabled('ps_facetedsearch') && $this->addControl(
             'notice',
             [
                 'raw' => sprintf(__('%s module (%s) must be installed!'), __('Faceted Search'), 'ps_facetedsearch'),
@@ -295,7 +289,7 @@ class ModulesXCatalogXWidgetsXListingXFilters extends WidgetBase
                 'label_block' => true,
                 'type' => ControlsManager::SELECT2,
                 'multiple' => true,
-                'options' => $is_admin ? self::getFacetTypeOptions() : [],
+                'options' => _CE_ADMIN_ ? self::getFacetTypeOptions() : [],
                 'condition' => [
                     'tab_active' => 'custom',
                 ],
@@ -760,7 +754,7 @@ class ModulesXCatalogXWidgetsXListingXFilters extends WidgetBase
 
         $this->endControlsSection();
 
-        if ($is_admin) {
+        if (_CE_ADMIN_) {
             $this->startControlsSection(
                 'section_additional_options',
                 [
@@ -771,11 +765,11 @@ class ModulesXCatalogXWidgetsXListingXFilters extends WidgetBase
             $this->addControl(
                 'configure_module',
                 [
-                    'label' => $this->translator->trans('Faceted search', [], 'Modules.Facetedsearch.Admin'),
+                    'label' => __('Faceted search', 'Modules.Facetedsearch.Admin'),
                     'type' => ControlsManager::BUTTON,
                     'text' => '<i class="eicon-external-link-square"></i>' . __('Configure'),
                     'link' => [
-                        'url' => $this->context->link->getAdminLink('AdminModules', true, [], ['configure' => 'ps_facetedsearch']),
+                        'url' => Helper::$link->getAdminLink('AdminModules', true, [], ['configure' => 'ps_facetedsearch']),
                         'is_external' => true,
                     ],
                 ]
@@ -799,6 +793,14 @@ class ModulesXCatalogXWidgetsXListingXFilters extends WidgetBase
             GroupControlTypography::getType(),
             [
                 'name' => 'toggle_typography',
+                'selector' => '{{WRAPPER}} .ce-filters__toggle .elementor-button',
+            ]
+        );
+
+        $this->addGroupControl(
+            GroupControlTextShadow::getType(),
+            [
+                'name' => 'toggle_text_shadow',
                 'selector' => '{{WRAPPER}} .ce-filters__toggle .elementor-button',
             ]
         );
@@ -917,6 +919,14 @@ class ModulesXCatalogXWidgetsXListingXFilters extends WidgetBase
                 'selectors' => [
                     '{{WRAPPER}} .ce-filters__toggle .elementor-button' => 'border-radius: {{SIZE}}{{UNIT}}',
                 ],
+            ]
+        );
+
+        $this->addGroupControl(
+            GroupControlBoxShadow::getType(),
+            [
+                'name' => 'toggle_box_shadow',
+                'selector' => '{{WRAPPER}} .ce-filters__toggle .elementor-button',
             ]
         );
 
@@ -1134,6 +1144,14 @@ class ModulesXCatalogXWidgetsXListingXFilters extends WidgetBase
             ]
         );
 
+        $this->addGroupControl(
+            GroupControlTextShadow::getType(),
+            [
+                'name' => 'clear_text_shadow',
+                'selector' => '{{WRAPPER}} .ce-filters__clear .elementor-button',
+            ]
+        );
+
         $this->startControlsTabs('tabs_clear');
 
         $this->startControlsTab(
@@ -1248,6 +1266,14 @@ class ModulesXCatalogXWidgetsXListingXFilters extends WidgetBase
                 'selectors' => [
                     '{{WRAPPER}} .ce-filters__clear .elementor-button' => 'border-radius: {{SIZE}}{{UNIT}}',
                 ],
+            ]
+        );
+
+        $this->addGroupControl(
+            GroupControlBoxShadow::getType(),
+            [
+                'name' => 'clear_box_shadow',
+                'selector' => '{{WRAPPER}} .ce-filters__clear .elementor-button',
             ]
         );
 
@@ -2556,7 +2582,7 @@ class ModulesXCatalogXWidgetsXListingXFilters extends WidgetBase
                         <?php if (!empty($settings['clear_icon']['value'])) { ?>
                             <span class="elementor-button-icon elementor-align-icon-<?php echo esc_attr($settings['clear_icon_align']); ?>"><?php IconsManager::renderIcon($settings['clear_icon']); ?></span>
                         <?php } ?>
-                            <span class="elementor-button-text"><?php echo $settings['clear_text'] ?: $this->translator->trans('Clear all', [], 'Shop.Theme.Actions'); ?></span>
+                            <span class="elementor-button-text"><?php echo $settings['clear_text'] ?: __('Clear all', 'Shop.Theme.Actions'); ?></span>
                         </span>
                     </a>
                 </div>
@@ -2607,7 +2633,7 @@ class ModulesXCatalogXWidgetsXListingXFilters extends WidgetBase
         ?>
         <div class="elementor-select-wrapper">
             <select class="elementor-field elementor-field-textual elementor-size-<?php echo esc_attr($this->getSettings('select_size')); ?>">
-                <option value="" data-url="<?php echo esc_attr($this->getActiveFilterUrl($facet['filters'])); ?>"><?php echo $this->translator->trans('(no filter)', [], 'Shop.Theme.Global'); ?></option>
+                <option value="" data-url="<?php echo esc_attr($this->getActiveFilterUrl($facet['filters'])); ?>"><?php _e('(no filter)', 'Shop.Theme.Global'); ?></option>
             <?php foreach ($facet['filters'] as &$filter) { ?>
                 <option value="<?php echo (int) $filter['value']; ?>" data-url="<?php echo esc_attr($filter['nextEncodedFacetsURL']); ?>"<?php $filter['active'] && print ' selected'; ?>>
                     <?php echo $show_magnitude ? "{$filter['label']} ({$filter['magnitude']})" : $filter['label']; ?>
@@ -2663,11 +2689,11 @@ class ModulesXCatalogXWidgetsXListingXFilters extends WidgetBase
                 continue;
             }
             $type = $facet['multipleSelectionAllowed'] ? 'checkbox' : 'radio';
-            $this->setRenderAttribute('icon', 'class', 'checkbox' === $type || $filter['properties'] ? 'ce-checkbox ceicon ceicon-check' : 'radio');
+            $this->setRenderAttribute('icon', 'class', 'checkbox' === $type || $filter['properties'] ? 'ce-checkbox ceicon ceicon-check' : 'ce-radio');
             $is_color = isset($filter['properties']['color']);
             $is_color && self::isColorLight($filter['properties']['color']) && $this->addRenderAttribute('icon', 'class', 'ce-color--light');
             ?>
-            <a href="<?php echo esc_attr($filter['nextEncodedFacetsURL']); ?>" class="elementor-field-option js-search-link">
+            <a href="<?php echo esc_attr($filter['nextEncodedFacetsURL']); ?>" rel="nofollow" class="elementor-field-option js-search-link">
                 <input type="<?php echo $type; ?>"<?php $filter['active'] && print ' checked'; ?>>
                 <i <?php $this->printRenderAttributeString('icon'); ?>
                 <?php if ($is_color) { ?>
@@ -2687,13 +2713,5 @@ class ModulesXCatalogXWidgetsXListingXFilters extends WidgetBase
 
     public function renderPlainContent()
     {
-    }
-
-    public function __construct($data = [], $args = [])
-    {
-        $this->context = \Context::getContext();
-        $this->translator = $this->context->getTranslator();
-
-        parent::__construct($data, $args);
     }
 }

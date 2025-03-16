@@ -21,6 +21,8 @@ if (!defined('_PS_VERSION_')) {
  */
 class WidgetGoogleMaps extends WidgetBase
 {
+    const HELP_URL = 'http://docs.webshopworks.com/creative-elements/85-widgets/basic-widgets/301-google-maps-widget';
+
     /**
      * Get widget name.
      *
@@ -93,6 +95,11 @@ class WidgetGoogleMaps extends WidgetBase
         return ['google', 'map', 'embed', 'location'];
     }
 
+    protected function isDynamicContent()
+    {
+        return false;
+    }
+
     /**
      * Register google maps widget controls.
      *
@@ -158,18 +165,6 @@ class WidgetGoogleMaps extends WidgetBase
                 ],
                 'selectors' => [
                     "{{WRAPPER}} \x69frame" => 'height: {{SIZE}}{{UNIT}};',
-                ],
-            ]
-        );
-
-        $this->addControl(
-            'prevent_scroll',
-            [
-                'label' => __('Prevent Scroll'),
-                'type' => ControlsManager::SWITCHER,
-                'default' => 'yes',
-                'selectors' => [
-                    "{{WRAPPER}} \x69frame" => 'pointer-events: none;',
                 ],
             ]
         );

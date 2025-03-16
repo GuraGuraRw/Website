@@ -14,6 +14,8 @@ if (!defined('_PS_VERSION_')) {
 
 class ModulesXCatalogXWidgetsXListingXImage extends WidgetImage
 {
+    const HELP_URL = '';
+
     private $properties;
 
     public function getName()
@@ -46,6 +48,11 @@ class ModulesXCatalogXWidgetsXListingXImage extends WidgetImage
     protected function getDynamicTagName()
     {
         return isset($this->properties['dynamic_tag_name']) ? $this->properties['dynamic_tag_name'] : 'listing-image';
+    }
+
+    protected function isDynamicContent()
+    {
+        return true;
     }
 
     protected function _registerControls()

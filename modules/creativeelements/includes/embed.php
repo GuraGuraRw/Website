@@ -123,6 +123,9 @@ class Embed
             }
 
             $replacements['{TIME}'] = $time_text;
+            // Fix: Insert $embed_url_params before #t={TIME}
+            $replacements['{VIDEO_ID}'] .= '?' . http_build_query($embed_url_params);
+            $embed_url_params = [];
         }
 
         $embed_pattern = str_replace(array_keys($replacements), $replacements, $embed_pattern);
@@ -183,15 +186,15 @@ class Embed
             if (is_numeric($attribute_key)) {
                 $attributes_for_print[] = $attribute_value;
             } else {
-                $attributes_for_print[] = sprintf('%1$s="%2$s"', $attribute_key, $attribute_value);
+                $attributes_for_print[] = "$attribute_key=\"$attribute_value\"";
             }
         }
 
         $attributes_for_print = implode(' ', $attributes_for_print);
 
-        $frame_html = "<\x69frame $attributes_for_print></\x69frame>";
-
+        // $embed_html = "<embed $attributes_for_print></embed>";
         /* This filter is documented in wp-includes/class-oembed.php */
-        return apply_filters('oembed_result', $frame_html, $video_url, $frame_attributes);
+        // return apply_filters('oembed_result', $embed_html, $video_url, $frame_attributes);
+        return "<\x69frame $attributes_for_print></\x69frame>";
     }
 }

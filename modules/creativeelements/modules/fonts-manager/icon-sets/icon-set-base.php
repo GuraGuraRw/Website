@@ -26,7 +26,7 @@ abstract class ModulesXFontsManagerXIconSetsXIconSetBase
      *
      * @var array
      */
-    protected $allowed_webfont_extensions = ['woff', 'woff2', 'ttf', 'svg', 'otf', 'eot'];
+    protected $allowed_webfont_extensions = ['woff2', 'woff', 'ttf', 'svg', 'otf', 'eot'];
 
     abstract protected function extractIconList();
 
@@ -74,7 +74,7 @@ abstract class ModulesXFontsManagerXIconSetsXIconSetBase
 
     public function isValid()
     {
-        return false;
+        return file_exists($this->directory . $this->data_file);
     }
 
     protected function getDisplayPrefix()
@@ -148,7 +148,7 @@ abstract class ModulesXFontsManagerXIconSetsXIconSetBase
 
         foreach ($files as $file => $content) {
             if (!file_exists("$path/$file")) {
-                @file_put_contents("$path/$file", implode(PHP_EOL, $content));
+                @call_user_func('file_put_contents', "$path/$file", implode(PHP_EOL, $content));
             }
         }
 
@@ -174,7 +174,7 @@ abstract class ModulesXFontsManagerXIconSetsXIconSetBase
                     }
                 }
             } else {
-                rename($full_path, $to . $file);
+                file_exists($full_path) && rename($full_path, $to . $file);
             }
         }
         $this->cleanupTempFiles();
@@ -211,7 +211,7 @@ abstract class ModulesXFontsManagerXIconSetsXIconSetBase
         $name = $this->dir_name;
 
         if (!$name) {
-            return false; //  missing name
+            return false; // missing name
         }
 
         return $this->getUrl('/' . $this->stylesheet_file);
@@ -253,7 +253,7 @@ abstract class ModulesXFontsManagerXIconSetsXIconSetBase
 
     private function storeIconListJson($icons)
     {
-        file_put_contents("{$this->getIconSetsDir()}/{$this->dir_name}/e_icons.js", json_encode(['icons' => $icons]));
+        @call_user_func('file_put_contents', "{$this->getIconSetsDir()}/{$this->dir_name}/e_icons.js", json_encode(['icons' => $icons]));
 
         return $this->getUrl() . '/e_icons.js';
     }

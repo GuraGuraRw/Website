@@ -10,7 +10,7 @@
         "optimize-autoloader": true,
         "prepend-autoloader": false,
         "platform": {
-            "php": "7.3"
+            "php": "7.1"
         },
         "platform-check": false
     },
@@ -33,7 +33,7 @@
         ],
         "psr-4": {
             "PrestaShop\\Module\\Ps_metrics\\": "src\/",
-            "ps_metrics_module_v4_0_5\\exclude-from-classmap": []
+            "ps_metrics_module_v4_0_10\\exclude-from-classmap": []
         }
     },
     "type": "prestashop-module"

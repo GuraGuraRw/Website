@@ -1,0 +1,60 @@
+i#autoupgradePhpWarningMainIcon {
+    background-image: url(../img/711px-PHP-logo.svg.png);
+    background-repeat: no-repeat;
+    background-size: contain;
+    background-position: center;
+    width: 50px;
+    height: 30px;
+    transform: rotateX(45deg);
+    -webkit-transform: rotateX(45deg);
+    margin-bottom: 7px;
+}
+.panel-heading span.icon-update:before {
+    content: "\f0ee";
+    font-family: Fontawesome;
+    margin-right: 5px;
+    font-style: normal;
+}
+.btn.btn-primary i.fa.fa-arrow-alt-circle-up:before {
+    content: "\f062";
+    font-family: Fontawesome;
+    margin-right: 3px;
+}
+.ets_upgrade_dashboad a.btn.btn-primary:not(:hover) {
+    background: #df0067;
+    border-color: #df0067;
+}
+.ets_upgrade_dashboad a.btn.btn-primary:hover {
+    background: #c7035e;
+    border-color: #c7035e;
+}
+#autoupgradePhpWarningMainIcon:before {
+     font-size: 0!important;
+ }
+#autoupgradePhpWarn strong.icon-stack-1x.icon-stack-text:before {
+    content: "\f0a1";
+    font-size: 14px;
+}
+#autoupgradePhpWarn strong.icon-stack-1x.icon-stack-text {
+    font-size: 0;
+}
+#autoupgradePhpWarn a.btn.btn-primary.learn_more_link {
+    background: #df0067;
+    border-color: #df0067;
+}
+#autoupgradePhpWarn a.btn.btn-primary.learn_more_link:hover {
+    background: #c7035e;
+    border-color: #c7035e;
+}
+#autoupgradePhpWarn span.icon.icon-circle.icon-stack-2x {
+    display: none;
+}
+#autoupgradePhpWarn .icon-stack {
+    display: inline-block;
+    height: 2em;
+    line-height: 2em;
+    position: relative;
+    vertical-align: middle;
+    width: 20px;
+    color: inherit!important;
+}

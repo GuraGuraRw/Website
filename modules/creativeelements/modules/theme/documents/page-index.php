@@ -39,7 +39,7 @@ class ModulesXThemeXDocumentsXPageIndex extends ThemePageDocument
 
     public function __construct(array $data = [])
     {
-        if ($data) {
+        if ($data && _CE_ADMIN_) {
             $template = get_post_meta($data['post_id'], '_wp_page_template', true);
             $template || update_post_meta($data['post_id'], '_wp_page_template', 'elementor_header_footer');
 

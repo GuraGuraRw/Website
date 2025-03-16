@@ -30,9 +30,15 @@ class CEAssetManager
 
     protected $javascriptManager;
 
+    protected $cccReducer;
+
     protected $template;
 
     protected $editMode;
+
+    protected $logStyles = [];
+
+    protected $logScripts = [];
 
     public static function instance()
     {
@@ -50,9 +56,8 @@ class CEAssetManager
 
     protected function __construct()
     {
-        $context = Context::getContext();
         $config = new ConfigurationAdapter();
-        $this->controller = $context->controller;
+        $this->controller = $GLOBALS['context']->controller;
         $this->editMode = isset($_REQUEST['preview_id'], $_REQUEST['ctx']);
 
         $managers = [
@@ -89,7 +94,7 @@ class CEAssetManager
             return $this->template;
         }, $this->controller, $this->controller)->__invoke();
 
-        $context->smarty->registerFilter('output', [$this, 'outputFilter']);
+        $GLOBALS['smarty']->registerFilter('output', [$this, 'outputFilter']);
     }
 
     public function registerStylesheet($id, $path, array $params = [])
@@ -106,6 +111,7 @@ class CEAssetManager
             $path = '//' . Tools::getMediaServer($path) . ($this->stylesheetManager->getFullPath($path) ?: $path);
         }
         $this->stylesheetManager->register($id, $path, $params['media'], $params['priority'], $params['inline'], $params['server']);
+        $this->logStyles[] = $id;
     }
 
     public function registerJavascript($id, $path, array $params = [])
@@ -123,6 +129,21 @@ class CEAssetManager
             $path = '//' . Tools::getMediaServer($path) . ($this->javascriptManager->getFullPath($path) ?: $path);
         }
         $this->javascriptManager->register($id, $path, $params['position'], $params['priority'], $params['inline'], $params['attributes'], $params['server']);
+        $this->logScripts[] = $id;
+    }
+
+    public function resetLog()
+    {
+        $this->logScripts = [];
+        $this->logStyles = [];
+    }
+
+    public function getLog()
+    {
+        return [
+            'styles' => &$this->logStyles,
+            'scripts' => &$this->logScripts,
+        ];
     }
 
     public function outputFilter($out, $tpl)
@@ -147,16 +168,16 @@ class CEAssetManager
 
     public function fetchAssets()
     {
-        $smarty = Context::getContext()->smarty;
+        $smarty = $GLOBALS['smarty'];
         $assets = new stdClass();
 
         ob_start();
         CE\do_action('wp_head');
-        $assets->head = ob_get_clean();
+        $head = ob_get_clean();
 
         ob_start();
         CE\do_action('wp_footer');
-        $assets->bottom = ob_get_clean();
+        $bottom = ob_get_clean();
 
         $styles = $this->stylesheetManager->listAll();
 
@@ -171,7 +192,7 @@ class CEAssetManager
         $scripts = $this->javascriptManager->listAll();
         $js_defs = Media::getJsDef();
 
-        if (!empty($smarty->tpl_vars['js_custom_vars'])) {
+        if (isset($smarty->tpl_vars['js_custom_vars'])) {
             foreach ($smarty->tpl_vars['js_custom_vars']->value as $key => &$val) {
                 unset($js_defs[$key]);
             }
@@ -180,19 +201,17 @@ class CEAssetManager
         Configuration::get('PS_CSS_THEME_CACHE') && $styles = $this->cccReducer->reduceCss($styles);
         Configuration::get('PS_JS_THEME_CACHE') && $scripts = $this->cccReducer->reduceJs($scripts);
 
-        $smarty->assign([
+        $assets->head = $smarty->fetch(_CE_TEMPLATES_ . 'front/theme/_partials/assets.tpl', null, null, [
             'stylesheets' => &$styles,
             'javascript' => &$scripts['head'],
             'js_custom_vars' => &$js_defs,
-        ]);
-        $assets->head = $smarty->fetch(_CE_TEMPLATES_ . 'front/theme/_partials/assets.tpl') . $assets->head;
+        ]) . $head;
 
-        $smarty->assign([
+        $assets->bottom = $smarty->fetch(_CE_TEMPLATES_ . 'front/theme/_partials/assets.tpl', null, null, [
             'stylesheets' => [],
             'javascript' => &$scripts['bottom'],
             'js_custom_vars' => [],
-        ]);
-        $assets->bottom = $smarty->fetch(_CE_TEMPLATES_ . 'front/theme/_partials/assets.tpl') . $assets->bottom;
+        ]) . $bottom;
 
         return $assets;
     }

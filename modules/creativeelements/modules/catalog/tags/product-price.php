@@ -13,7 +13,7 @@ if (!defined('_PS_VERSION_')) {
 }
 
 use CE\CoreXDynamicTagsXTag as Tag;
-use CE\ModulesXDynamicTagsXModule as Module;
+use CE\ModulesXDynamicTagsXModule as TagsModule;
 
 class ModulesXCatalogXTagsXProductPrice extends Tag
 {
@@ -31,12 +31,12 @@ class ModulesXCatalogXTagsXProductPrice extends Tag
 
     public function getGroup()
     {
-        return Module::CATALOG_GROUP;
+        return TagsModule::CATALOG_GROUP;
     }
 
     public function getCategories()
     {
-        return [Module::TEXT_CATEGORY];
+        return [TagsModule::TEXT_CATEGORY];
     }
 
     public function getPanelTemplateSettingKey()
@@ -53,7 +53,7 @@ class ModulesXCatalogXTagsXProductPrice extends Tag
                 'type' => ControlsManager::SELECT,
                 'options' => [
                     'currency' => __('Currency'),
-                    'price' => __('Price'),
+                    'price' => __('Price', 'Shop.Theme.Catalog'),
                     'price_amount' => __('Price Amount'),
                     'price_integer' => __('Price Integer'),
                     'price_decimals' => __('Price Decimals'),
@@ -61,9 +61,9 @@ class ModulesXCatalogXTagsXProductPrice extends Tag
                     'regular_price_amount' => __('Regular Amount'),
                     'price_tax_exc' => __('Price (tax excl.)'),
                     'discount' => __('Discount'),
-                    'unit_price' => __('Unit Price'),
+                    'unit_price' => __('Unit Price', 'Shop.Theme.Catalog'),
                     'unity' => __('Unit'),
-                    'unit_price_full' => __('Unit Price') . ' (' . _x('Full', 'Image Size Control') . ')',
+                    'unit_price_full' => __('Unit Price', 'Shop.Theme.Catalog') . ' (' . _x('Full', 'Image Size Control') . ')',
                 ],
                 'default' => 'price',
             ]
@@ -72,8 +72,8 @@ class ModulesXCatalogXTagsXProductPrice extends Tag
 
     public function render()
     {
-        $vars = &\Context::getContext()->smarty->tpl_vars;
-        $product = &$vars['product']->value;
+        $vars = &$GLOBALS['smarty']->tpl_vars;
+        $product = $vars['product']->value;
 
         if (!$product['show_price']) {
             return;

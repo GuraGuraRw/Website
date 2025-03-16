@@ -182,7 +182,7 @@ class CoreXCommonXModulesXAjaxXModule extends BaseModule
                     $this->addResponseData(true, $results);
                 }
             } catch (\Exception $e) {
-                $this->addResponseData(false, $e->getMessage(), $e->getCode());
+                $this->addResponseData(false, "{$e->getFile()}:{$e->getLine()}\n{$e->getMessage()}", $e->getCode());
             }
         }
 

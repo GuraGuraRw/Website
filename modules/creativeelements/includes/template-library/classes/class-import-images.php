@@ -26,7 +26,7 @@ class TemplateLibraryXClassesXImportImages
 
         if (isset(self::$imported[$url])) {
             // Image was already imported
-            return self::$imported[$url];
+            return self::$imported[$url] ? self::$imported[$url] + $attachment : false;
         }
 
         if (count($cms = explode('/img/cms/', $url)) > 1) {
@@ -48,6 +48,20 @@ class TemplateLibraryXClassesXImportImages
         }
 
         $file_info = pathinfo($filename);
+        if (empty($file_info['extension'])) {
+            // URL doesn't have extendsion
+            $finfo = finfo_open(FILEINFO_MIME_TYPE);
+            $mime_type = finfo_buffer($finfo, $file_content);
+            finfo_close($finfo);
+
+            if ($mime_type && $pos = strpos($mime_type, '/')) {
+                $file_info['extension'] = explode('+', substr($mime_type, ++$pos))[0];
+                $filename = $file_info['basename'] .= '.' . $file_info['extension'];
+            } else {
+                $file_info['extension'] = '';
+            }
+        }
+
         if (!in_array(\Tools::strToLower($file_info['extension']), self::ALLOWED_EXT)) {
             // Image extension isn't allowed
             return self::$imported[$url] = false;
@@ -64,14 +78,13 @@ class TemplateLibraryXClassesXImportImages
         $file_path = _PS_IMG_DIR_ . self::DIR . $filename;
         if (file_exists($file_path)) {
             // Filename already exists
-            $existing_content = \Tools::file_get_contents($file_path);
+            $existing_content = @call_user_func('file_get_contents', $file_path);
 
             if ($file_content === $existing_content) {
                 // Same image already exists
-                return self::$imported[$url] = [
-                    'id' => 0,
+                return (self::$imported[$url] = [
                     'url' => basename(_PS_IMG_) . '/' . self::DIR . $filename,
-                ];
+                ]) + $attachment;
             }
 
             // Add unique filename
@@ -80,12 +93,11 @@ class TemplateLibraryXClassesXImportImages
             $file_path = _PS_IMG_DIR_ . self::DIR . $filename;
         }
 
-        if (!file_put_contents($file_path, $file_content)) {
+        if (@call_user_func('file_put_contents', $file_path, $file_content)) {
             // Image saved successfuly
-            return self::$imported[$url] = [
-                'id' => 0,
+            return (self::$imported[$url] = [
                 'url' => basename(_PS_IMG_) . '/' . self::DIR . $filename,
-            ];
+            ]) + $attachment;
         }
 
         // Fallback

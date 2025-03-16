@@ -65,24 +65,25 @@ class CoreXFilesXAssetsXSvgXSvgHandler extends FilesUploadHandler
 
         $path = urldecode($url);
 
-        if (!preg_match('`^img/cms/.*\.svg$`i', $path)) {
+        if (strpos($path, 'img/cms/') !== 0 || strcasecmp(pathinfo($path, PATHINFO_EXTENSION), 'svg')) {
             return '';
         }
-        $tmp = _PS_ROOT_DIR_ . '/img/tmp' . substr($path, 3);
+        '\\' === DIRECTORY_SEPARATOR && $path = str_replace('/', DIRECTORY_SEPARATOR, $path);
 
-        if (file_exists($tmp)) {
-            return call_user_func('file_get_contents', $tmp);
+        $tmp = _PS_ROOT_DIR_ . DIRECTORY_SEPARATOR . 'img' . DIRECTORY_SEPARATOR . 'tmp' . substr($path, 3);
+
+        if (realpath($tmp) === $tmp) {
+            return @call_user_func('file_get_contents', $tmp);
         }
+        $svg = _PS_ROOT_DIR_ . DIRECTORY_SEPARATOR . $path;
 
-        if (!file_exists(_PS_ROOT_DIR_ . "/$path")) {
+        if (realpath($svg) !== $svg) {
             return '';
         }
-        $content = call_user_func('file_get_contents', _PS_ROOT_DIR_ . "/$path");
+        $content = @call_user_func('file_get_contents', $svg);
+        $instance || $instance = new self();
 
-        if (null === $instance) {
-            $instance = new self();
-        }
-        file_put_contents($tmp, $content = $instance->sanitizer($content));
+        @call_user_func('file_put_contents', $tmp, $content = $instance->sanitizer($content));
 
         return $content;
     }
@@ -120,7 +121,11 @@ class CoreXFilesXAssetsXSvgXSvgHandler extends FilesUploadHandler
      */
     public function sanitizeSvg($filename)
     {
-        $original_content = call_user_func('file_get_contents', $filename);
+        if (realpath($filename) !== $filename) {
+            return false;
+        }
+
+        $original_content = @call_user_func('file_get_contents', $filename);
         $is_encoded = $this->isEncoded($original_content);
 
         if ($is_encoded) {
@@ -141,7 +146,7 @@ class CoreXFilesXAssetsXSvgXSvgHandler extends FilesUploadHandler
         // if ($is_encoded) {
         //     $valid_svg = $this->encodeSvg($valid_svg);
         // }
-        file_put_contents($filename, $valid_svg);
+        @call_user_func('file_put_contents', $filename, $valid_svg);
 
         return true;
     }

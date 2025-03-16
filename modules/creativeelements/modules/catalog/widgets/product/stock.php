@@ -65,7 +65,7 @@ class ModulesXCatalogXWidgetsXProductXStock extends WidgetBase
         $this->addControl(
             'selected_in_stock_icon',
             [
-                'label' => $this->translator->trans('In stock', [], 'Shop.Theme.Catalog'),
+                'label' => __('In stock', 'Shop.Theme.Catalog'),
                 'label_block' => false,
                 'type' => ControlsManager::ICONS,
                 'skin' => 'inline',
@@ -138,7 +138,7 @@ class ModulesXCatalogXWidgetsXProductXStock extends WidgetBase
         $this->addControl(
             'selected_low_stock_level_icon',
             [
-                'label' => $this->translator->trans('Low stock level', [], 'Admin.Catalog.Feature'),
+                'label' => !_CE_ADMIN_ ?: __('Low stock level', 'Admin.Catalog.Feature'),
                 'type' => ControlsManager::ICONS,
                 'skin' => 'inline',
                 'label_block' => false,
@@ -165,7 +165,7 @@ class ModulesXCatalogXWidgetsXProductXStock extends WidgetBase
         $this->addControl(
             'selected_out_of_stock_icon',
             [
-                'label' => $this->translator->trans('Out-of-Stock', [], 'Admin.Shopparameters.Feature'),
+                'label' => __('Out-of-Stock'),
                 'label_block' => false,
                 'type' => ControlsManager::ICONS,
                 'skin' => 'inline',
@@ -202,14 +202,14 @@ class ModulesXCatalogXWidgetsXProductXStock extends WidgetBase
             ]
         );
 
-        $this->addControl(
+        _CE_ADMIN_ && $this->addControl(
             'configure',
             [
                 'label' => __('Global Settings'),
                 'type' => ControlsManager::BUTTON,
                 'text' => '<i class="eicon-external-link-square"></i>' . __('Configure'),
                 'link' => [
-                    'url' => $this->context->link->getAdminLink('AdminPPreferences') . '#configuration_fieldset_stock',
+                    'url' => Helper::$link->getAdminLink('AdminPPreferences') . '#configuration_fieldset_stock',
                     'is_external' => true,
                 ],
             ]
@@ -269,7 +269,7 @@ class ModulesXCatalogXWidgetsXProductXStock extends WidgetBase
         $this->addControl(
             'in_stock_color',
             [
-                'label' => $this->translator->trans('In stock', [], 'Shop.Theme.Catalog'),
+                'label' => __('In stock', 'Shop.Theme.Catalog'),
                 'type' => ControlsManager::COLOR,
                 'selectors' => [
                     '{{WRAPPER}} .ce-product-stock--in-stock .ce-product-stock__availability' => 'color: {{VALUE}}',
@@ -291,7 +291,7 @@ class ModulesXCatalogXWidgetsXProductXStock extends WidgetBase
         $this->addControl(
             'low_stock_level_color',
             [
-                'label' => $this->translator->trans('Low stock level', [], 'Admin.Catalog.Feature'),
+                'label' => !_CE_ADMIN_ ?: __('Low stock level', 'Admin.Catalog.Feature'),
                 'type' => ControlsManager::COLOR,
                 'selectors' => [
                     '{{WRAPPER}} .ce-product-stock--low-stock-level .ce-product-stock__availability' => 'color: {{VALUE}}',
@@ -302,7 +302,7 @@ class ModulesXCatalogXWidgetsXProductXStock extends WidgetBase
         $this->addControl(
             'out_of_stock_color',
             [
-                'label' => $this->translator->trans('Out-of-Stock', [], 'Admin.Shopparameters.Feature'),
+                'label' => __('Out-of-Stock'),
                 'type' => ControlsManager::COLOR,
                 'selectors' => [
                     '{{WRAPPER}} .ce-product-stock--out-of-stock .ce-product-stock__availability' => 'color: {{VALUE}}',
@@ -334,8 +334,7 @@ class ModulesXCatalogXWidgetsXProductXStock extends WidgetBase
                     ],
                 ],
                 'selectors' => [
-                    'body:not(.lang-rtl) {{WRAPPER}} .ce-product-stock__availability i' => 'margin-right: {{SIZE}}{{UNIT}}',
-                    'body.lang-rtl {{WRAPPER}} .ce-product-stock__availability i' => 'margin-left: {{SIZE}}{{UNIT}}',
+                    '{{WRAPPER}} .ce-product-stock__availability i' => 'margin-inline-end: {{SIZE}}{{UNIT}}',
                 ],
             ]
         );
@@ -370,7 +369,7 @@ class ModulesXCatalogXWidgetsXProductXStock extends WidgetBase
         $this->addControl(
             'in_stock_icon_color',
             [
-                'label' => $this->translator->trans('In stock', [], 'Shop.Theme.Catalog'),
+                'label' => __('In stock', 'Shop.Theme.Catalog'),
                 'type' => ControlsManager::COLOR,
                 'selectors' => [
                     '{{WRAPPER}} .ce-product-stock--in-stock .ce-product-stock__availability i' => 'color: {{VALUE}}',
@@ -392,7 +391,7 @@ class ModulesXCatalogXWidgetsXProductXStock extends WidgetBase
         $this->addControl(
             'low_stock_level_icon_color',
             [
-                'label' => $this->translator->trans('Low stock level', [], 'Admin.Catalog.Feature'),
+                'label' => !_CE_ADMIN_ ?: __('Low stock level', 'Admin.Catalog.Feature'),
                 'type' => ControlsManager::COLOR,
                 'selectors' => [
                     '{{WRAPPER}} .ce-product-stock--low-stock-level .ce-product-stock__availability i' => 'color: {{VALUE}}',
@@ -403,7 +402,7 @@ class ModulesXCatalogXWidgetsXProductXStock extends WidgetBase
         $this->addControl(
             'out_of_stock_icon_color',
             [
-                'label' => $this->translator->trans('Out-of-Stock', [], 'Admin.Shopparameters.Feature'),
+                'label' => __('Out-of-Stock'),
                 'type' => ControlsManager::COLOR,
                 'selectors' => [
                     '{{WRAPPER}} .ce-product-stock--out-of-stock .ce-product-stock__availability i' => 'color: {{VALUE}}',
@@ -416,7 +415,7 @@ class ModulesXCatalogXWidgetsXProductXStock extends WidgetBase
         $this->startControlsSection(
             'section_min_quantity_style',
             [
-                'label' => $this->translator->trans('Minimum quantity for sale', [], 'Admin.Catalog.Feature'),
+                'label' => !_CE_ADMIN_ ?: __('Minimum quantity for sale', 'Admin.Catalog.Feature'),
                 'tab' => ControlsManager::TAB_STYLE,
             ]
         );
@@ -465,7 +464,7 @@ class ModulesXCatalogXWidgetsXProductXStock extends WidgetBase
     protected function render()
     {
         $settings = $this->getSettingsForDisplay();
-        $product = &$this->context->smarty->tpl_vars['product']->value;
+        $product = $GLOBALS['smarty']->tpl_vars['product']->value;
         $availability = 'available' === $product['availability'] ? 'in-stock' : (
             'last_remaining_items' === $product['availability'] ? 'low-stock-level' : 'out-of-stock'
         );
@@ -489,12 +488,7 @@ class ModulesXCatalogXWidgetsXProductXStock extends WidgetBase
         <?php } ?>
         <?php if ($product['minimal_quantity'] > 1) { ?>
             <div class="ce-product-stock__min-quantity">
-                <?php
-                echo $this->translator->trans(
-                    'The minimum purchase order quantity for the product is %quantity%.',
-                    ['%quantity%' => $product['minimal_quantity']],
-                    'Shop.Theme.Checkout'
-                ); ?>
+                <?php _e('The minimum purchase order quantity for the product is %quantity%.', 'Shop.Theme.Checkout', ['%quantity%' => $product['minimal_quantity']]); ?>
             </div>
         <?php } ?>
         </div>
@@ -514,7 +508,7 @@ class ModulesXCatalogXWidgetsXProductXStock extends WidgetBase
             ? $settings['low_stock_level_icon']
             : $settings['selected_low_stock_level_icon']['value'];
         ?>
-        {$availability = _q_c_($product.allow_oosp && $product.quantity < $product.minimal_quantity, 'backorder', $product.availability)}
+        {$availability = ($product.allow_oosp && $product.quantity < $product.minimal_quantity) ? 'backorder' : $product.availability}
         {$stock = [
             'available' => ['class' => 'in-stock', 'icon' => <?php var_export($is_icon); ?>],
             'unavailable' => ['class' => 'out-of-stock', 'icon' => <?php var_export($oos_icon); ?>],
@@ -532,9 +526,7 @@ class ModulesXCatalogXWidgetsXProductXStock extends WidgetBase
         {/if}
         {if $product.minimal_quantity > 1}
             <div class="ce-product-stock__min-quantity">
-                {l s='The minimum purchase order quantity for the product is %quantity%.' sprintf=[
-                    '%quantity%' => $product.minimal_quantity
-                ] d='Shop.Theme.Checkout'}
+                {l s='The minimum purchase order quantity for the product is %quantity%.' sprintf=['%quantity%' => $product.minimal_quantity] d='Shop.Theme.Checkout'}
             </div>
         {/if}
         </div>
@@ -543,13 +535,5 @@ class ModulesXCatalogXWidgetsXProductXStock extends WidgetBase
 
     public function renderPlainContent()
     {
-    }
-
-    public function __construct($data = [], $args = [])
-    {
-        $this->context = \Context::getContext();
-        $this->translator = $this->context->getTranslator();
-
-        parent::__construct($data, $args);
     }
 }

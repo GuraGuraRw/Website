@@ -41,13 +41,13 @@ if (in_array(Tools::getValue('action'), ['rename_file', 'duplicate_file', 'delet
     ${'_POST'}['path'] = Tools::substr(${'_POST'}['path_thumb'], Tools::strlen($thumbs_base_path));
 }
 
-if (isset($_FILES['file']['name'])) {
-    if (!strcasecmp('svg', pathinfo($_FILES['file']['name'], PATHINFO_EXTENSION)) && class_exists('DOMDocument') && class_exists('SimpleXMLElement')) {
+if ($attachment = Tools::fileAttachment('file')) {
+    if (!strcasecmp(pathinfo($attachment['name'], PATHINFO_EXTENSION), 'svg') && class_exists('DOMDocument') && class_exists('SimpleXMLElement')) {
         require _PS_MODULE_DIR_ . 'creativeelements/core/files/assets/files-upload-handler.php';
         require _PS_MODULE_DIR_ . 'creativeelements/core/files/assets/svg/svg-handler.php';
 
         $svg_handler = new CE\CoreXFilesXAssetsXSvgXSvgHandler();
-        $svg_handler->sanitizeSvg($_FILES['file']['tmp_name']);
+        $svg_handler->sanitizeSvg($attachment['tmp_name']);
     }
 
     register_shutdown_function(function () {

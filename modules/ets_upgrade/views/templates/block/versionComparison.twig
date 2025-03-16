@@ -1,0 +1,22 @@
+<div class="bootstrap" id="comparisonBlock">
+    <div class="panel">
+        <div class="panel-heading">
+            {{ 'Version comparison'|trans }}
+        </div>
+        <div class="original_version">
+            <b>{{ 'PrestaShop Original version'|trans }}:</b>
+            <span id="checkPrestaShopFilesVersion">
+                <img id="pleaseWait" src="{{ psBaseUri }}img/loader.gif"/>
+            </span>
+        </div>
+        <div class="between_versions">
+            <b>{{ 'Differences between versions'|trans }}:</b>
+            <span id="checkPrestaShopModifiedFiles">
+                <img id="pleaseWait" src="{{ psBaseUri }}img/loader.gif"/>
+            </span>
+        </div>
+        <div class="text-center">
+        <a href="javascript:void(0);" class="ets_autoup_btn_less_more btn btn-default">{{ 'View less'|trans }}</a>
+        </div>
+    </div>
+</div>

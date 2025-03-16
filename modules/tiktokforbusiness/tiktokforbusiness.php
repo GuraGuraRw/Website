@@ -1,6 +1,6 @@
 <?php
 /**
- * 2007-2024 PrestaShop
+ * 2007-2025 PrestaShop
  *
  * NOTICE OF LICENSE
  *
@@ -39,7 +39,7 @@ class Tiktokforbusiness extends Module
     {
         $this->name = 'tiktokforbusiness';
         $this->tab = 'social_networks';
-        $this->version = '1.0.6';
+        $this->version = '1.0.7';
         $this->author = 'TikTok';
         $this->need_instance = 0;
         $this->module_key = 'aa3d9aaba20ba0670a0ddb931ebe5952';
@@ -191,7 +191,7 @@ class Tiktokforbusiness extends Module
         $now = new DateTime();
         $time = $now->getTimestamp() * 1000;
         $timestamp = (string) $time;
-        $version = '1.5';
+        $version = '1.6';
         $business_platform = 'PRESTA_SHOP';
         $hmacStr = "version=$version&timestamp=$timestamp&locale=$locale&business_platform=$business_platform&external_business_id=$external_business_id";
         $hmac = hash_hmac('sha256', $hmacStr, $external_data_key);
@@ -520,7 +520,7 @@ class Tiktokforbusiness extends Module
     public function getAccessToken($app_id, $secret, $auth_code)
     {
         $curl = curl_init();
-        $url = 'https://business-api.tiktok.com/open_api/v1.2/oauth2/access_token/';
+        $url = 'https://business-api.tiktok.com/open_api/v1.3/oauth2/access_token/';
         $params = [
             'app_id' => $app_id,
             'secret' => $secret,
@@ -545,7 +545,7 @@ class Tiktokforbusiness extends Module
 
         curl_setopt_array($curl, $optArray);
         $result = curl_exec($curl);
-        PrestaShopLogger::addLog("getAccessToken v1.2 result: $result", 1, null, __CLASS__, 255611);
+        PrestaShopLogger::addLog("getAccessToken v1.3 new result: $result", 1, null, __CLASS__, 255611);
         curl_close($curl);
         return $result;
     }

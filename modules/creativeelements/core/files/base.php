@@ -76,17 +76,7 @@ abstract class CoreXFilesXBase
      */
     public function __construct($file_name)
     {
-        /*
-         * Elementor File Name
-         *
-         * Filters the File name
-         *
-         * @since 2.3.0
-         *
-         * @param string   $file_name
-         * @param object $this The file instance, which inherits Elementor\Core\Files
-         */
-        $file_name = apply_filters('elementor/files/file_name', $file_name, $this);
+        // $file_name = apply_filters('elementor/files/file_name', $file_name, $this);
 
         $this->setFileName($file_name);
 
@@ -125,8 +115,8 @@ abstract class CoreXFilesXBase
     public function getUrl()
     {
         $url = self::getBaseUploadsUrl() . $this->files_dir . $this->file_name;
-
-        return add_query_arg(['v' => $this->getMeta('time')], $url);
+        // return add_query_arg(['v' => $this->getMeta('time')], $url);
+        return $url;
     }
 
     /**
@@ -176,7 +166,7 @@ abstract class CoreXFilesXBase
      */
     public function write()
     {
-        return file_put_contents($this->path, $this->content);
+        return @call_user_func('file_put_contents', $this->path, $this->content);
     }
 
     /**
@@ -184,9 +174,7 @@ abstract class CoreXFilesXBase
      */
     public function delete()
     {
-        if (file_exists($this->path)) {
-            unlink($this->path);
-        }
+        \Tools::deleteFile($this->path);
 
         $this->deleteMeta();
     }

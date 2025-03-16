@@ -25,6 +25,11 @@ use CE\CoreXUtilsXExceptions as Exceptions;
  */
 class WidgetsManager
 {
+    const BC_MAP = [
+        'listing-page-title' => 'page-title',
+        'product-brand-image' => 'manufacturer-image',
+    ];
+
     /**
      * Widget types.
      *
@@ -182,7 +187,9 @@ class WidgetsManager
         }
 
         if (null !== $widget_name) {
-            return isset($this->_widget_types[$widget_name]) ? $this->_widget_types[$widget_name] : null;
+            return isset($this->_widget_types[$widget_name]) ? $this->_widget_types[$widget_name] : (
+                isset(self::BC_MAP[$widget_name], $this->_widget_types[self::BC_MAP[$widget_name]]) ? $this->_widget_types[self::BC_MAP[$widget_name]] : null
+            );
         }
 
         return $this->_widget_types;

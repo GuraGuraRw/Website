@@ -21,6 +21,8 @@ if (!defined('_PS_VERSION_')) {
  */
 class WidgetHeading extends WidgetBase
 {
+    const HELP_URL = 'http://docs.webshopworks.com/creative-elements/85-widgets/basic-widgets/294-heading-widget';
+
     /**
      * Get widget name.
      *
@@ -91,6 +93,11 @@ class WidgetHeading extends WidgetBase
     public function getKeywords()
     {
         return ['heading', 'title', 'text'];
+    }
+
+    protected function isDynamicContent()
+    {
+        return false;
     }
 
     /**
@@ -347,10 +354,10 @@ class WidgetHeading extends WidgetBase
         if (!empty($settings['link']['url'])) {
             $this->addLinkAttributes('url', $settings['link']);
 
-            $title = sprintf('<a %1$s>%2$s</a>', $this->getRenderAttributeString('url'), $title);
+            $title = "<a {$this->getRenderAttributeString('url')}>$title</a>";
         }
 
-        printf('<%1$s %2$s>%3$s</%1$s>', $settings['header_size'], $this->getRenderAttributeString('title'), $title);
+        echo "<{$settings['header_size']} {$this->getRenderAttributeString('title')}>$title</{$settings['header_size']}>";
     }
 
     /**

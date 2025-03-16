@@ -10,13 +10,13 @@
 	"@context": "https://schema.org",
 	"@type": "ItemList",
 	"itemListElement": [
-	{foreach $listing.products as $position => $item}
+	{foreach $listing.products as $item name=products}
 		{
 			"@type": "ListItem",
-			"position": {$position|intval},
+			"position": {$smarty.foreach.products.iteration|intval},
 			"name": "{$item.name}",
 			"url": "{$item.url}"
-		},
+		}{if !$smarty.foreach.products.last},{/if}
 	{/foreach}
 	]
 }

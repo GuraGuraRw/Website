@@ -3,7 +3,7 @@
 namespace PrestaShop\Module\PsAccounts\Vendor\GuzzleHttp\Handler;
 
 use PrestaShop\Module\PsAccounts\Vendor\GuzzleHttp\RequestOptions;
-use Psr\Http\Message\RequestInterface;
+use PrestaShop\Module\PsAccounts\Vendor\Psr\Http\Message\RequestInterface;
 /**
  * Provides basic proxies for handlers.
  */

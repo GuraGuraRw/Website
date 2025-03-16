@@ -16,7 +16,5 @@
 {extends $ce_layout}
 
 {if isset($CE_PAGE_INDEX)}
-	{block name=_q_c_('alysum' === $smarty.const._THEME_NAME_ || 'alysum' === $smarty.const._PARENT_THEME_NAME_, 'main', 'content')}
-	<section id="content">{$CE_PAGE_INDEX|cefilter}</section>
-	{/block}
+	{block name=('alysum' === $smarty.const._THEME_NAME_ || 'alysum' === $smarty.const._PARENT_THEME_NAME_) ? 'main' : 'content'}<section id="content">{$CE_PAGE_INDEX|cefilter}</section>{/block}
 {/if}

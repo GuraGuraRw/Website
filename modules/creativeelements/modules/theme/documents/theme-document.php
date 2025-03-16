@@ -26,9 +26,9 @@ abstract class ModulesXThemeXDocumentsXThemeDocument extends LibraryDocument
         return $properties;
     }
 
-    protected function getPermalinkUrl(\Link $link, $id_lang, $id_shop, array $args, $relative = true)
+    protected function getPermalinkUrl($id_lang, $id_shop, array $args, $relative = true)
     {
-        $url = $link->getPageLink('index', null, $id_lang, null, false, $id_shop, $relative);
+        $url = Helper::$link->getPageLink('index', null, $id_lang, null, false, $id_shop, $relative);
 
         \Configuration::get('PS_REWRITING_SETTINGS') && $url = substr($url, 0, strrpos($url, '/') + 1);
 
@@ -38,11 +38,10 @@ abstract class ModulesXThemeXDocumentsXThemeDocument extends LibraryDocument
     public function getPermalink(array $args = [])
     {
         $uid = UId::parse($this->getMainId());
-        $context = \Context::getContext();
-        $id_lang = $uid->id_lang ?: $context->language->id;
-        $id_shop = $uid->id_shop ?: ($uid->getDefaultShopId() ?: $context->shop->id);
+        $id_lang = $uid->id_lang ?: $GLOBALS['language']->id;
+        $id_shop = $uid->id_shop ?: ($uid->getDefaultShopId() ?: $GLOBALS['context']->shop->id);
 
-        return $this->getPermalinkUrl($context->link, $id_lang, $id_shop, $args);
+        return $this->getPermalinkUrl($id_lang, $id_shop, $args);
     }
 
     public function getWpPreviewUrl()
@@ -51,7 +50,7 @@ abstract class ModulesXThemeXDocumentsXThemeDocument extends LibraryDocument
 
         return $this->getPermalink([
             'preview_id' => $main_post_id,
-            'id_employee' => \Context::getContext()->employee->id,
+            'id_employee' => $GLOBALS['employee']->id,
             'cetoken' => \Tools::getAdminTokenLite(UId::parse($main_post_id)->getAdminController()),
         ]);
     }

@@ -66,6 +66,6 @@ abstract class CoreXDynamicTagsXDataTag extends BaseTag
      */
     public function getContent(array $options = [])
     {
-        return static::REMOTE_RENDER && is_admin() && 'getValue' === self::$getter_method ? null : $this->{self::$getter_method}($options);
+        return _CE_ADMIN_ && static::REMOTE_RENDER && 'getValue' === self::$getter_method ? null : $this->{self::$getter_method}($options);
     }
 }

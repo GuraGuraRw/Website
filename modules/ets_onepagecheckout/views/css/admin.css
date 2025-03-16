@@ -42,11 +42,13 @@ ul#list-tabs .tab .ets_icon_svg {
 :is(body:not(.no-smb-reskin)) input.form-control:hover, :is(body:not(.no-smb-reskin)) input[type=password]:hover, :is(body:not(.no-smb-reskin)) input[type=text]:hover {
     color: #333!important;
 }
-.growl.growl-error, html :is(body:not(.no-smb-reskin)) .growl.growl-error {
+.growl.growl-error, html :is(body:not(.no-smb-reskin)) .growl.growl-error,
+html :is(body:not(.ps-bo-rebrand)):is(body:not(.no-smb-reskin)) .growl.growl-error {
     color: #fff;
     background: rgba(224,143,149,.8);
 }
-.growl.growl-notice, html :is(body:not(.no-smb-reskin)) .growl.growl-notice {
+.growl.growl-notice, html :is(body:not(.no-smb-reskin)) .growl.growl-notice,
+html :is(body:not(.ps-bo-rebrand)):is(body:not(.no-smb-reskin)) .growl.growl-notice{
     color: #fff;
     background: rgba(114,194,121,.8);
 }
@@ -105,7 +107,8 @@ input:checked + .ets_checkbox {
     cursor: grab;
     margin-top: -10px;
 }
-body .bootstrap .panel-footer button.btn.loading {
+body .bootstrap .panel-footer button.btn.loading,
+html :is(body:not(.ps-bo-rebrand)):is(body:not(.no-smb-reskin)) .bootstrap button.btn-default.loading{
     background: #25b9d7!important;
     border-color: #25b9d7!important;
     color: transparent!important;

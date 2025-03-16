@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of the ramsey/uuid library
  *
@@ -11,11 +12,10 @@
  * @link https://packagist.org/packages/ramsey/uuid Packagist
  * @link https://github.com/ramsey/uuid GitHub
  */
-namespace Ramsey\Uuid\Codec;
+namespace PrestaShop\Module\PsAccounts\Vendor\Ramsey\Uuid\Codec;
 
-use Ramsey\Uuid\Exception\InvalidUuidStringException;
-use Ramsey\Uuid\UuidInterface;
-
+use PrestaShop\Module\PsAccounts\Vendor\Ramsey\Uuid\Exception\InvalidUuidStringException;
+use PrestaShop\Module\PsAccounts\Vendor\Ramsey\Uuid\UuidInterface;
 /**
  * TimestampFirstCombCodec encodes and decodes COMB UUIDs which have the timestamp as the first 48 bits.
  * To be used with MySQL, PostgreSQL, Oracle.
@@ -31,16 +31,10 @@ class TimestampFirstCombCodec extends StringCodec
      */
     public function encode(UuidInterface $uuid)
     {
-        $sixPieceComponents = array_values($uuid->getFieldsHex());
-
+        $sixPieceComponents = \array_values($uuid->getFieldsHex());
         $this->swapTimestampAndRandomBits($sixPieceComponents);
-
-        return vsprintf(
-            '%08s-%04s-%04s-%02s%02s-%012s',
-            $sixPieceComponents
-        );
+        return \vsprintf('%08s-%04s-%04s-%02s%02s-%012s', $sixPieceComponents);
     }
-
     /**
      * Encodes a UuidInterface as a binary representation of timestamp first COMB UUID
      *
@@ -51,10 +45,8 @@ class TimestampFirstCombCodec extends StringCodec
     public function encodeBinary(UuidInterface $uuid)
     {
         $stringEncoding = $this->encode($uuid);
-
-        return hex2bin(str_replace('-', '', $stringEncoding));
+        return \hex2bin(\str_replace('-', '', $stringEncoding));
     }
-
     /**
      * Decodes a string representation of timestamp first COMB UUID into a UuidInterface object instance
      *
@@ -66,12 +58,9 @@ class TimestampFirstCombCodec extends StringCodec
     public function decode($encodedUuid)
     {
         $fivePieceComponents = $this->extractComponents($encodedUuid);
-
         $this->swapTimestampAndRandomBits($fivePieceComponents);
-
         return $this->getBuilder()->build($this, $this->getFields($fivePieceComponents));
     }
-
     /**
      * Decodes a binary representation of timestamp first COMB UUID into a UuidInterface object instance
      *
@@ -82,9 +71,8 @@ class TimestampFirstCombCodec extends StringCodec
      */
     public function decodeBytes($bytes)
     {
-        return $this->decode(bin2hex($bytes));
+        return $this->decode(\bin2hex($bytes));
     }
-
     /**
      * Swaps the first 48 bits with the last 48 bits
      *
@@ -95,14 +83,13 @@ class TimestampFirstCombCodec extends StringCodec
     protected function swapTimestampAndRandomBits(array &$components)
     {
         $last48Bits = $components[4];
-        if (count($components) == 6) {
+        if (\count($components) == 6) {
             $last48Bits = $components[5];
             $components[5] = $components[0] . $components[1];
         } else {
             $components[4] = $components[0] . $components[1];
         }
-
-        $components[0] = substr($last48Bits, 0, 8);
-        $components[1] = substr($last48Bits, 8, 4);
+        $components[0] = \substr($last48Bits, 0, 8);
+        $components[1] = \substr($last48Bits, 8, 4);
     }
 }

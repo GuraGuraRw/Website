@@ -55,8 +55,8 @@ $(window).on('elementor:init', function onElementorInit() {
 			});
 		});
 		elementor.settings.page.model.on('change', function onChangePreviewWidth() {
-            var device = ceFrontend.getCurrentDeviceMode(),
-                preview_width = 'desktop' === device ? 'preview_width' : 'preview_width_' + device;
+			var device = ceFrontend.getCurrentDeviceMode(),
+					preview_width = 'desktop' === device ? 'preview_width' : 'preview_width_' + device;
 			if (preview_width in this.changed) {
 				elementor.$previewContents[0].body.style.width = this.changed[preview_width] + 'px';
 			}
@@ -74,7 +74,7 @@ $(window).on('elementor:init', function onElementorInit() {
 
 		if ('flip-box' === widgetType) {
 			// init flip box back
-			var isSideB = ['section_b', 'section_style_b', 'section_style_button'].indexOf(sectionName) > -1,
+			var isSideB = ~['section_b', 'section_style_b', 'section_style_button'].indexOf(sectionName),
 				$backLayer = editedElement.$el.find('.elementor-flip-box-back');
 
 			editedElement.$el.toggleClass('elementor-flip-box--flipped', isSideB);
@@ -91,6 +91,15 @@ $(window).on('elementor:init', function onElementorInit() {
 			editedElement.$el.find('.elementor-search__products').css({
 				display: ['section_results_style', 'section_products_style'].indexOf(sectionName) < 0 ? 'none' : ''
 			});
+		} else if ('contact-form' === widgetType || 'email-subscription' === widgetType) {
+			editedElement.$el.find('[role=alert]').toggleClass('elementor-hidden', 'section_messages_style' !== sectionName);
+		} else if ('login-form' === widgetType || 'register-form' === widgetType) {
+			editedElement.$el.find('[role=alert]').toggleClass('elementor-hidden', 'section_messages_style' !== sectionName);
+			editedElement.$el.find('.elementor-field-type-email').toggleClass('elementor-error', 'section_messages_style' === sectionName)
+		} else if ('password-form' === widgetType) {
+			editedElement.$el.find('[role=alert]').toggleClass('elementor-hidden', 'section_messages_style' !== sectionName);
+			'section_reset_content' === sectionName && editedElement.$el.removeClass('ce-password--change');
+			'section_change_content' === sectionName && editedElement.$el.addClass('ce-password--change');
 		}
 	});
 
@@ -163,6 +172,32 @@ $(window).on('elementor:init', function onElementorInit() {
 			(model.get('_title') || tabNumber)
 		);
 		$('.elementor-control-_title input[data-setting="_title"]').val(model.get('_title'));
+	});
+	// Filter non-existing widgets
+	elementor.channels.data.on('element:before:add', function (model) {
+		if ('widget' !== model.elType) {
+			model.elements = model.elements.filter(function filterWidgets(model) {
+				if ('widget' !== model.elType) {
+					model.elements = model.elements.filter(filterWidgets);
+					return true;
+				}
+				return elementor.widgetsCache[model.widgetType];
+			});
+		} else if (!elementor.widgetsCache[model.widgetType]) {
+			throw 'Widget not found: ' + model.widgetType;
+		}
+	});
+	// BC Fix for Widgets Spacing
+	elementor.channels.data.on('element:before:add section:before:drop', function (model) {
+		if ('column' === model.elType && !model.elements.length) {
+			return model.settings.widgets_space = 'gap';
+		}
+		'section' === model.elType && !model.elements.length && setTimeout(() => {
+			elementor.helpers.getModelById(model.id).get('elements').models.forEach(model => {
+				model.get('settings').set('widgets_space', 'gap');
+				elementor.$previewElementorEl.find('.elementor-element-' + model.id).addClass('ce-widgets-space--gap');
+			});
+		});
 	});
 });
 
@@ -437,6 +472,9 @@ $(function onReady() {
 	elementor.once('document:loaded', function onceDocumentLoaded() {
 		var doc = elementor.config.document;
 		if ('kit' === doc.type) {
+			$(document.body).addClass('ce-initial-kit');
+			$e.run('navigator/close');
+
 			elementor.$previewElementorEl.on('click', 'img', function onClickKitImage() {
 				$('.elementor-control-section_images:not(.elementor-open)').click();
 			});
@@ -476,7 +514,7 @@ $(function onReady() {
 				}
 				$('.elementor-control-button_type select').val('').change();
 			});
-			elementor.$previewElementorEl.on('click', '.btn, .btn-primary, btn-secondary', function onClickKitBtn() {
+			elementor.$previewElementorEl.on('click', '.btn, .btn-primary, .btn-secondary', function onClickKitBtn() {
 				$('.elementor-control-section_buttons:not(.elementor-open)').click();
 
 				if ($(this).hasClass('btn-primary')) {
@@ -486,6 +524,12 @@ $(function onReady() {
 					return $('.elementor-control-button_type select').val('secondary_btn').change();
 				}
 				$('.elementor-control-button_type select').val('btn').change();
+			});
+			elementor.$previewElementorEl.on('click', '.elementor-icon', function onClickKitIcon() {
+				$('.elementor-control-section_icons:not(.elementor-open)').click();
+			});
+			elementor.$previewElementorEl.on('click', '.elementor-field-textual', function onClickKitField() {
+				$('.elementor-control-section_form_fields:not(.elementor-open)').click();
 			});
 			elementor.$previewElementorEl.on('click', e => {
 				e.preventDefault();
@@ -500,8 +544,6 @@ $(function onReady() {
 					delete _data.events;
 				}).filter('.elementor-widget').removeClass('elementor-element-edit-mode');
 			}, 1);
-			// Hide preview button
-			$('#elementor-panel-footer-saver-preview').css('display', 'none');
 		}
 		var idType = doc.id.substr(-6, 2);
 		if ((1 == idType || 17 == idType) && doc.elements && !doc.elements.length) {
@@ -512,16 +554,21 @@ $(function onReady() {
 		}
 		// Fix for importing template from Theme Style
 		var kitSwitchBack = false;
-		$e.hooks.registerUIBefore({
-			getCommand: () => 'document/elements/import',
-			getId: () => 'ce-kit-switch-before',
- 			getConditions: () => 'kit' === elementor.config.initial_document.type,
-			getContainerType: () => {},
-			getType: () => 'ui',
-			run: function () {
-				return $e.modules.hookUI.Before.prototype.run.apply(this, arguments);
-			},
-			apply: function (args) {
+
+		new class HookUIBeforeDocumentElementsImport extends $e.modules.hookUI.Before {
+			getId() {
+				return 'ce-kit-switch-before';
+			}
+			getCommand() {
+				return 'document/elements/import';
+			}
+			getConditions() {
+				return 'kit' === elementor.config.initial_document.type;
+			}
+			apply(args) {
+				// Add missing page_settings
+				args.data.page_settings = args.data.page_settings || {};
+
 				if (document.body.classList.contains('elementor-editor-kit')) {
 					kitSwitchBack = true;
 					// Do not change template layout
@@ -529,7 +576,7 @@ $(function onReady() {
 					// Switch to edit mode
 					$('#elementor-panel-header-kit-close').click();
 				}
-				if (args.data.page_settings && args.data.page_settings.custom_colors) {
+				if (args.data.page_settings.custom_colors) {
 					// Update picked colors
 					var count = Object.keys(elementor.schemes.getScheme('color-picker').items).length;
 					while (count--) {
@@ -541,24 +588,26 @@ $(function onReady() {
 					elementor.schemes.saveScheme('color-picker');
 				}
 			}
-		});
-		$e.hooks.registerUIAfter({
-			getCommand: () => 'document/elements/import',
-			getId: () => 'ce-kit-switch-after',
- 			getConditions: () => kitSwitchBack,
-			getContainerType: () => {},
-			getType: () => 'ui',
-			run: function() {
-				return $e.modules.hookUI.After.prototype.run.apply(this, arguments);
-			},
-			apply: function() {
+		}().register();
+
+		new class HookUIAfterDocumentElementsImport extends $e.modules.hookUI.After {
+			getId() {
+				return 'ce-kit-switch-after';
+			}
+			getCommand() {
+				return 'document/elements/import';
+			}
+			getConditions() {
+				return kitSwitchBack;
+			}
+			apply() {
 				kitSwitchBack = false;
 				// Switch to Menu > Theme Style
 				$e.route('panel/menu');
 
 				$('.elementor-panel-menu-item-theme-style').click();
 			}
-		});
+		}().register();
 	});
 
 	elementor.on('preview:loaded', function onPreviewLoaded() {

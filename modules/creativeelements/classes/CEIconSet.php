@@ -26,13 +26,8 @@ class CEIconSet extends ObjectModel
 
     public static function nameExists($name, $exclude_id = 0)
     {
-        $db = Db::getInstance();
-        $table = _DB_PREFIX_ . 'ce_icon_set';
-        $id_ce_icon_set = (int) $exclude_id;
-        $name = $db->escape($name);
-
-        return (bool) $db->getValue(
-            "SELECT `id_ce_icon_set` FROM `$table` WHERE `name` = '$name' AND `id_ce_icon_set` != $id_ce_icon_set"
+        return (bool) Db::getInstance()->getValue(
+            'SELECT `id_ce_icon_set` FROM ' . _DB_PREFIX_ . 'ce_icon_set WHERE `name` = "' . pSQL($name) . '" AND `id_ce_icon_set` <> ' . (int) $exclude_id
         );
     }
 
@@ -65,10 +60,9 @@ class CEIconSet extends ObjectModel
 
         if (null === $config || $regenerate) {
             $config = [];
-            $db = Db::getInstance();
-            $table = _DB_PREFIX_ . 'ce_icon_set';
+            $rows = Db::getInstance()->executeS('SELECT * FROM ' . _DB_PREFIX_ . 'ce_icon_set');
 
-            if ($rows = $db->executeS("SELECT * FROM `$table`")) {
+            if ($rows) {
                 foreach ($rows as $icon_set) {
                     $set_config = json_decode($icon_set['config'], true);
                     $set_config['custom_icon_post_id'] = $icon_set['id_ce_icon_set'];

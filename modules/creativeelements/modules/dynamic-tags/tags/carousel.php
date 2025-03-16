@@ -50,8 +50,8 @@ class ModulesXDynamicTagsXTagsXCarousel extends DataTag
                 'label' => __('Action'),
                 'type' => ControlsManager::SELECT,
                 'options' => [
-                    'next' => __('Next'),
-                    'prev' => __('Previous'),
+                    'next' => __('Next', 'Shop.Theme.Global'),
+                    'prev' => __('Previous', 'Shop.Theme.Global'),
                     'goto' => __('Go To'),
                     'play' => __('Play'),
                     'pause' => __('Pause'),

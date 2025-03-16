@@ -170,11 +170,10 @@ class TemplateLibraryXSourceLocal extends TemplateLibraryXSourceBase
     public function getItems($args = [])
     {
         $templates = [];
-        $table = _DB_PREFIX_ . 'ce_template';
-        $rows = \Db::getInstance()->executeS("
-            SELECT id_ce_template, id_employee, title, type, date_add FROM $table
-            WHERE active = 1 AND type != 'kit' ORDER BY title ASC
-        ");
+        $rows = \Db::getInstance()->executeS('
+            SELECT `id_ce_template`, `id_employee`, `title`, `type`, `date_add` FROM ' . _DB_PREFIX_ . 'ce_template
+            WHERE `active` = 1 AND `type` <> "kit" ORDER BY `title`
+        ');
         if ($rows) {
             foreach ($rows as &$row) {
                 $post = new \stdClass();
@@ -486,9 +485,7 @@ class TemplateLibraryXSourceLocal extends TemplateLibraryXSourceBase
 
             $complete_path = $temp_path . $file_data['name'];
 
-            $put_contents = file_put_contents($complete_path, $file_data['content']);
-
-            if (!$put_contents) {
+            if (!@call_user_func('file_put_contents', $complete_path, $file_data['content'])) {
                 return new WPError('404', sprintf('Cannot create file "%s".', $file_data['name']));
             }
 
@@ -518,7 +515,7 @@ class TemplateLibraryXSourceLocal extends TemplateLibraryXSourceBase
         $zip_archive->close();
 
         foreach ($files as $file) {
-            unlink($file['path']);
+            \Tools::deleteFile($file['path']);
         }
 
         $this->sendFileHeaders($zip_archive_filename, filesize($zip_complete_path));
@@ -527,7 +524,7 @@ class TemplateLibraryXSourceLocal extends TemplateLibraryXSourceBase
 
         @readfile($zip_complete_path);
 
-        unlink($zip_complete_path);
+        \Tools::deleteFile($zip_complete_path);
 
         exit;
     }
@@ -582,7 +579,7 @@ class TemplateLibraryXSourceLocal extends TemplateLibraryXSourceBase
      */
     public function importTemplate($name, $path)
     {
-        if (empty($path)) {
+        if (!$path) {
             return new WPError('file_error', 'Please upload a file to import');
         }
 
@@ -612,7 +609,7 @@ class TemplateLibraryXSourceLocal extends TemplateLibraryXSourceBase
                 }
             }
 
-            if (!empty($valid_entries)) {
+            if ($valid_entries) {
                 $zip->extractTo($temp_path, $valid_entries);
             }
 
@@ -623,7 +620,7 @@ class TemplateLibraryXSourceLocal extends TemplateLibraryXSourceBase
             foreach ($file_names as $full_file_name) {
                 $import_result = $this->importSingleTemplate($full_file_name);
 
-                unlink($full_file_name);
+                \Tools::deleteFile($full_file_name);
 
                 if (is_wp_error($import_result)) {
                     return $import_result;
@@ -702,7 +699,7 @@ class TemplateLibraryXSourceLocal extends TemplateLibraryXSourceBase
      */
     private function getExportLink($template_id)
     {
-        return \Context::getContext()->link->getAdminLink('AdminCEEditor', true, [], [
+        return Helper::$link->getAdminLink('AdminCEEditor', true, [], [
             'ajax' => 1,
             'action' => 'elementor_library_direct_actions',
             'library_action' => 'export_template',
@@ -738,9 +735,9 @@ class TemplateLibraryXSourceLocal extends TemplateLibraryXSourceBase
      */
     private function importSingleTemplate($file_name)
     {
-        $data = json_decode(call_user_func('file_get_contents', $file_name), true);
+        $data = json_decode(@call_user_func('file_get_contents', $file_name), true);
 
-        if (empty($data)) {
+        if (!$data) {
             return new WPError('file_error', 'Invalid Content In File');
         }
 
@@ -877,22 +874,12 @@ class TemplateLibraryXSourceLocal extends TemplateLibraryXSourceBase
         $document_types = Plugin::instance()->documents->getDocumentTypes();
 
         if (isset($document_types[$template_type])) {
-            $template_label = call_user_func([$document_types[$template_type], 'get_title']);
+            $template_label = call_user_func([$document_types[$template_type], 'getTitle']);
         } else {
             $template_label = ucwords(str_replace(['_', '-'], ' ', $template_type));
         }
 
-        /*
-         * Template label by template type.
-         *
-         * Filters the template label by template type in the template library .
-         *
-         * @since 2.0.0
-         *
-         * @param string $template_label Template label
-         * @param string $template_type  Template type
-         */
-        $template_label = apply_filters('elementor/template-library/get_template_label_by_type', $template_label, $template_type);
+        // $template_label = apply_filters('elementor/template-library/get_template_label_by_type', $template_label, $template_type);
 
         return $template_label;
     }

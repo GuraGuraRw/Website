@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of the ramsey/uuid library
  *
@@ -11,11 +12,9 @@
  * @link https://packagist.org/packages/ramsey/uuid Packagist
  * @link https://github.com/ramsey/uuid GitHub
  */
+namespace PrestaShop\Module\PsAccounts\Vendor\Ramsey\Uuid\Converter\Time;
 
-namespace Ramsey\Uuid\Converter\Time;
-
-use Ramsey\Uuid\Converter\TimeConverterInterface;
-
+use PrestaShop\Module\PsAccounts\Vendor\Ramsey\Uuid\Converter\TimeConverterInterface;
 /**
  * PhpTimeConverter uses built-in PHP functions and standard math operations
  * available to the PHP programming language to provide facilities for
@@ -36,12 +35,7 @@ class PhpTimeConverter implements TimeConverterInterface
     {
         // 0x01b21dd213814000 is the number of 100-ns intervals between the
         // UUID epoch 1582-10-15 00:00:00 and the Unix epoch 1970-01-01 00:00:00.
-        $uuidTime = ($seconds * 10000000) + ($microSeconds * 10) + 0x01b21dd213814000;
-
-        return [
-            'low' => sprintf('%08x', $uuidTime & 0xffffffff),
-            'mid' => sprintf('%04x', ($uuidTime >> 32) & 0xffff),
-            'hi' => sprintf('%04x', ($uuidTime >> 48) & 0x0fff),
-        ];
+        $uuidTime = $seconds * 10000000 + $microSeconds * 10 + 0x1b21dd213814000;
+        return ['low' => \sprintf('%08x', $uuidTime & 0xffffffff), 'mid' => \sprintf('%04x', $uuidTime >> 32 & 0xffff), 'hi' => \sprintf('%04x', $uuidTime >> 48 & 0xfff)];
     }
 }

@@ -208,9 +208,10 @@ class ModulesXCatalogXWidgetsXProductXMiniatureXAddToCart extends ProductAddToCa
 
     protected function render()
     {
-        $product = &\Context::getContext()->smarty->tpl_vars['product']->value;
+        $vars = &$GLOBALS['smarty']->tpl_vars;
+        $product = $vars['product']->value;
 
-        if (!$product['available_for_order']) {
+        if (!$product['available_for_order'] || $vars['configuration']->value['is_catalog']) {
             return;
         }
         $settings = $this->getSettings();
@@ -218,8 +219,8 @@ class ModulesXCatalogXWidgetsXProductXMiniatureXAddToCart extends ProductAddToCa
 
         $this->addRenderAttribute('button', 'href', "#ce-action=$action");
 
-        if ($settings['combinations_action'] && $product['attributes']) {
-            $this->preventInlineEditing = true;
+        if ($settings['combinations_action'] && $product['attributes'] && $product['quantity_all_versions']) {
+            $this->inlineEditing = false;
             $this->addRenderAttribute('button', 'class', 'elementor-button-combinations');
 
             $href = 'quickview' === $settings['combinations_action'] ? '#ce-action=quickview' : $product['url'];
@@ -242,7 +243,7 @@ class ModulesXCatalogXWidgetsXProductXMiniatureXAddToCart extends ProductAddToCa
             $this->setRenderAttribute('icon', 'class', $icon);
 
             if (!$settings['text']) {
-                $this->preventInlineEditing = true;
+                $this->inlineEditing = false;
 
                 $this->setSettings(
                     'text',
@@ -260,7 +261,7 @@ class ModulesXCatalogXWidgetsXProductXMiniatureXAddToCart extends ProductAddToCa
         $icon = isset($settings['icon']) && !isset($settings['__fa4_migrated']['selected_icon'])
             ? $settings['icon']
             : $settings['selected_icon']['value'];
-        echo '{if $product.available_for_order}';
+        echo '{if $product.available_for_order && !$configuration.is_catalog}';
 
         if ($settings['combinations_action']) {
             $combinations_icon = isset($settings['combinations_icon']) && !isset($settings['__fa4_migrated']['selected_combinations_icon'])
@@ -268,34 +269,29 @@ class ModulesXCatalogXWidgetsXProductXMiniatureXAddToCart extends ProductAddToCa
                 : $settings['selected_combinations_icon']['value'];
 
             $this->addRenderAttribute('button', [
-                'class' => '{if $product.attributes}elementor-button-combinations{/if}',
-                '{if $product.attributes}' .
-                    'href="' . ('quickview' === $settings['combinations_action']
-                        ? '#ce-action=quickview'
-                        : '{$product.url}'
-                    ) . '"' .
+                'class' => '{if $product.attributes and $product.quantity_all_versions}elementor-button-combinations{/if}',
+                '{if $product.attributes && $product.quantity_all_versions}' .
+                    'href="' . ('quickview' === $settings['combinations_action'] ? '#ce-action=quickview' : '{$product.url}') . '"' .
                 '{elseif $product.add_to_cart_url}' .
-                    'href="#ce-action=' . $action . '"' .
-                '{/if}' => null,
+                    'href="#ce-action=' . $action . '{if $product.minimal_quantity > 1}&amp;qty={$product.minimal_quantity}{/if}"' .
+                '{/if}' => [],
             ]);
-            $this->addRenderAttribute('icon', 'class', [
-                '{if $product.attributes}' . $combinations_icon . '{else}' . $icon . '{/if}',
-            ]);
+            $this->addRenderAttribute('icon', 'class', '{if $product.attributes}' . $combinations_icon . '{else}' . $icon . '{/if}');
+
             $this->setSettings(
                 'text',
-                '{if $product.attributes}' . ($settings['combinations_text'] ?:
-                    __('quickview' === $settings['combinations_action'] ? 'Quick View' : 'View Full Details')) .
-                '{else}' . ($settings['text'] ?:
-                    __('add-to-cart' === $settings['button_type'] ? 'Add to Cart' : 'Buy Now')) .
+                '{if $product.attributes && $product.quantity_all_versions}' .
+                    ($settings['combinations_text'] ?: __('quickview' === $settings['combinations_action'] ? 'Quick View' : 'View Full Details')) .
+                '{else}' .
+                    ($settings['text'] ?: __('add-to-cart' === $settings['button_type'] ? 'Add to Cart' : 'Buy Now')) .
                 '{/if}'
             );
         } else {
             $this->addRenderAttribute('button', [
-                '{if $product.add_to_cart_url}href="#ce-action=' . $action . '{if $product.minimal_quantity > 1}&amp;qty={$product.minimal_quantity}{/if}"{/if}' => null,
+                '{if $product.add_to_cart_url}href="#ce-action=' . $action . '{if $product.minimal_quantity > 1}&amp;qty={$product.minimal_quantity}{/if}"{/if}' => [],
             ]);
-            $this->addRenderAttribute('icon', [
-                'class' => $icon,
-            ]);
+            $this->addRenderAttribute('icon', 'class', $icon);
+
             '' === $settings['text'] && $this->setSettings(
                 'text',
                 'add-to-cart' === $settings['button_type'] ? __('Add to Cart') : __('Buy Now')

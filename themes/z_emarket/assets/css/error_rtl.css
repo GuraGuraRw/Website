@@ -1,50 +1,75 @@
+/* line 1, ../../xampp/htdocs/home_work/z_emarket/themes/z_emarket/_dev/css/error.scss */
 #body {
-  background-color: #F7F7F7; }
+  background-color: #f7f7f7;
+}
 
+/* line 5, ../../xampp/htdocs/home_work/z_emarket/themes/z_emarket/_dev/css/error.scss */
 #layout-error {
+  padding: 50px 15px;
+  margin: 50px auto 0;
   text-align: center;
-  margin: 50px 0 0 0;
   background-color: #fff;
-  -moz-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
-  -webkit-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3); }
-@media (min-width: 1200px) {
-  #layout-error {
-    margin: 126px 0 0 0;
-    padding: 50px; } }
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+/* line 12, ../../xampp/htdocs/home_work/z_emarket/themes/z_emarket/_dev/css/error.scss */
 #layout-error .logo {
-  margin: 0 0 31px 0;
-  text-align: center; }
+  margin: 0 0 31px;
+  text-align: center;
+}
+
+/* line 17, ../../xampp/htdocs/home_work/z_emarket/themes/z_emarket/_dev/css/error.scss */
 #layout-error h1 {
+  padding: 0 0 14px;
+  margin: 0 0 19px;
   font: 24px sans-serif;
   color: #333;
-  padding: 0 0 14px 0;
-  margin: 0 0 19px 0; }
+}
+
+/* line 24, ../../xampp/htdocs/home_work/z_emarket/themes/z_emarket/_dev/css/error.scss */
 #layout-error h2 {
+  padding: 0 0 14px;
+  margin: 0 0 19px;
   font: 20px sans-serif;
   color: #333;
-  padding: 0 0 14px 0;
-  margin: 0 0 19px 0; }
+}
+
+/* line 31, ../../xampp/htdocs/home_work/z_emarket/themes/z_emarket/_dev/css/error.scss */
 #layout-error .page-content {
   font: 16px sans-serif;
   color: #555454;
-  text-align: center; }
+  text-align: center;
+}
 
-#layout-error {
-  padding: 50px 15px;
-  margin-left: auto;
-  margin-right: auto; }
+@media (min-width: 1200px) {
+  /* line 38, ../../xampp/htdocs/home_work/z_emarket/themes/z_emarket/_dev/css/error.scss */
+  #layout-error {
+    width: 500px;
+    padding: 50px;
+    margin: 126px auto 0;
+  }
+}
 
 @media (min-width: 768px) {
+  /* line 45, ../../xampp/htdocs/home_work/z_emarket/themes/z_emarket/_dev/css/error.scss */
   #layout-error {
-    width: 500px; } }
+    width: 500px;
+  }
+}
+
 @media (min-width: 992px) {
+  /* line 50, ../../xampp/htdocs/home_work/z_emarket/themes/z_emarket/_dev/css/error.scss */
   #layout-error {
-    width: 500px; } }
-@media (min-width: 1200px) {
-  #layout-error {
-    width: 500px; } }
+    width: 500px;
+  }
+}
+
 @media only screen and (min-width: 1200px) {
+  /* line 55, ../../xampp/htdocs/home_work/z_emarket/themes/z_emarket/_dev/css/error.scss */
   #layout-error {
+    padding-left: 0;
     padding-right: 0;
-    padding-left: 0; } }
+  }
+}
+
+/*# sourceMappingURL=error.css.map */

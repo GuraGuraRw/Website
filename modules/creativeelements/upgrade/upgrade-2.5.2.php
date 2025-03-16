@@ -19,21 +19,19 @@ function upgrade_module_2_5_2($module)
     Configuration::updateValue('elementor_global_image_lightbox', 1);
 
     $db = Db::getInstance();
-    $ps = _DB_PREFIX_;
-    $engine = _MYSQL_ENGINE_;
-    $result = $db->execute("
-        CREATE TABLE IF NOT EXISTS `{$ps}ce_theme` (
+    $result = $db->execute('
+        CREATE TABLE IF NOT EXISTS ' . _DB_PREFIX_ . 'ce_theme (
             `id_ce_theme` int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
             `id_employee` int(10) UNSIGNED NOT NULL,
-            `type` varchar(64) NOT NULL DEFAULT '',
+            `type` varchar(64) NOT NULL DEFAULT "",
             `position` int(10) UNSIGNED NOT NULL DEFAULT 0,
             `active` tinyint(1) UNSIGNED NOT NULL DEFAULT 0,
             `date_add` datetime NOT NULL,
             `date_upd` datetime NOT NULL,
             PRIMARY KEY (`id_ce_theme`)
-        ) ENGINE=$engine DEFAULT CHARSET=utf8mb4 DEFAULT COLLATE=utf8mb4_unicode_ci;
-    ") && $db->execute("
-        CREATE TABLE IF NOT EXISTS `{$ps}ce_theme_shop` (
+        ) ENGINE=' . _MYSQL_ENGINE_ . ' DEFAULT CHARSET=utf8mb4 DEFAULT COLLATE=utf8mb4_unicode_ci;
+    ') && $db->execute('
+        CREATE TABLE IF NOT EXISTS ' . _DB_PREFIX_ . 'ce_theme_shop (
             `id_ce_theme` int(10) UNSIGNED NOT NULL,
             `id_shop` int(10) UNSIGNED NOT NULL,
             `position` int(10) UNSIGNED NOT NULL DEFAULT 0,
@@ -42,23 +40,23 @@ function upgrade_module_2_5_2($module)
             `date_upd` datetime NOT NULL,
             PRIMARY KEY (`id_ce_theme`,`id_shop`),
             KEY `id_shop` (`id_shop`)
-        ) ENGINE=$engine DEFAULT CHARSET=utf8mb4 DEFAULT COLLATE=utf8mb4_unicode_ci;
-    ") && $db->execute("
-        CREATE TABLE IF NOT EXISTS `{$ps}ce_theme_lang` (
+        ) ENGINE=' . _MYSQL_ENGINE_ . ' DEFAULT CHARSET=utf8mb4 DEFAULT COLLATE=utf8mb4_unicode_ci;
+    ') && $db->execute('
+        CREATE TABLE IF NOT EXISTS ' . _DB_PREFIX_ . 'ce_theme_lang (
             `id_ce_theme` int(10) UNSIGNED NOT NULL,
             `id_lang` int(10) UNSIGNED NOT NULL,
             `id_shop` int(10) UNSIGNED NOT NULL DEFAULT 1,
-            `title` varchar(128) NOT NULL DEFAULT '',
+            `title` varchar(128) NOT NULL DEFAULT "",
             `content` text,
             PRIMARY KEY (`id_ce_theme`,`id_shop`,`id_lang`)
-        ) ENGINE=$engine DEFAULT CHARSET=utf8mb4 DEFAULT COLLATE=utf8mb4_unicode_ci;
-    ");
+        ) ENGINE=' . _MYSQL_ENGINE_ . ' DEFAULT CHARSET=utf8mb4 DEFAULT COLLATE=utf8mb4_unicode_ci;
+    ');
     try {
         // Add `type` to ce_revision table
-        $db->execute("
-            ALTER TABLE `{$ps}ce_revision`
-            ADD `type` varchar(64) NOT NULL DEFAULT '' AFTER `title`
-        ");
+        $db->execute('
+            ALTER TABLE ' . _DB_PREFIX_ . 'ce_revision
+            ADD `type` varchar(64) NOT NULL DEFAULT "" AFTER `title`
+        ');
     } catch (Exception $ex) {
         // Do nothing when `type` already exists
     }

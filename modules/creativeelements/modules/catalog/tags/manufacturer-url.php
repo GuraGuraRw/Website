@@ -13,7 +13,7 @@ if (!defined('_PS_VERSION_')) {
 }
 
 use CE\CoreXDynamicTagsXDataTag as DataTag;
-use CE\ModulesXDynamicTagsXModule as Module;
+use CE\ModulesXDynamicTagsXModule as TagsModule;
 
 class ModulesXCatalogXTagsXManufacturerUrl extends DataTag
 {
@@ -31,17 +31,17 @@ class ModulesXCatalogXTagsXManufacturerUrl extends DataTag
 
     public function getGroup()
     {
-        return Module::CATALOG_GROUP;
+        return TagsModule::CATALOG_GROUP;
     }
 
     public function getCategories()
     {
-        return [Module::URL_CATEGORY];
+        return [TagsModule::URL_CATEGORY];
     }
 
     public function getValue(array $options = [])
     {
-        $vars = &\Context::getContext()->smarty->tpl_vars;
+        $vars = &$GLOBALS['smarty']->tpl_vars;
 
         return isset($vars['product_brand_url']) ? $vars['product_brand_url']->value : '';
     }

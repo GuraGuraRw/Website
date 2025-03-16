@@ -1,7 +1,7 @@
 <?php return array(
     'root' => array(
-        'pretty_version' => '3.2.21',
-        'version' => '3.2.21.0',
+        'pretty_version' => '3.2.22',
+        'version' => '3.2.22.0',
         'type' => 'library',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -20,17 +20,17 @@
             'dev_requirement' => false,
         ),
         'packlink/integration-core' => array(
-            'pretty_version' => 'v3.4.8',
-            'version' => '3.4.8.0',
+            'pretty_version' => 'v3.4.11',
+            'version' => '3.4.11.0',
             'type' => 'library',
             'install_path' => __DIR__ . '/../packlink/integration-core',
             'aliases' => array(),
-            'reference' => '91e51f02cfd6524ec9953d8f6acff7b4378aad48',
+            'reference' => '442558486c086b7ae679a596d022d4ddf253237a',
             'dev_requirement' => false,
         ),
         'packlink/prestashop' => array(
-            'pretty_version' => '3.2.21',
-            'version' => '3.2.21.0',
+            'pretty_version' => '3.2.22',
+            'version' => '3.2.22.0',
             'type' => 'library',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),

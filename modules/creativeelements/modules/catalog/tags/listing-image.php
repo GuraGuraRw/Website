@@ -13,7 +13,7 @@ if (!defined('_PS_VERSION_')) {
 }
 
 use CE\CoreXDynamicTagsXDataTag as DataTag;
-use CE\ModulesXDynamicTagsXModule as Module;
+use CE\ModulesXDynamicTagsXModule as TagsModule;
 
 class ModulesXCatalogXTagsXListingImage extends DataTag
 {
@@ -31,12 +31,12 @@ class ModulesXCatalogXTagsXListingImage extends DataTag
 
     public function getGroup()
     {
-        return Module::CATALOG_GROUP;
+        return TagsModule::CATALOG_GROUP;
     }
 
     public function getCategories()
     {
-        return [Module::IMAGE_CATEGORY];
+        return [TagsModule::IMAGE_CATEGORY];
     }
 
     protected function _registerControls()
@@ -84,31 +84,25 @@ class ModulesXCatalogXTagsXListingImage extends DataTag
 
     public function getValue(array $options = [])
     {
-        $context = \Context::getContext();
-        $vars = &$context->smarty->tpl_vars;
-        $value = [
-            'id' => '',
-            'url' => '',
-        ];
+        $vars = &$GLOBALS['smarty']->tpl_vars;
+        $value = ['url' => ''];
+
         if (!empty($vars['category']->value['image'])) {
             $category = &$vars['category']->value;
             $size = $this->getSettings('category_size');
+            isset($category['image']['bySize'][$size])
+                ? $value = $category['image']['bySize'][$size]
+                : $value['url'] = Helper::$link->getCatImageLink($category['link_rewrite'], $category['id'], $size);
             $value['alt'] = $category['name'];
-
-            return $value + (isset($category['image']['bySize'][$size]) ? $category['image']['bySize'][$size] : [
-                'url' => $context->link->getCatImageLink($category['link_rewrite'], $category['id'], $size),
-            ]);
-        }
-        if (!empty($vars['manufacturer']->value['id'])) {
+        } elseif (!empty($vars['manufacturer']->value['id'])) {
             $manufacturer = &$vars['manufacturer']->value;
             $size = $this->getSettings('manufacturer_size');
-            $value['url'] = $context->link->getManufacturerImageLink($manufacturer['id'], $size);
-            $value['alt'] = $manufacturer['name'];
-
-            return $value + ($size && ($image_type = @\ImageType::getImagesTypes('manufacturers')[$size]) ? [
+            $value['url'] = Helper::$link->getManufacturerImageLink($manufacturer['id'], $size);
+            $size && ($image_type = @array_column(\ImageType::getImagesTypes('manufacturers'), null, 'name')[$size]) && $value += [
                 'width' => $image_type['width'],
                 'height' => $image_type['height'],
-            ] : []);
+            ];
+            $value['alt'] = $manufacturer['name'];
         }
 
         return $value;

@@ -22,6 +22,8 @@ if (!defined('_PS_VERSION_')) {
  */
 class WidgetAccordion extends WidgetBase
 {
+    const HELP_URL = 'http://docs.webshopworks.com/creative-elements/86-widgets/general-widgets/311-accordion-widget';
+
     /**
      * Get widget name.
      *
@@ -76,6 +78,11 @@ class WidgetAccordion extends WidgetBase
     public function getKeywords()
     {
         return ['accordion', 'tabs', 'toggle'];
+    }
+
+    protected function isDynamicContent()
+    {
+        return false;
     }
 
     /**

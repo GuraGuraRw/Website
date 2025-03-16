@@ -109,7 +109,7 @@ class ModulesXCatalogXWidgetsXManufacturerXShortDescription extends WidgetBase
 
     protected function render()
     {
-        $manufacturer = &\Context::getContext()->smarty->tpl_vars['manufacturer']->value;
+        $manufacturer = &$GLOBALS['smarty']->tpl_vars['manufacturer']->value;
 
         echo $manufacturer['short_description'];
     }

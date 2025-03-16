@@ -51,7 +51,6 @@ class ControlMedia extends ControlBaseMultiple
     public function getDefaultValue()
     {
         return [
-            'id' => '',
             'url' => '',
         ];
     }
@@ -74,23 +73,19 @@ class ControlMedia extends ControlBaseMultiple
             return $settings;
         }
 
-        $settings = Plugin::$instance->templates_manager->getImportImagesInstance()->import($settings);
-
-        if (!$settings) {
-            $settings = [
-                'id' => '',
-                'url' => Utils::getPlaceholderImageSrc(),
-            ];
-        }
-
-        return $settings;
+        return Plugin::$instance->templates_manager->getImportImagesInstance()->import($settings) ?: [
+            'url' => Utils::getPlaceholderImageSrc(),
+        ];
     }
 
-    public function onExport($settings)
+    public function onExport($settings, &$control)
     {
-        if (!empty($settings['url'])) {
-            $settings['url'] = Helper::getMediaLink($settings['url'], true);
+        if ($settings === $control['default']) {
+            return $control['export'] = false;
         }
+
+        $settings['url'] = Helper::getMediaLink($settings['url'], true);
+        $settings['id'] = '';
 
         return $settings;
     }
@@ -150,11 +145,13 @@ class ControlMedia extends ControlBaseMultiple
                         <label for="<?php echo $this->getControlUid('alt'); ?>" class="elementor-control-media__loading-label"><?php _e('Alt'); ?></label>
                         <input type="text" id="<?php echo $this->getControlUid('alt'); ?>" class="elementor-control-unit-5" data-setting="alt">
                     </div>
+                <# if( ! data.exclude_seo_options || data.exclude_seo_options.indexOf('title') < 0 ) { #>
                     <div class="ce-control-media-option">
                         <label for="<?php echo $this->getControlUid('title'); ?>" class="elementor-control-media__loading-label"><?php _e('Title'); ?></label>
                         <input type="text" id="<?php echo $this->getControlUid('title'); ?>" class="elementor-control-unit-5" data-setting="title">
                     </div>
-                <# if ( !data.excludeLoading ) { #>
+                <# } #>
+                <# if( ! data.exclude_seo_options || data.exclude_seo_options.indexOf('loading') < 0 ) { #>
                     <div class="ce-control-media-option">
                         <label for="<?php echo $this->getControlUid('loading'); ?>" class="elementor-control-media__loading-label"><?php _e('Loading'); ?></label>
                         <select id="<?php echo $this->getControlUid('loading'); ?>" class="elementor-control-unit-5" data-setting="loading">
@@ -221,7 +218,7 @@ class ControlMedia extends ControlBaseMultiple
      *
      * Retrieve the `title` of the image selected by the media control.
      *
-     * @since 1.0.0
+     * @deprecated since 2.11.0 and will be removed in next mayor version.
      * @static
      *
      * @param array $instance Media attachment
@@ -238,7 +235,7 @@ class ControlMedia extends ControlBaseMultiple
      *
      * Retrieve the `alt` value of the image selected by the media control.
      *
-     * @since 1.0.0
+     * @deprecated since 2.11.0 and will be removed in next mayor version.
      * @static
      *
      * @param array $instance Media attachment

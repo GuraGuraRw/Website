@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of the ramsey/uuid library
  *
@@ -11,13 +12,11 @@
  * @link https://packagist.org/packages/ramsey/uuid Packagist
  * @link https://github.com/ramsey/uuid GitHub
  */
-
-namespace Ramsey\Uuid\Codec;
+namespace PrestaShop\Module\PsAccounts\Vendor\Ramsey\Uuid\Codec;
 
 use InvalidArgumentException;
-use Ramsey\Uuid\Exception\InvalidUuidStringException;
-use Ramsey\Uuid\UuidInterface;
-
+use PrestaShop\Module\PsAccounts\Vendor\Ramsey\Uuid\Exception\InvalidUuidStringException;
+use PrestaShop\Module\PsAccounts\Vendor\Ramsey\Uuid\UuidInterface;
 /**
  * CodecInterface represents a UUID coder-decoder
  */
@@ -30,7 +29,6 @@ interface CodecInterface
      * @return string Hexadecimal string representation of a UUID
      */
     public function encode(UuidInterface $uuid);
-
     /**
      * Encodes a UuidInterface as a binary representation of a UUID
      *
@@ -38,7 +36,6 @@ interface CodecInterface
      * @return string Binary string representation of a UUID
      */
     public function encodeBinary(UuidInterface $uuid);
-
     /**
      * Decodes a string representation of a UUID into a UuidInterface object instance
      *
@@ -47,7 +44,6 @@ interface CodecInterface
      * @throws InvalidUuidStringException
      */
     public function decode($encodedUuid);
-
     /**
      * Decodes a binary representation of a UUID into a UuidInterface object instance
      *

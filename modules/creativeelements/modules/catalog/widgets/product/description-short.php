@@ -138,7 +138,7 @@ class ModulesXCatalogXWidgetsXProductXDescriptionShort extends WidgetBase
     protected function render()
     {
         $document = Plugin::$instance->documents->getCurrent();
-        $product = &\Context::getContext()->smarty->tpl_vars['product']->value;
+        $product = $GLOBALS['smarty']->tpl_vars['product']->value;
 
         if ($document && $document->getTemplateType() === 'product-miniature') {
             $product['description_short'] = strip_tags($product['description_short']);

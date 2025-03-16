@@ -249,6 +249,15 @@ class Plugin
     public $assets_manager;
 
     /**
+     * Icons Manager.
+     *
+     * Holds the plugin icons manager.
+     *
+     * @var Icons_Manager
+     */
+    public $icons_manager;
+
+    /**
      * Modules manager.
      *
      * Holds the modules manager.
@@ -321,16 +330,8 @@ class Plugin
         if (null === self::$instance) {
             self::$instance = new self();
 
-            /*
-             * Elementor loaded.
-             *
-             * Fires when Elementor was fully loaded and instantiated.
-             *
-             * @since 1.0.0
-             */
-            do_action('elementor/loaded');
-
-            do_action('init');
+            // do_action('elementor/loaded');
+            self::$instance->init();
         }
 
         return self::$instance;
@@ -435,7 +436,7 @@ class Plugin
 
         // $this->upgrade = new Core\Upgrade\Manager();
 
-        if (is_admin()) {
+        if (_CE_ADMIN_) {
             $this->heartbeat = new Heartbeat();
             // $this->wordpress_widgets_manager = new WordPressWidgetsManager();
             // $this->admin = new Admin();
@@ -481,14 +482,15 @@ class Plugin
     private function __construct()
     {
         $this->registerAutoloader();
+        /*
+        $this->logger = LogManager::instance();
 
-        // $this->logger = LogManager::instance();
-
-        // Maintenance::init();
-        // Compatibility::registerActions();
+        Maintenance::init();
+        Compatibility::registerActions();
 
         add_action('init', [$this, 'init'], 0);
-        // add_action('rest_api_init', [$this, 'onRestApiInit']);
+        add_action('rest_api_init', [$this, 'onRestApiInit']);
+        */
     }
 
     final public static function getTitle()

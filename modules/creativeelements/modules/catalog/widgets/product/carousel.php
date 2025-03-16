@@ -56,6 +56,7 @@ class ModulesXCatalogXWidgetsXProductXCarousel extends ProductBase
                     'custom' => __('Custom'),
                 ],
                 'default' => 'product',
+                'save_default' => true,
             ]
         );
 
@@ -86,7 +87,7 @@ class ModulesXCatalogXWidgetsXProductXCarousel extends ProductBase
                 'type' => ControlsManager::SLIDER,
                 'size_units' => ['px', 'em'],
                 'selectors' => [
-                    '{{WRAPPER}} .swiper-container:not(.swiper-container-initialized) .swiper-wrapper' => 'grid-column-gap: {{SIZE}}{{UNIT}};',
+                    '{{WRAPPER}} .swiper:not(.swiper-initialized) .swiper-wrapper' => 'grid-column-gap: {{SIZE}}{{UNIT}};',
                 ],
                 'frontend_available' => true,
                 'render_type' => 'none',
@@ -151,7 +152,7 @@ class ModulesXCatalogXWidgetsXProductXCarousel extends ProductBase
                 'size_units' => ['px', '%'],
                 'separator' => '',
                 'selectors' => [
-                    $product_selector => 'border-radius: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+                    "{{WRAPPER}} .swiper-slide, $product_selector" => 'border-radius: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
                 ],
             ]
         );
@@ -262,7 +263,7 @@ class ModulesXCatalogXWidgetsXProductXCarousel extends ProductBase
 
     protected function render()
     {
-        if (empty($this->context->currency->id)) {
+        if (empty($GLOBALS['context']->currency->id)) {
             return;
         }
         $settings = $this->getSettingsForDisplay();
@@ -289,14 +290,9 @@ class ModulesXCatalogXWidgetsXProductXCarousel extends ProductBase
         if ('' !== $settings['heading']) {
             $this->addRenderAttribute('heading', 'class', 'elementor-heading-title');
             $settings['heading_display'] && $this->addRenderAttribute('heading', 'class', 'ce-display-' . $settings['heading_display']);
-
             $this->addInlineEditingAttributes('heading');
-            printf(
-                '<%1$s %2$s>%3$s</%1$s>',
-                $settings['heading_size'],
-                $this->getRenderAttributeString('heading'),
-                $settings['heading']
-            );
+
+            echo "<{$settings['heading_size']} {$this->getRenderAttributeString('heading')}>{$settings['heading']}</{$settings['heading_size']}>";
         }
 
         $slides = [];
@@ -314,7 +310,7 @@ class ModulesXCatalogXWidgetsXProductXCarousel extends ProductBase
                 return;
             }
             foreach ($products as $product) {
-                $slides[] = '<div class="swiper-slide">' . $this->context->smarty->fetch($tpl, null, null, ['product' => $product]) . '</div>';
+                $slides[] = '<div class="swiper-slide">' . $GLOBALS['smarty']->fetch($tpl, null, null, ['product' => $product]) . '</div>';
             }
         }
 

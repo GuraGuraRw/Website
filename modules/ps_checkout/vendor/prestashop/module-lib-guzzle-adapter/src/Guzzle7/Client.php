@@ -9,7 +9,7 @@ use GuzzleHttp\ClientInterface;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Middleware;
 use GuzzleHttp\Utils;
-use Prestashop\ModuleLibGuzzleAdapter\Interfaces\HttpClientInterface;
+use Psr\Http\Client\ClientInterface as ClientClientInterface;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 
@@ -20,28 +20,26 @@ use Psr\Http\Message\ResponseInterface;
  *
  * @see https://github.com/php-http/guzzle7-adapter/blob/master/src/Client.php
  */
-class Client implements HttpClientInterface
+class Client implements ClientClientInterface
 {
     /**
      * @var ClientInterface
      */
-    private $client;
+    private $guzzle;
 
-    public function __construct(ClientInterface $client = null)
+    public function __construct(?ClientInterface $guzzle = null)
     {
-        if (!$client) {
-            $client = self::buildClient();
+        if (!$guzzle) {
+            $guzzle = self::buildClient();
         }
 
-        $this->client = $client;
+        $this->guzzle = $guzzle;
     }
 
     /**
      * Factory method to create the Guzzle 7 adapter with custom Guzzle configuration.
      *
      * @param array<string, mixed> $config
-     *
-     * @return self
      */
     public static function createWithConfig(array $config): Client
     {
@@ -61,7 +59,7 @@ class Client implements HttpClientInterface
      */
     public function sendAsyncRequest(RequestInterface $request): Promise
     {
-        $promise = $this->client->sendAsync($request);
+        $promise = $this->guzzle->sendAsync($request);
 
         return new Promise($promise, $request);
     }

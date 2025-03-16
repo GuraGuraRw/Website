@@ -14,6 +14,8 @@ if (!defined('_PS_VERSION_')) {
 
 class ModulesXThemeXWidgetsXSiteTitle extends WidgetHeading
 {
+    const HELP_URL = '';
+
     public function getName()
     {
         return 'theme-site-title';
@@ -37,6 +39,11 @@ class ModulesXThemeXWidgetsXSiteTitle extends WidgetHeading
     public function getKeywords()
     {
         return ['shop', 'title', 'name'];
+    }
+
+    protected function isDynamicContent()
+    {
+        return true;
     }
 
     protected function _registerControls()

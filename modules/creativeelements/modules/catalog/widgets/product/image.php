@@ -14,6 +14,8 @@ if (!defined('_PS_VERSION_')) {
 
 class ModulesXCatalogXWidgetsXProductXImage extends WidgetImage
 {
+    const HELP_URL = '';
+
     const REMOTE_RENDER = true;
 
     public function getName()
@@ -39,6 +41,11 @@ class ModulesXCatalogXWidgetsXProductXImage extends WidgetImage
     public function getKeywords()
     {
         return ['shop', 'store', 'image', 'picture', 'product', 'cover', 'lightbox'];
+    }
+
+    protected function isDynamicContent()
+    {
+        return true;
     }
 
     protected function _registerControls()
@@ -118,7 +125,7 @@ class ModulesXCatalogXWidgetsXProductXImage extends WidgetImage
                 'options' => [
                     'none' => __('None'),
                     'file' => __('Lightbox'),
-                    'product' => __('Product'),
+                    'product' => __('Product', 'Shop.Theme.Catalog'),
                     'custom' => __('Custom URL'),
                 ],
                 'default' => 'file',
@@ -137,9 +144,7 @@ class ModulesXCatalogXWidgetsXProductXImage extends WidgetImage
 
     public function onImport($widget)
     {
-        $sizes = array_map(function ($size) {
-            return $size['name'];
-        }, \ImageType::getImagesTypes('products'));
+        $sizes = array_column(\ImageType::getImagesTypes('products'), 'name');
 
         if (isset($widget['settings']['image_size']) && !in_array($widget['settings']['image_size'], $sizes)) {
             $home = \ImageType::getFormattedName('home');
@@ -162,8 +167,7 @@ class ModulesXCatalogXWidgetsXProductXImage extends WidgetImage
 
     protected function render()
     {
-        $context = \Context::getContext();
-        $product = &$context->smarty->tpl_vars['product']->value;
+        $product = $GLOBALS['smarty']->tpl_vars['product']->value;
         $settings = $this->getSettingsForDisplay();
         $index = (int) $settings['image_index'] - 1;
 
@@ -175,15 +179,16 @@ class ModulesXCatalogXWidgetsXProductXImage extends WidgetImage
             if (!$settings['show_no_image']) {
                 return;
             }
-            $image = Helper::getNoImage();
+            $image = $GLOBALS['smarty']->tpl_vars['urls']->value['no_picture_image'];
         }
 
         $caption = $image['legend'];
         $image_by_size = &$image['bySize'][$settings['image_size']];
+        $ratio = round($image_by_size['width'] / $image_by_size['height'], 3);
         $srcset = ["{$image_by_size['url']} {$image_by_size['width']}w"];
 
         foreach ($image['bySize'] as $size => &$img) {
-            if ($settings['image_size'] !== $size) {
+            if ($settings['image_size'] !== $size && round($img['width'] / $img['height'], 3) === $ratio) {
                 $srcset[] = "{$img['url']} {$img['width']}w";
             }
         }

@@ -21,6 +21,8 @@ if (!defined('_PS_VERSION_')) {
  */
 class WidgetCounter extends WidgetBase
 {
+    const HELP_URL = 'http://docs.webshopworks.com/creative-elements/86-widgets/general-widgets/307-counter-widget';
+
     /**
      * Get widget name.
      *
@@ -89,6 +91,11 @@ class WidgetCounter extends WidgetBase
     public function getKeywords()
     {
         return ['counter'];
+    }
+
+    protected function isDynamicContent()
+    {
+        return false;
     }
 
     /**

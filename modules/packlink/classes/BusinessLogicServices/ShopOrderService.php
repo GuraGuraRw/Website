@@ -1,6 +1,6 @@
 <?php
 /**
- * 2024 Packlink
+ * 2025 Packlink
  *
  * NOTICE OF LICENSE
  *
@@ -10,7 +10,7 @@
  * http://www.apache.org/licenses/LICENSE-2.0.txt
  *
  * @author    Packlink <support@packlink.com>
- * @copyright 2024 Packlink Shipping S.L
+ * @copyright 2025 Packlink Shipping S.L
  * @license   http://www.apache.org/licenses/LICENSE-2.0.txt  Apache License 2.0
  */
 namespace Packlink\PrestaShop\Classes\BusinessLogicServices;
@@ -309,7 +309,7 @@ class ShopOrderService implements \Packlink\BusinessLogic\Order\Interfaces\ShopO
             $link = new \Link();
 
             if (version_compare(_PS_VERSION_, '1.7.0.0', '<')) {
-                $imageType = \ImageType::getFormattedName('home');
+                $imageType = \ImageType::getFormatedName('home');
             } else {
                 $imageType = \ImageType::getFormattedName('home');
             }

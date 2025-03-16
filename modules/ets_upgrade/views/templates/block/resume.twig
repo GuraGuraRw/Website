@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ 'Resume upgrade'|trans }}</title>
+    <link type="text/css" rel="stylesheet" href="{{ psBaseUri }}modules/ets_upgrade/views/css/admin.css"/>
+    <link type="text/css" rel="stylesheet" href="{{ psBaseUri }}modules/ets_upgrade/views/css/resume.css"/>
+    <script src="{{ psBaseUri }}modules/ets_upgrade/views/js/jquery-1.11.0.min.js"></script>
+    <script src="{{ psBaseUri }}modules/ets_upgrade/views/js/jquery.xml2json.js"></script>
+    {#--- Block javascript ---#}
+    {% include '@ModuleAutoUpgrade/block/blockJs.twig' %}
+    {#--- End block javascript ---#}
+    <script src="{{ psBaseUri }}modules/ets_upgrade/views/js/jquery.form.js"></script>
+    <script src="{{ psBaseUri }}modules/ets_upgrade/views/js/upgrade.function.js"></script>
+    <script src="{{ psBaseUri }}modules/ets_upgrade/views/js/upgrade.js"></script>
+    <script src="{{ psBaseUri }}modules/ets_upgrade/views/js/resume.js"></script>
+</head>
+<body class="bootstrap ets_autoup_resume_wrap">
+    <div class="ets_table">
+        <div class="ets_table-cell">
+        <div class="ets_autoup_panel">
+            <div class="ets_autoup_form">
+                <form class="ets_autoup_resume_form" action="{{ currentIndex ~ 'resume.php'|raw }}" enctype="multipart/form-data" method="POST">
+                    <img src="{{ pathImg|raw }}resume.png" alt="{{ 'Resume upgrade'|trans }}"/>
+                    {% if errorMessage is defined or certificate is empty %}
+                        <h4 class="panel-heading">{{ 'Resume upgrade'|trans }}</h4>
+                        {% if errorMessage %}<div class="alert alert-danger">{{ errorMessage }}</div>{% endif %}
+                        <div class="panel">
+                            <div class="form-group flex-center flex">
+                                <label class="form-control">{{ 'Access key'|trans }}</label>
+                                <input type="text" name="key" autocomplete="off" value="{{ certificate }}">
+                                <button type="submit" name="ets_autoup_submit">{{ 'Submit'|trans }}</button>
+                                {% if md5KeyCheck %}<p class="ets_autoup_help_block alert-info">
+                                    {{ 'If you lost the access key, you can find it in: %s'|trans([md5KeyCheck]) }}
+                                </p>{% endif %}
+                            </div>
+                        </div>
+                    {% else %}
+                        <input type="hidden" name="key" autocomplete="off" value="{{ certificate }}">
+                        <div class="ets_autoup_form">
+    
+                            {#--- Defines ---#}
+                            {% set upgrading = (resumeNextParams is defined and resumeNextParams == -1) %}
+                            {% set unfinished = (not resumeNextParams is defined or resumeNextParams is empty)%}
+                            {#--- End defines ---#}
+    
+                            {% if upgrading %}
+                                <p class="alert alert-warning">{{ 'Another upgrade is being processed! Try to reload this page in 1 minute.'|trans }}</p>
+                            {% else %}
+                                {#---Warning upgrade---#}
+                                {% if unfinished %}
+                                    <p class="alert alert-warning">{{ 'No unfinished upgrade available.'|trans }}</p>
+                                {% endif %}
+    
+                                {# Log info #}
+                                {% if resumeNextParams is defined and resumeNextParams %}
+                                    <div class="ets_autoup_activity_log">
+                                        <p><strong>{{ 'Running tasks'|trans }}</strong> : {{ resumeNextParams.next }}</p>
+                                        <p><strong>{{ 'Currently processing'|trans }}</strong> : {{ resumeNextParams.next_desc }}</p>
+    
+                                        {# Info #}
+                                        {% if resumeNextParams.nextQuickInfo %}
+                                            <div class="nextQuickInfo">
+                                                <h3>{{ 'Latest logs:'|trans }}</h3>
+                                                <div id="nextQuickInfo" class="clear processing">
+                                                {% for item in resumeNextParams.nextQuickInfo %}
+                                                    <span>{{ item|raw }}</span><br>
+                                                {% endfor %}
+                                                </div>
+                                            </div>
+                                        {% endif %}
+    
+                                        {# Error #}
+                                        {% if resumeNextParams.nextErrors %}
+                                            <div class="nextErrors">
+                                                <h3>{{ 'Error logs:'|trans }}</h3>
+                                                <div id="nextErrors" class="clear processing">
+                                                {% for item in resumeNextParams.nextErrors %}
+                                                    <span>{{ item|raw }}</span><br>
+                                                {% endfor %}
+                                                </div>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                {% endif %}
+                                {# End log info #}
+                            {% endif %}
+    
+                            <div class="ug-ui-buttons">
+                                {# Button rollback#}
+                                {% if availableBackups is defined and availableBackups %}
+                                    <a class="ets_autoup_btn_rollback btn btn-default" target="_blank" href="{{ rollbackLink|raw }}">{{ 'Rollback'|trans }}</a>
+                                {% endif %}
+                                {# End button rollback #}
+                                {% if not upgrading %}
+                                    {% if unfinished %}
+                                        <a class="ets_autoup_btn_upgrade btn btn-default" target="_blank" href="{{ upgradeLink|raw }}">{{ 'Upgrade now'|trans }}</a>
+                                    {% else %}
+                                        <button class="ets_autoup_btn_resume" name="resume" type="button">{{ 'Resume'|trans }}</button>
+                                    {% endif %}
+                                {% endif %}
+                                {% if logLink %}<a class="btn btn-default" href="{{ logLink|raw }}" target="_blank">{{ 'View upgrade log'|trans }}</a>{% endif %}
+                            </div>
+    
+                        </div>
+                    {% endif %}
+                </form>
+            </div>
+        </div>
+    
+        {#--- Block process ---#}
+        <div class="ets_autoup_form_upgrade">
+    
+            {#---Block process upgrade---#}
+            {% include '@ModuleAutoUpgrade/block/process.twig' %}
+            {#---End process upgrade---#}
+    
+            {#---Block resuilt---#}
+            {% include '@ModuleAutoUpgrade/block/result.twig' %}
+            {#---End Block resuilt---#}
+    
+            {#---Block steps---#}
+            {% include '@ModuleAutoUpgrade/block/blockStep.twig' %}
+            {#---End block steps---#}
+    
+        </div>
+    
+        {#--- Block bottom ---#}
+        {% include '@ModuleAutoUpgrade/block/blockBottom.twig' %}
+        {#--- End block bottom ---#}
+        </div>
+    </div>
+</body>
+</html>

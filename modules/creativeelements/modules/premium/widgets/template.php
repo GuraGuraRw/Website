@@ -44,14 +44,13 @@ class ModulesXPremiumXWidgetsXTemplate extends WidgetBase
     protected function getTemplateOptions()
     {
         $options = [];
-        $ps = _DB_PREFIX_;
-
-        if ($rows = \Db::getInstance()->executeS("
-            SELECT `id_ce_template` AS id, `title`, `type` FROM `{$ps}ce_template`
-            WHERE `active` = 1 AND `type` IN ('block', 'page')
-        ")) {
+        $rows = \Db::getInstance()->executeS('
+            SELECT `id_ce_template` AS id, `title`, `type` FROM ' . _DB_PREFIX_ . 'ce_template
+            WHERE `active` = 1 AND `type` IN ("section", "page")
+        ');
+        if ($rows) {
             $types = [
-                'block' => __('Block'),
+                'section' => __('Section'),
                 'page' => __('Page'),
             ];
             foreach ($rows as &$row) {
@@ -65,15 +64,14 @@ class ModulesXPremiumXWidgetsXTemplate extends WidgetBase
     protected function getContentOptions()
     {
         $options = [];
-        $ps = _DB_PREFIX_;
-        $id_lang = (int) $this->context->language->id;
-        $id_shop = (int) $this->context->shop->id;
-
-        if ($rows = \Db::getInstance()->executeS("
-            SELECT c.`id_ce_content` AS id, cl.`title`, c.`hook` FROM `{$ps}ce_content` c
-            INNER JOIN `{$ps}ce_content_lang` cl ON cl.`id_ce_content` = c.`id_ce_content` AND cl.`id_lang` = $id_lang AND cl.`id_shop` = $id_shop
+        $id_lang = $GLOBALS['language']->id;
+        $id_shop = $GLOBALS['context']->shop->id;
+        $rows = \Db::getInstance()->executeS('
+            SELECT c.`id_ce_content` AS id, cl.`title`, c.`hook` FROM ' . _DB_PREFIX_ . 'ce_content c
+            INNER JOIN ' . _DB_PREFIX_ . 'ce_content_lang cl ON cl.`id_ce_content` = c.`id_ce_content` AND cl.`id_lang` = ' . (int) $id_lang . ' AND cl.`id_shop` = ' . (int) $id_shop . '
             WHERE c.`active` = 1 AND c.`id_product` = 0
-        ")) {
+        ');
+        if ($rows) {
             foreach ($rows as &$row) {
                 $options[$row['id']] = "#{$row['id']} {$row['title']} ({$row['hook']})";
             }
@@ -84,8 +82,6 @@ class ModulesXPremiumXWidgetsXTemplate extends WidgetBase
 
     protected function _registerControls()
     {
-        $is_admin = $this->context->controller instanceof \AdminCEEditorController;
-
         $this->startControlsSection(
             'section_template',
             [
@@ -99,6 +95,7 @@ class ModulesXPremiumXWidgetsXTemplate extends WidgetBase
                 'label' => __('Type'),
                 'type' => ControlsManager::SELECT,
                 'options' => [
+                    'cms' => 'CMS',
                     'content' => __('Content Anywhere'),
                     'template' => __('Saved Templates'),
                 ],
@@ -115,7 +112,7 @@ class ModulesXPremiumXWidgetsXTemplate extends WidgetBase
                 'select2options' => [
                     'placeholder' => __('Select...'),
                 ],
-                'options' => $is_admin ? $this->getTemplateOptions() : [],
+                'options' => _CE_ADMIN_ ? $this->getTemplateOptions() : [],
                 'condition' => [
                     'type' => 'template',
                 ],
@@ -131,9 +128,27 @@ class ModulesXPremiumXWidgetsXTemplate extends WidgetBase
                 'select2options' => [
                     'placeholder' => __('Select...'),
                 ],
-                'options' => $is_admin ? $this->getContentOptions() : [],
+                'options' => _CE_ADMIN_ ? $this->getContentOptions() : [],
                 'condition' => [
                     'type' => 'content',
+                ],
+            ]
+        );
+
+        $this->addControl(
+            'cms_id',
+            [
+                'show_label' => false,
+                'label_block' => true,
+                'type' => ControlsManager::SELECT2,
+                'select2options' => [
+                    'placeholder' => __('Search & Select'),
+                    'ajax' => [
+                        'get' => 'Cms',
+                    ],
+                ],
+                'condition' => [
+                    'type' => 'cms',
                 ],
             ]
         );
@@ -147,20 +162,15 @@ class ModulesXPremiumXWidgetsXTemplate extends WidgetBase
 
         if ('template' === $settings['type']) {
             $uid = new UId($settings['template_id'], UId::TEMPLATE);
-        } elseif ('content' === $settings['type']) {
-            $uid = new UId($settings['content_id'], UId::CONTENT, $this->context->language->id, $this->context->shop->id);
+        } else {
+            $id_type = 'cms' === $settings['type'] ? UId::CMS : UId::CONTENT;
+            $uid = new UId($settings["{$settings['type']}_id"], $id_type, $GLOBALS['language']->id, $GLOBALS['context']->shop->id);
         }
+
         $uid->id && print Plugin::$instance->frontend->getBuilderContentForDisplay($uid);
     }
 
     public function renderPlainContent()
     {
-    }
-
-    public function __construct($data = [], $args = [])
-    {
-        $this->context = \Context::getContext();
-
-        parent::__construct($data, $args);
     }
 }

@@ -38,7 +38,7 @@ class CETemplate extends ObjectModel
 
     public function add($auto_date = true, $null_values = false)
     {
-        $this->id_employee = Context::getContext()->employee->id;
+        $this->id_employee = $GLOBALS['employee']->id;
 
         return parent::add($auto_date, $null_values);
     }
@@ -54,21 +54,16 @@ class CETemplate extends ObjectModel
 
     public static function getTypeById($id)
     {
-        $db = Db::getInstance();
-        $table = $db->escape(_DB_PREFIX_ . static::$definition['table']);
-        $primary = $db->escape(static::$definition['primary']);
-
-        return $db->getValue("SELECT type FROM $table WHERE $primary = " . (int) $id);
+        return Db::getInstance()->getValue(
+            'SELECT `type` FROM ' . _DB_PREFIX_ . bqSQL(static::$definition['table']) . ' WHERE `' . bqSQL(static::$definition['primary']) . '` = ' . (int) $id
+        );
     }
 
     public static function getKitOptions()
     {
-        $table = _DB_PREFIX_ . 'ce_template';
-
-        return Db::getInstance()->executeS("
-            SELECT `id_ce_template` AS `value`, CONCAT('#', `id_ce_template`, ' ', `title`) AS `name` FROM $table
-            WHERE `active` = 1 AND `type` = 'kit'
-            ORDER BY `title`
-        ") ?: [];
+        return Db::getInstance()->executeS('
+            SELECT `id_ce_template` AS `value`, CONCAT("#", `id_ce_template`, " ", `title`) AS `name`
+            FROM ' . _DB_PREFIX_ . 'ce_template WHERE `active` = 1 AND `type` = "kit" ORDER BY `title`
+        ') ?: [];
     }
 }

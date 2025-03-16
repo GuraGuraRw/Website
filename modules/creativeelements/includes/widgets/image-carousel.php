@@ -24,6 +24,8 @@ class WidgetImageCarousel extends WidgetBase
 {
     use CarouselTrait;
 
+    const HELP_URL = 'http://docs.webshopworks.com/creative-elements/86-widgets/general-widgets/306-image-carousel-widget';
+
     /**
      * Get widget name.
      *
@@ -80,6 +82,11 @@ class WidgetImageCarousel extends WidgetBase
         return ['image', 'photo', 'visual', 'carousel', 'slider'];
     }
 
+    protected function isDynamicContent()
+    {
+        return false;
+    }
+
     /**
      * Register image carousel widget controls.
      *
@@ -120,7 +127,6 @@ class WidgetImageCarousel extends WidgetBase
                 'label' => __('Choose Image'),
                 'type' => ControlsManager::MEDIA,
                 'seo' => true,
-                'excludeLoading' => true,
                 'dynamic' => [
                     'active' => true,
                 ],
@@ -278,6 +284,7 @@ class WidgetImageCarousel extends WidgetBase
         $this->endControlsSection();
 
         $this->registerCarouselSection([
+            'lazyload' => true,
             'variable_width' => true,
         ]);
 
@@ -312,7 +319,7 @@ class WidgetImageCarousel extends WidgetBase
                     'size' => 20,
                 ],
                 'selectors' => [
-                    '{{WRAPPER}} .swiper-container:not(.swiper-container-initialized) .swiper-wrapper' => 'grid-column-gap: {{SIZE}}px;',
+                    '{{WRAPPER}} .swiper:not(.swiper-initialized) .swiper-wrapper' => 'grid-column-gap: {{SIZE}}px;',
                 ],
                 'condition' => [
                     'slides_to_show!' => '1',
@@ -349,7 +356,7 @@ class WidgetImageCarousel extends WidgetBase
                     'slides_to_show!' => '1',
                 ],
                 'selectors' => [
-                    '{{WRAPPER}} .swiper-wrapper' => 'display: flex; align-items: {{VALUE}};',
+                    '{{WRAPPER}} .swiper-wrapper' => 'align-items: {{VALUE}};',
                 ],
             ]
         );
@@ -369,7 +376,7 @@ class WidgetImageCarousel extends WidgetBase
                 'type' => ControlsManager::DIMENSIONS,
                 'size_units' => ['px', '%'],
                 'selectors' => [
-                    '{{WRAPPER}} .elementor-image-carousel .swiper-slide-image' => 'border-radius: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+                    '{{WRAPPER}} .swiper-slide > *, {{WRAPPER}} .swiper-slide-image' => 'border-radius: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
                 ],
             ]
         );
@@ -469,10 +476,8 @@ class WidgetImageCarousel extends WidgetBase
                 $image = $import_images->import($img);
 
                 $carousel[] = [
-                    '_imported' => true,
                     '_id' => Utils::generateRandomString(),
                     'image' => $image ?: [
-                        'id' => 0,
                         'url' => Utils::getPlaceholderImageSrc(),
                     ],
                 ];
@@ -507,18 +512,16 @@ class WidgetImageCarousel extends WidgetBase
             if (empty($item['image']['url'])) {
                 continue;
             }
-            $image_html = GroupControlImageSize::getAttachmentImageHtml($item, 'image', 'auto', 'swiper-slide-image');
+            $image_html = GroupControlImageSize::getAttachmentImageHtml($item, 'image', 'swiper-slide-image');
             $link_tag = '';
             $link = $this->getLinkUrl($item, $settings['link_to']);
 
             if ($link) {
                 $link_key = 'link_' . $index;
 
-                $this->addLightboxDataAttributes($link_key, $item['image']['id'], $settings['open_lightbox'], $group);
+                $this->addLightboxDataAttributes($link_key, null, $settings['open_lightbox'], $group);
 
-                if ($edit_mode) {
-                    $this->addRenderAttribute($link_key, 'class', 'elementor-clickable');
-                }
+                $edit_mode && $this->addRenderAttribute($link_key, 'class', 'elementor-clickable');
 
                 $this->addLinkAttributes($link_key, $link);
 
@@ -526,6 +529,8 @@ class WidgetImageCarousel extends WidgetBase
             }
             $slide_html = '<div class="swiper-slide">' . $link_tag .
                 '<figure class="swiper-slide-inner">' . $image_html;
+
+            empty($item['image']['loading']) && $slide_html .= '<div class="swiper-lazy-preloader"></div>';
 
             $item['caption'] && $slide_html .= '<figcaption class="elementor-image-carousel-caption">' . $item['caption'] . '</figcaption>';
 

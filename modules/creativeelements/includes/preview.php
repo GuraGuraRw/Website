@@ -73,7 +73,7 @@ class Preview extends App
      */
     public function init()
     {
-        if (is_admin() || !$this->isPreviewMode()) {
+        if (_CE_ADMIN_ || !$this->isPreviewMode()) {
             return;
         }
 
@@ -160,7 +160,7 @@ class Preview extends App
             return false;
         }
 
-        if (empty($post_id)) {
+        if (!$post_id) {
             // $post_id = get_the_ID();
             $post_id = \CreativeElements::getPreviewUId(false);
         }

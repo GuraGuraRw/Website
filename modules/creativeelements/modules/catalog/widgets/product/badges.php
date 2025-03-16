@@ -43,8 +43,6 @@ class ModulesXCatalogXWidgetsXProductXBadges extends WidgetBase
 
     protected function _registerControls()
     {
-        $t = \Context::getContext()->getTranslator();
-
         $this->startControlsSection(
             'section_product_badges',
             [
@@ -73,11 +71,11 @@ class ModulesXCatalogXWidgetsXProductXBadges extends WidgetBase
                 'type' => ControlsManager::SELECT2,
                 'options' => [
                     'sale' => __('Sale'),
-                    'new' => $t->trans('New', [], 'Shop.Theme.Catalog'),
-                    'pack' => $t->trans('Pack', [], 'Shop.Theme.Catalog'),
+                    'new' => __('New', 'Shop.Theme.Catalog'),
+                    'pack' => __('Pack', 'Shop.Theme.Catalog'),
                     'out' => __('Out-of-Stock'),
-                    'online' => $t->trans('Online only', [], 'Shop.Theme.Catalog'),
-                    'onsale' => $t->trans('On sale!', [], 'Shop.Theme.Catalog'),
+                    'online' => __('Online only', 'Shop.Theme.Catalog'),
+                    'onsale' => __('On sale!', 'Shop.Theme.Catalog'),
                 ],
                 'default' => ['sale', 'new', 'pack', 'out', 'online'],
                 'label_block' => true,
@@ -117,7 +115,7 @@ class ModulesXCatalogXWidgetsXProductXBadges extends WidgetBase
         $this->addControl(
             'new_text',
             [
-                'label' => $t->trans('New', [], 'Shop.Theme.Catalog'),
+                'label' => __('New', 'Shop.Theme.Catalog'),
                 'type' => ControlsManager::TEXT,
                 'placeholder' => __('Default'),
                 'conditions' => [
@@ -135,7 +133,7 @@ class ModulesXCatalogXWidgetsXProductXBadges extends WidgetBase
         $this->addControl(
             'pack_text',
             [
-                'label' => $t->trans('Pack', [], 'Shop.Theme.Catalog'),
+                'label' => __('Pack', 'Shop.Theme.Catalog'),
                 'type' => ControlsManager::TEXT,
                 'placeholder' => __('Default'),
                 'conditions' => [
@@ -171,7 +169,7 @@ class ModulesXCatalogXWidgetsXProductXBadges extends WidgetBase
         $this->addControl(
             'online_text',
             [
-                'label' => $t->trans('Online only', [], 'Shop.Theme.Catalog'),
+                'label' => __('Online only', 'Shop.Theme.Catalog'),
                 'type' => ControlsManager::TEXT,
                 'placeholder' => __('Default'),
                 'conditions' => [
@@ -189,7 +187,7 @@ class ModulesXCatalogXWidgetsXProductXBadges extends WidgetBase
         $this->addControl(
             'onsale_text',
             [
-                'label' => $t->trans('On sale!', [], 'Shop.Theme.Catalog'),
+                'label' => __('On sale!', 'Shop.Theme.Catalog'),
                 'type' => ControlsManager::TEXT,
                 'placeholder' => __('Default'),
                 'conditions' => [
@@ -253,10 +251,8 @@ class ModulesXCatalogXWidgetsXProductXBadges extends WidgetBase
                     'size' => 5,
                 ],
                 'selectors' => [
-                    'body:not(.lang-rtl) {{WRAPPER}} .ce-product-badge' => 'margin: 0 {{SIZE}}{{UNIT}} {{SIZE}}{{UNIT}} 0',
-                    'body:not(.lang-rtl) {{WRAPPER}} .ce-product-badges' => 'margin: 0 -{{SIZE}}{{UNIT}} -{{SIZE}}{{UNIT}} 0',
-                    'body.lang-rtl {{WRAPPER}} .ce-product-badge' => 'margin: 0 0 {{SIZE}}{{UNIT}} {{SIZE}}{{UNIT}}',
-                    'body.lang-rtl {{WRAPPER}} .ce-product-badges' => 'margin: 0 0 -{{SIZE}}{{UNIT}} -{{SIZE}}{{UNIT}}',
+                    '{{WRAPPER}} .ce-product-badges' => 'margin: 0 0 -{{SIZE}}{{UNIT}}; margin-inline-end: -{{SIZE}}{{UNIT}};',
+                    '{{WRAPPER}} .ce-product-badge' => 'margin: 0 0 {{SIZE}}{{UNIT}}; margin-inline-end: {{SIZE}}{{UNIT}};',
                 ],
             ]
         );
@@ -337,7 +333,7 @@ class ModulesXCatalogXWidgetsXProductXBadges extends WidgetBase
         $this->startControlsTab(
             'tab_badge_new',
             [
-                'label' => __('New'),
+                'label' => __('New', 'Shop.Theme.Catalog'),
             ]
         );
 
@@ -379,7 +375,7 @@ class ModulesXCatalogXWidgetsXProductXBadges extends WidgetBase
         $this->startControlsTab(
             'tab_badge_pack',
             [
-                'label' => __('Pack'),
+                'label' => __('Pack', 'Shop.Theme.Catalog'),
             ]
         );
 
@@ -463,7 +459,7 @@ class ModulesXCatalogXWidgetsXProductXBadges extends WidgetBase
         $this->startControlsTab(
             'tab_badge_online',
             [
-                'label' => __('Online only'),
+                'label' => __('Online only', 'Shop.Theme.Catalog'),
             ]
         );
 
@@ -572,7 +568,7 @@ class ModulesXCatalogXWidgetsXProductXBadges extends WidgetBase
     protected function render()
     {
         $settings = $this->getSettingsForDisplay();
-        $product = &\Context::getContext()->smarty->tpl_vars['product']->value;
+        $product = $GLOBALS['smarty']->tpl_vars['product']->value;
         $badges = [];
 
         foreach ($settings['badges'] as $badge) {

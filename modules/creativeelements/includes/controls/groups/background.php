@@ -153,7 +153,7 @@ class GroupControlBackground extends GroupControlBase
             ],
             'render_type' => 'ui',
             'condition' => [
-                'background' => ['gradient'],
+                'background' => 'gradient',
             ],
             'of_type' => 'gradient',
         ];
@@ -164,7 +164,7 @@ class GroupControlBackground extends GroupControlBase
             'default' => '#f2295b',
             'render_type' => 'ui',
             'condition' => [
-                'background' => ['gradient'],
+                'background' => 'gradient',
             ],
             'of_type' => 'gradient',
         ];
@@ -179,7 +179,7 @@ class GroupControlBackground extends GroupControlBase
             ],
             'render_type' => 'ui',
             'condition' => [
-                'background' => ['gradient'],
+                'background' => 'gradient',
             ],
             'of_type' => 'gradient',
         ];
@@ -194,7 +194,7 @@ class GroupControlBackground extends GroupControlBase
             'default' => 'linear',
             'render_type' => 'ui',
             'condition' => [
-                'background' => ['gradient'],
+                'background' => 'gradient',
             ],
             'of_type' => 'gradient',
         ];
@@ -216,7 +216,7 @@ class GroupControlBackground extends GroupControlBase
                 '{{SELECTOR}}' => 'background-color: transparent; background-image: linear-gradient({{SIZE}}{{UNIT}}, {{color.VALUE}} {{color_stop.SIZE}}{{color_stop.UNIT}}, {{color_b.VALUE}} {{color_b_stop.SIZE}}{{color_b_stop.UNIT}})',
             ],
             'condition' => [
-                'background' => ['gradient'],
+                'background' => 'gradient',
                 'gradient_type' => 'linear',
             ],
             'of_type' => 'gradient',
@@ -241,7 +241,7 @@ class GroupControlBackground extends GroupControlBase
                 '{{SELECTOR}}' => 'background-color: transparent; background-image: radial-gradient(at {{VALUE}}, {{color.VALUE}} {{color_stop.SIZE}}{{color_stop.UNIT}}, {{color_b.VALUE}} {{color_b_stop.SIZE}}{{color_b_stop.UNIT}})',
             ],
             'condition' => [
-                'background' => ['gradient'],
+                'background' => 'gradient',
                 'gradient_type' => 'radial',
             ],
             'of_type' => 'gradient',
@@ -260,8 +260,25 @@ class GroupControlBackground extends GroupControlBase
             ],
             'render_type' => 'template',
             'condition' => [
-                'background' => ['classic'],
+                'background' => 'classic',
             ],
+        ];
+
+        $fields['loading'] = [
+            'label' => __('Loading'),
+            'type' => ControlsManager::SELECT,
+            'options' => [
+                '' => __('Default'),
+                'preload' => __('Preload'),
+            ],
+            'selectors' => [
+                '{{WRAPPER}}' => '/* {{VALUE}} */',
+            ],
+            'condition' => [
+                'background' => 'classic',
+                'image[url]!' => '',
+            ],
+            'of_type' => 'classic',
         ];
 
         $fields['position'] = [
@@ -285,7 +302,7 @@ class GroupControlBackground extends GroupControlBase
                 '{{SELECTOR}}' => 'background-position: {{VALUE}};',
             ],
             'condition' => [
-                'background' => ['classic'],
+                'background' => 'classic',
                 'image[url]!' => '',
             ],
         ];
@@ -327,8 +344,8 @@ class GroupControlBackground extends GroupControlBase
                 '{{SELECTOR}}' => 'background-position: {{SIZE}}{{UNIT}} {{ypos.SIZE}}{{ypos.UNIT}}',
             ],
             'condition' => [
-                'background' => ['classic'],
-                'position' => ['initial'],
+                'background' => 'classic',
+                'position' => 'initial',
                 'image[url]!' => '',
             ],
             'required' => true,
@@ -338,8 +355,8 @@ class GroupControlBackground extends GroupControlBase
                         '{{SELECTOR}}' => 'background-position: {{SIZE}}{{UNIT}} {{ypos_tablet.SIZE}}{{ypos_tablet.UNIT}}',
                     ],
                     'condition' => [
-                        'background' => ['classic'],
-                        'position_tablet' => ['initial'],
+                        'background' => 'classic',
+                        'position_tablet' => 'initial',
                     ],
                 ],
                 ControlsStack::RESPONSIVE_MOBILE => [
@@ -347,8 +364,8 @@ class GroupControlBackground extends GroupControlBase
                         '{{SELECTOR}}' => 'background-position: {{SIZE}}{{UNIT}} {{ypos_mobile.SIZE}}{{ypos_mobile.UNIT}}',
                     ],
                     'condition' => [
-                        'background' => ['classic'],
-                        'position_mobile' => ['initial'],
+                        'background' => 'classic',
+                        'position_mobile' => 'initial',
                     ],
                 ],
             ],
@@ -393,8 +410,8 @@ class GroupControlBackground extends GroupControlBase
                 '{{SELECTOR}}' => 'background-position: {{xpos.SIZE}}{{xpos.UNIT}} {{SIZE}}{{UNIT}}',
             ],
             'condition' => [
-                'background' => ['classic'],
-                'position' => ['initial'],
+                'background' => 'classic',
+                'position' => 'initial',
                 'image[url]!' => '',
             ],
             'required' => true,
@@ -404,8 +421,8 @@ class GroupControlBackground extends GroupControlBase
                         '{{SELECTOR}}' => 'background-position: {{xpos_tablet.SIZE}}{{xpos_tablet.UNIT}} {{SIZE}}{{UNIT}}',
                     ],
                     'condition' => [
-                        'background' => ['classic'],
-                        'position_tablet' => ['initial'],
+                        'background' => 'classic',
+                        'position_tablet' => 'initial',
                     ],
                 ],
                 ControlsStack::RESPONSIVE_MOBILE => [
@@ -413,8 +430,8 @@ class GroupControlBackground extends GroupControlBase
                         '{{SELECTOR}}' => 'background-position: {{xpos_mobile.SIZE}}{{xpos_mobile.UNIT}} {{SIZE}}{{UNIT}}',
                     ],
                     'condition' => [
-                        'background' => ['classic'],
-                        'position_mobile' => ['initial'],
+                        'background' => 'classic',
+                        'position_mobile' => 'initial',
                     ],
                 ],
             ],
@@ -432,7 +449,7 @@ class GroupControlBackground extends GroupControlBase
                 '{{SELECTOR}}' => 'background-attachment: {{VALUE}};',
             ],
             'condition' => [
-                'background' => ['classic'],
+                'background' => 'classic',
                 'image[url]!' => '',
             ],
         ];
@@ -443,7 +460,7 @@ class GroupControlBackground extends GroupControlBase
             'raw' => __('Note: Attachment Fixed works only on desktop.'),
             'separator' => 'none',
             'condition' => [
-                'background' => ['classic'],
+                'background' => 'classic',
                 'image[url]!' => '',
                 'attachment' => 'fixed',
             ],
@@ -464,7 +481,7 @@ class GroupControlBackground extends GroupControlBase
                 '{{SELECTOR}}' => 'background-repeat: {{VALUE}};',
             ],
             'condition' => [
-                'background' => ['classic'],
+                'background' => 'classic',
                 'image[url]!' => '',
             ],
         ];
@@ -484,7 +501,7 @@ class GroupControlBackground extends GroupControlBase
                 '{{SELECTOR}}' => 'background-size: {{VALUE}};',
             ],
             'condition' => [
-                'background' => ['classic'],
+                'background' => 'classic',
                 'image[url]!' => '',
             ],
         ];
@@ -508,8 +525,8 @@ class GroupControlBackground extends GroupControlBase
                 '{{SELECTOR}}' => 'background-size: {{SIZE}}{{UNIT}} auto',
             ],
             'condition' => [
-                'background' => ['classic'],
-                'size' => ['initial'],
+                'background' => 'classic',
+                'size' => 'initial',
                 'image[url]!' => '',
             ],
             'device_args' => [
@@ -518,8 +535,8 @@ class GroupControlBackground extends GroupControlBase
                         '{{SELECTOR}}' => 'background-size: {{SIZE}}{{UNIT}} auto',
                     ],
                     'condition' => [
-                        'background' => ['classic'],
-                        'size_tablet' => ['initial'],
+                        'background' => 'classic',
+                        'size_tablet' => 'initial',
                     ],
                 ],
                 ControlsStack::RESPONSIVE_MOBILE => [
@@ -527,8 +544,8 @@ class GroupControlBackground extends GroupControlBase
                         '{{SELECTOR}}' => 'background-size: {{SIZE}}{{UNIT}} auto',
                     ],
                     'condition' => [
-                        'background' => ['classic'],
-                        'size_mobile' => ['initial'],
+                        'background' => 'classic',
+                        'size_mobile' => 'initial',
                     ],
                 ],
             ],
@@ -541,7 +558,7 @@ class GroupControlBackground extends GroupControlBase
             'description' => __('YouTube/Vimeo link, or link to video file (mp4 is recommended).'),
             'label_block' => true,
             'condition' => [
-                'background' => ['video'],
+                'background' => 'video',
             ],
             'of_type' => 'video',
             'frontend_available' => true,
@@ -553,7 +570,7 @@ class GroupControlBackground extends GroupControlBase
             'description' => __('Specify a start time (in seconds)'),
             'placeholder' => 10,
             'condition' => [
-                'background' => ['video'],
+                'background' => 'video',
             ],
             'of_type' => 'video',
             'frontend_available' => true,
@@ -565,7 +582,7 @@ class GroupControlBackground extends GroupControlBase
             'description' => __('Specify an end time (in seconds)'),
             'placeholder' => 70,
             'condition' => [
-                'background' => ['video'],
+                'background' => 'video',
             ],
             'of_type' => 'video',
             'frontend_available' => true,
@@ -575,7 +592,7 @@ class GroupControlBackground extends GroupControlBase
             'label' => __('Play Once'),
             'type' => ControlsManager::SWITCHER,
             'condition' => [
-                'background' => ['video'],
+                'background' => 'video',
             ],
             'of_type' => 'video',
             'frontend_available' => true,
@@ -585,7 +602,7 @@ class GroupControlBackground extends GroupControlBase
             'label' => __('Play On Mobile'),
             'type' => ControlsManager::SWITCHER,
             'condition' => [
-                'background' => ['video'],
+                'background' => 'video',
             ],
             'of_type' => 'video',
             'frontend_available' => true,
@@ -596,7 +613,7 @@ class GroupControlBackground extends GroupControlBase
             'description' => __('This cover image will replace the background video in case that the video could not be loaded.'),
             'type' => ControlsManager::MEDIA,
             'condition' => [
-                'background' => ['video'],
+                'background' => 'video',
             ],
             'selectors' => [
                 '{{SELECTOR}}' => 'background: url("{{URL}}") 50% 50%; background-size: cover;',
@@ -612,9 +629,9 @@ class GroupControlBackground extends GroupControlBase
                     'name' => 'image',
                     'label' => __('Choose Image'),
                     'type' => ControlsManager::MEDIA,
-                    'default' => [
-                        'url' => '',
-                    ],
+                    'seo' => true,
+                    'exclude_seo_options' => ['loading'],
+                    'default' => ['url' => ''],
                 ],
             ],
             'prevent_empty' => false,
@@ -622,7 +639,7 @@ class GroupControlBackground extends GroupControlBase
                 '<img src="{{ elementor.helpers.getMediaLink(image.url) }}" class="ce-repeater-thumb"><# } #>' .
                 '{{{ image.title || image.alt || image.url.split("/").pop() }}}',
             'condition' => [
-                'background' => ['slideshow'],
+                'background' => 'slideshow',
             ],
             'of_type' => 'slideshow',
             'frontend_available' => true,
@@ -633,7 +650,7 @@ class GroupControlBackground extends GroupControlBase
             'type' => ControlsManager::SWITCHER,
             'default' => 'yes',
             'condition' => [
-                'background' => ['slideshow'],
+                'background' => 'slideshow',
             ],
             'of_type' => 'slideshow',
             'frontend_available' => true,
@@ -644,8 +661,9 @@ class GroupControlBackground extends GroupControlBase
             'type' => ControlsManager::NUMBER,
             'default' => 5000,
             'condition' => [
-                'background' => ['slideshow'],
+                'background' => 'slideshow',
             ],
+            'of_type' => 'slideshow',
             'frontend_available' => true,
         ];
 
@@ -654,14 +672,17 @@ class GroupControlBackground extends GroupControlBase
             'type' => ControlsManager::SELECT,
             'default' => 'fade',
             'options' => [
-                'fade' => 'Fade',
+                'coverflow' => __('Coverflow'),
+                'cube' => __('Cube'),
+                'fade' => __('Fade'),
+                'flip' => __('Flip'),
                 'slide_right' => 'Slide Right',
                 'slide_left' => 'Slide Left',
                 'slide_up' => 'Slide Up',
                 'slide_down' => 'Slide Down',
             ],
             'condition' => [
-                'background' => ['slideshow'],
+                'background' => 'slideshow',
             ],
             'of_type' => 'slideshow',
             'frontend_available' => true,
@@ -672,13 +693,39 @@ class GroupControlBackground extends GroupControlBase
             'type' => ControlsManager::NUMBER,
             'default' => 500,
             'condition' => [
-                'background' => ['slideshow'],
+                'background' => 'slideshow',
             ],
+            'of_type' => 'slideshow',
+            'frontend_available' => true,
+        ];
+
+        $fields['slideshow_background'] = [
+            'raw' => __('Background'),
+            'type' => ControlsManager::RAW_HTML,
+            'condition' => [
+                'background' => 'slideshow',
+            ],
+        ];
+
+        $fields['slideshow_loading'] = [
+            'label' => __('Loading'),
+            'type' => ControlsManager::SELECT,
+            'options' => [
+                '' => __('Default'),
+                'preload' => __('Preload'),
+            ],
+            'selectors' => [
+                '{{WRAPPER}}' => '/* {{VALUE}} */',
+            ],
+            'condition' => [
+                'background' => 'slideshow',
+            ],
+            'of_type' => 'slideshow',
             'frontend_available' => true,
         ];
 
         $fields['slideshow_background_size'] = [
-            'label' => __('Background Size'),
+            'label' => __('Size'),
             'type' => ControlsManager::SELECT,
             'responsive' => true,
             'options' => [
@@ -688,15 +735,17 @@ class GroupControlBackground extends GroupControlBase
                 'contain' => __('Contain'),
             ],
             'selectors' => [
-                '{{SELECTOR}}, {{WRAPPER}} .elementor-background-slideshow__slide__image' => 'background-size: {{VALUE}};',
+                '{{SELECTOR}}' => 'background-size: {{VALUE}};',
+                '{{WRAPPER}} .elementor-background-slideshow__slide__image' => 'object-fit: {{VALUE}};',
             ],
             'condition' => [
-                'background' => ['slideshow'],
+                'background' => 'slideshow',
             ],
+            'of_type' => 'slideshow',
         ];
 
         $fields['slideshow_background_position'] = [
-            'label' => __('Background Position'),
+            'label' => __('Position'),
             'type' => ControlsManager::SELECT,
             'responsive' => true,
             'options' => [
@@ -712,11 +761,13 @@ class GroupControlBackground extends GroupControlBase
                 'bottom right' => _x('Bottom Right', 'Background Control'),
             ],
             'selectors' => [
-                '{{SELECTOR}}, {{WRAPPER}} .elementor-background-slideshow__slide__image' => 'background-position: {{VALUE}};',
+                '{{SELECTOR}}' => 'background-position: {{VALUE}};',
+                '{{WRAPPER}} .elementor-background-slideshow__slide__image' => 'object-position: {{VALUE}};',
             ],
             'condition' => [
-                'background' => ['slideshow'],
+                'background' => 'slideshow',
             ],
+            'of_type' => 'slideshow',
         ];
 
         $fields['slideshow_ken_burns'] = [
@@ -724,7 +775,7 @@ class GroupControlBackground extends GroupControlBase
             'type' => ControlsManager::SWITCHER,
             'separator' => 'before',
             'condition' => [
-                'background' => ['slideshow'],
+                'background' => 'slideshow',
             ],
             'of_type' => 'slideshow',
             'frontend_available' => true,
@@ -739,7 +790,7 @@ class GroupControlBackground extends GroupControlBase
                 'out' => __('Out'),
             ],
             'condition' => [
-                'background' => ['slideshow'],
+                'background' => 'slideshow',
                 'slideshow_ken_burns!' => '',
             ],
             'of_type' => 'slideshow',

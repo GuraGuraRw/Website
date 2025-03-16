@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of the ramsey/uuid library
  *
@@ -11,12 +12,10 @@
  * @link https://packagist.org/packages/ramsey/uuid Packagist
  * @link https://github.com/ramsey/uuid GitHub
  */
-
-namespace Ramsey\Uuid\Provider\Time;
+namespace PrestaShop\Module\PsAccounts\Vendor\Ramsey\Uuid\Provider\Time;
 
 use InvalidArgumentException;
-use Ramsey\Uuid\Provider\TimeProviderInterface;
-
+use PrestaShop\Module\PsAccounts\Vendor\Ramsey\Uuid\Provider\TimeProviderInterface;
 /**
  * FixedTimeProvider uses an previously-generated timestamp to provide the time
  *
@@ -29,7 +28,6 @@ class FixedTimeProvider implements TimeProviderInterface
      * @var int[] Array containing `sec` and `usec` components of a timestamp
      */
     private $fixedTime;
-
     /**
      * Constructs a `FixedTimeProvider` using the provided `$timestamp`
      *
@@ -38,13 +36,11 @@ class FixedTimeProvider implements TimeProviderInterface
      */
     public function __construct(array $timestamp)
     {
-        if (!array_key_exists('sec', $timestamp) || !array_key_exists('usec', $timestamp)) {
+        if (!\array_key_exists('sec', $timestamp) || !\array_key_exists('usec', $timestamp)) {
             throw new InvalidArgumentException('Array must contain sec and usec keys.');
         }
-
         $this->fixedTime = $timestamp;
     }
-
     /**
      * Sets the `usec` component of the timestamp
      *
@@ -54,7 +50,6 @@ class FixedTimeProvider implements TimeProviderInterface
     {
         $this->fixedTime['usec'] = $value;
     }
-
     /**
      * Sets the `sec` component of the timestamp
      *
@@ -64,7 +59,6 @@ class FixedTimeProvider implements TimeProviderInterface
     {
         $this->fixedTime['sec'] = $value;
     }
-
     /**
      * Returns a timestamp array
      *

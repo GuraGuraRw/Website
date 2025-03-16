@@ -5,7 +5,7 @@ namespace PrestaShop\Module\PsAccounts\Vendor\GuzzleHttp;
 use PrestaShop\Module\PsAccounts\Vendor\GuzzleHttp\Promise\EachPromise;
 use PrestaShop\Module\PsAccounts\Vendor\GuzzleHttp\Promise\PromiseInterface;
 use PrestaShop\Module\PsAccounts\Vendor\GuzzleHttp\Promise\PromisorInterface;
-use Psr\Http\Message\RequestInterface;
+use PrestaShop\Module\PsAccounts\Vendor\Psr\Http\Message\RequestInterface;
 /**
  * Sends an iterator of requests concurrently using a capped pool size.
  *

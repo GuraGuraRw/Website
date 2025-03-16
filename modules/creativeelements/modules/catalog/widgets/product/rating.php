@@ -14,6 +14,8 @@ if (!defined('_PS_VERSION_')) {
 
 class ModulesXCatalogXWidgetsXProductXRating extends WidgetStarRating
 {
+    const HELP_URL = '';
+
     const REMOTE_RENDER = true;
 
     public function getName()
@@ -39,6 +41,11 @@ class ModulesXCatalogXWidgetsXProductXRating extends WidgetStarRating
     public function getKeywords()
     {
         return ['shop', 'store', 'rating', 'review', 'comments', 'stars', 'product'];
+    }
+
+    protected function isDynamicContent()
+    {
+        return true;
     }
 
     protected function _registerControls()
@@ -255,7 +262,7 @@ class ModulesXCatalogXWidgetsXProductXRating extends WidgetStarRating
                     'size' => 10,
                 ],
                 'selectors' => [
-                    '{{WRAPPER}} .ce-product-rating__average-grade' => is_rtl() ? 'margin-right: {{SIZE}}{{UNIT}};' : 'margin-left: {{SIZE}}{{UNIT}};',
+                    '{{WRAPPER}} .ce-product-rating__average-grade' => 'margin-inline-start: {{SIZE}}{{UNIT}};',
                 ],
             ]
         );
@@ -306,7 +313,7 @@ class ModulesXCatalogXWidgetsXProductXRating extends WidgetStarRating
                     'size' => 10,
                 ],
                 'selectors' => [
-                    '{{WRAPPER}} .elementor-icon-list-item' => is_rtl() ? 'margin-right: {{SIZE}}{{UNIT}};' : 'margin-left: {{SIZE}}{{UNIT}};',
+                    '{{WRAPPER}} .elementor-icon-list-item' => 'margin-inline-start: {{SIZE}}{{UNIT}};',
                 ],
             ]
         );
@@ -352,7 +359,7 @@ class ModulesXCatalogXWidgetsXProductXRating extends WidgetStarRating
                     ],
                 ],
                 'selectors' => [
-                    '{{WRAPPER}} .elementor-icon-list-text' => is_rtl() ? 'padding-right: {{SIZE}}{{UNIT}};' : 'padding-left: {{SIZE}}{{UNIT}};',
+                    '{{WRAPPER}} .elementor-icon-list-text' => 'padding-inline-start: {{SIZE}}{{UNIT}};',
                 ],
                 'condition' => [
                     'comments_number_icon!' => '',
@@ -402,7 +409,7 @@ class ModulesXCatalogXWidgetsXProductXRating extends WidgetStarRating
                         'size' => 10,
                     ],
                     'selectors' => [
-                        '{{WRAPPER}}.ce-product-rating--layout-inline .elementor-button' => is_rtl() ? 'margin-right: {{SIZE}}{{UNIT}};' : 'margin-left: {{SIZE}}{{UNIT}};',
+                        '{{WRAPPER}}.ce-product-rating--layout-inline .elementor-button' => 'margin-inline-start: {{SIZE}}{{UNIT}};',
                         '{{WRAPPER}}.ce-product-rating--layout-stacked .elementor-button' => 'margin-top: {{SIZE}}{{UNIT}};',
                     ],
                 ]
@@ -565,9 +572,7 @@ class ModulesXCatalogXWidgetsXProductXRating extends WidgetStarRating
                 __('Please install and enable the official "productcomments" module!')
             );
         }
-        $context = \Context::getContext();
-        $t = $context->getTranslator();
-        $product = &$context->smarty->tpl_vars['product']->value;
+        $product = $GLOBALS['smarty']->tpl_vars['product']->value;
         $vars = $productcomments->getWidgetVariables('displayCE', [
             'id_product' => (int) $product['id_product'],
         ]);
@@ -579,7 +584,8 @@ class ModulesXCatalogXWidgetsXProductXRating extends WidgetStarRating
         $average_grade = \Tools::ps_round($vars['average_grade'], 1);
         $has_link = $this->getName() === 'product-rating' && \Tools::getValue('action') !== 'quickview';
         $this->setSettings('rating', $average_grade);
-        $settings = $this->getSettingsForDisplay(); ?>
+        $settings = $this->getSettingsForDisplay();
+        ?>
         <div class="ce-product-rating">
             <?php parent::render(); ?>
         <?php if ($average_grade && $settings['show_average_grade']) { ?>
@@ -591,19 +597,19 @@ class ModulesXCatalogXWidgetsXProductXRating extends WidgetStarRating
                 <span class="elementor-icon-list-icon"><?php echo $cn_icon; ?></span>
             <?php } ?>
                 <span class="elementor-icon-list-text">
-                    <?php echo $settings['comments_number_before'] ?: "{$t->trans('Read user reviews', [], 'Modules.Productcomments.Shop')}: "; ?>
+                    <?php echo $settings['comments_number_before'] ?: __('Read user reviews', 'Modules.Productcomments.Shop') . ': '; ?>
                     <?php echo $nb_comments . $settings['comments_number_after']; ?>
                 </span>
             </a>
         <?php } ?>
         </div>
-        <?php if ($vars['post_allowed'] && $settings['show_post_comment']) { ?>
+        <?php if ($vars['post_allowed'] && !empty($settings['show_post_comment'])) { ?>
             <a class="elementor-button elementor-button--post-comment elementor-size-sm" href="#product-comments-list-header">
             <?php if ($pc_icon = IconsManager::getBcIcon($settings, 'post_comment_icon', ['aria-hidden' => 'true'])) { ?>
                 <span class="elementor-button-icon elementor-align-icon-left"><?php echo $pc_icon; ?></span>
             <?php } ?>
                 <span class="elementor-button-text">
-                    <?php echo $settings['post_comment'] ?: $t->trans('Write your review', [], 'Modules.Productcomments.Shop'); ?>
+                    <?php echo $settings['post_comment'] ?: __('Write your review', 'Modules.Productcomments.Shop'); ?>
                 </span>
             </a>
         <?php } ?>

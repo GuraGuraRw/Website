@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of the ramsey/uuid library
  *
@@ -11,11 +12,9 @@
  * @link https://packagist.org/packages/ramsey/uuid Packagist
  * @link https://github.com/ramsey/uuid GitHub
  */
+namespace PrestaShop\Module\PsAccounts\Vendor\Ramsey\Uuid\Converter;
 
-namespace Ramsey\Uuid\Converter;
-
-use Ramsey\Uuid\Exception\UnsatisfiedDependencyException;
-
+use PrestaShop\Module\PsAccounts\Vendor\Ramsey\Uuid\Exception\UnsatisfiedDependencyException;
 /**
  * NumberConverterInterface converts UUIDs from hexadecimal characters into
  * representations of integers and vice versa
@@ -33,7 +32,6 @@ interface NumberConverterInterface
      * @throws UnsatisfiedDependencyException if `Moontoast\Math\BigNumber` is not present
      */
     public function fromHex($hex);
-
     /**
      * Converts an integer representation into a hexadecimal string representation
      * of the number

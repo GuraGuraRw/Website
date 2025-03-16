@@ -13,17 +13,14 @@ if (!defined('_PS_VERSION_')) {
 function upgrade_module_2_5_7($module)
 {
     // Create table for Custom Fonts
-    $ps = _DB_PREFIX_;
-    $engine = _MYSQL_ENGINE_;
-    $result = Db::getInstance()->execute("
-        CREATE TABLE IF NOT EXISTS `{$ps}ce_font` (
+    $result = Db::getInstance()->execute('
+        CREATE TABLE IF NOT EXISTS ' . _DB_PREFIX_ . 'ce_font (
             `id_ce_font` int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
-            `family` varchar(128) NOT NULL DEFAULT '',
+            `family` varchar(128) NOT NULL DEFAULT "",
             `files` text,
             PRIMARY KEY (`id_ce_font`)
-        ) ENGINE=$engine DEFAULT CHARSET=utf8mb4 DEFAULT COLLATE=utf8mb4_unicode_ci;
-    ");
-
+        ) ENGINE=' . _MYSQL_ENGINE_ . ' DEFAULT CHARSET=utf8mb4 DEFAULT COLLATE=utf8mb4_unicode_ci;
+    ');
     // Register delete action for ThemeVolty Blog post
     $result &= $module->registerHook('actionObjectTvcmsBlogPostsClassDeleteAfter');
 

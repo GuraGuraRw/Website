@@ -25,6 +25,8 @@ if (!defined('_PS_VERSION_')) {
  */
 abstract class ElementBase extends ControlsStack
 {
+    const HELP_URL = '';
+
     /**
      * Child elements.
      *
@@ -172,29 +174,6 @@ abstract class ElementBase extends ControlsStack
     }
 
     /**
-     * Get element edit tools.
-     *
-     * Used to retrieve the element edit tools.
-     *
-     * @since 1.0.0
-     * @static
-     *
-     * @return array Element edit tools
-     */
-    final public static function getEditTools()
-    {
-        // if (!Plugin::instance()->role_manager->userCan('design')) {
-        //     return [];
-        // }
-
-        if (null === static::$_edit_tools) {
-            self::initEditTools();
-        }
-
-        return static::$_edit_tools;
-    }
-
-    /**
      * Get default child type.
      *
      * Retrieve the default child type based on element data.
@@ -262,7 +241,7 @@ abstract class ElementBase extends ControlsStack
 
     public function getHelpUrl()
     {
-        return '';
+        return static::HELP_URL;
     }
 
     /**
@@ -283,6 +262,20 @@ abstract class ElementBase extends ControlsStack
      * @since 2.3.1
      */
     protected function shouldPrintEmpty()
+    {
+        return true;
+    }
+
+    /**
+     * Whether the element returns dynamic content.
+     *
+     * set to determine whether to cache the element output or not.
+     *
+     * @since 2.10.2
+     *
+     * @return bool Whether to cache the element output
+     */
+    protected function isDynamicContent()
     {
         return true;
     }
@@ -402,12 +395,12 @@ abstract class ElementBase extends ControlsStack
             $this->render_attributes[$element][$key] = [];
         }
 
-        settype($value, 'array');
+        // settype($value, 'array');
 
         if ($overwrite) {
-            $this->render_attributes[$element][$key] = $value;
+            $this->render_attributes[$element][$key] = (array) $value;
         } else {
-            $this->render_attributes[$element][$key] = array_merge($this->render_attributes[$element][$key], $value);
+            $this->render_attributes[$element][$key] = array_merge($this->render_attributes[$element][$key], (array) $value);
         }
 
         return $this;
@@ -604,16 +597,11 @@ abstract class ElementBase extends ControlsStack
     {
         $element_type = $this->getType();
 
-        /*
-         * Before frontend element render.
-         *
-         * Fires before Elementor element is rendered in the frontend.
-         *
-         * @since 2.2.0
-         *
-         * @param ElementBase $this The element
-         */
-        do_action('elementor/frontend/before_render', $this);
+        if ($this->shouldRenderShortcode()) {
+            return print "{ce element='" . base64_encode(json_encode($this->getRenderData(), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)) . "'}";
+        }
+
+        // do_action('elementor/frontend/before_render', $this);
 
         /*
          * Before frontend element render.
@@ -653,10 +641,8 @@ abstract class ElementBase extends ControlsStack
             echo $content;
             $this->afterRender();
 
-            // $this->enqueueScripts();
-            // $this->enqueueStyles();
-            add_action('wp_enqueue_scripts', [$this, 'enqueueScripts']);
-            add_action('wp_enqueue_scripts', [$this, 'enqueueStyles']);
+            $this->enqueueScripts();
+            $this->enqueueStyles();
         }
 
         /*
@@ -672,16 +658,16 @@ abstract class ElementBase extends ControlsStack
          */
         do_action("elementor/frontend/{$element_type}/after_render", $this);
 
-        /*
-         * After frontend element render.
-         *
-         * Fires after Elementor element is rendered in the frontend.
-         *
-         * @since 2.3.0
-         *
-         * @param ElementBase $this The element
-         */
-        do_action('elementor/frontend/after_render', $this);
+        // do_action('elementor/frontend/after_render', $this);
+    }
+
+    protected function shouldRenderShortcode()
+    {
+        if (!apply_filters('elementor/element/should_render_shortcode', false)) {
+            return false;
+        }
+
+        return $this->isDynamicContent();
     }
 
     /**
@@ -716,9 +702,57 @@ abstract class ElementBase extends ControlsStack
             'id' => $this->getId(),
             'elType' => $data['elType'],
             'settings' => $data['settings'],
-            'elements' => $elements,
+            'elements' => &$elements,
             'isInner' => $data['isInner'],
         ];
+    }
+
+    public function getRenderData()
+    {
+        $data = $this->getData();
+        $settings = &$data['settings'];
+        $elements = [];
+
+        foreach ($this->getChildren() as $child) {
+            $elements[] = $child->getRenderData();
+        }
+        $data['elements'] = &$elements;
+        $controls = $this->getActiveControls();
+
+        if (!empty($settings['__dynamic__'])) {
+            $controls['__dynamic__'] = ['frontend_available' => true];
+
+            foreach ($settings['__dynamic__'] as $name => &$value) {
+                unset($settings[$name]);
+            }
+        }
+        // BC Fix: Font Awesome 4
+        foreach ($controls as &$control) {
+            isset($control['fa4compatibility']) && $controls[$control['fa4compatibility']] = ['frontend_available' => true];
+        }
+        isset($settings['__fa4_migrated']) && $controls['__fa4_migrated'] = ['frontend_available' => true];
+
+        foreach ($settings as $name => &$value) {
+            if (empty($controls[$name])) {
+                unset($settings[$name]);
+                continue;
+            }
+            $control = &$controls[$name];
+
+            if (!empty($control['frontend_available']) || !empty($control['prefix_class'])) {
+                continue;
+            }
+
+            if (isset($control['render_type'])) {
+                if ('template' !== $control['render_type']) {
+                    unset($settings[$name]);
+                }
+            } elseif (!empty($control['selectors'])) {
+                unset($settings[$name]);
+            }
+        }
+
+        return $data;
     }
 
     /**

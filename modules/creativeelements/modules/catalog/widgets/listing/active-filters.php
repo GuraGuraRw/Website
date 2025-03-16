@@ -521,6 +521,14 @@ class ModulesXCatalogXWidgetsXListingXActiveFilters extends WidgetBase
             ]
         );
 
+        $this->addGroupControl(
+            GroupControlTextShadow::getType(),
+            [
+                'name' => 'button_text_shadow',
+                'selector' => '{{WRAPPER}} .elementor-button',
+            ]
+        );
+
         $this->startControlsTabs('button_tabs');
 
         $this->startControlsTab(
@@ -634,6 +642,14 @@ class ModulesXCatalogXWidgetsXListingXActiveFilters extends WidgetBase
                 'selectors' => [
                     '{{WRAPPER}} .elementor-button' => 'border-radius: {{SIZE}}{{UNIT}};',
                 ],
+            ]
+        );
+
+        $this->addGroupControl(
+            GroupControlBoxShadow::getType(),
+            [
+                'name' => 'button_box_shadow',
+                'selector' => '{{WRAPPER}} .elementor-button',
             ]
         );
 
@@ -806,8 +822,7 @@ class ModulesXCatalogXWidgetsXListingXActiveFilters extends WidgetBase
 
     protected function render()
     {
-        $context = \Context::getContext();
-        $listing = $context->smarty->tpl_vars['listing']->value;
+        $listing = $GLOBALS['smarty']->tpl_vars['listing']->value;
 
         if (!$listing['products'] && empty(${'_GET'}['q'])) {
             return;
@@ -815,7 +830,6 @@ class ModulesXCatalogXWidgetsXListingXActiveFilters extends WidgetBase
         if (!$activeFilters = $this->getActiveFilters()) {
             return print '<!-- listing-active-filters -->';
         }
-        $t = $context->getTranslator();
         $settings = $this->getSettingsForDisplay();
         $show_label = (bool) $settings['show_label'];
         ob_start();
@@ -836,7 +850,7 @@ class ModulesXCatalogXWidgetsXListingXActiveFilters extends WidgetBase
             <a href="<?php echo esc_attr($filter['nextEncodedFacetsURL']); ?>" class="js-search-link elementor-button elementor-size-<?php echo $button_size; ?>">
                 <span class="elementor-button-content-wrapper">
                     <span class="elementor-button-icon elementor-align-icon-<?php echo $icon_align; ?>"><?php echo $remove_icon; ?></span>
-                    <span class="elementor-button-text"><?php echo $show_label ? "{$t->trans('%1$s:', [$filter['facetLabel']], 'Shop.Theme.Catalog')} {$filter['label']}" : $filter['label']; ?></span>
+                    <span class="elementor-button-text"><?php echo ($show_label ? __('%1$s:', 'Shop.Theme.Catalog', [$filter['facetLabel']]) . ' ' : '') . $filter['label']; ?></span>
                 </span>
             </a>
         <?php } ?>
@@ -844,7 +858,7 @@ class ModulesXCatalogXWidgetsXListingXActiveFilters extends WidgetBase
             <a href="<?php echo esc_attr(Helper::getClearAllLink()); ?>" class="js-search-link ce-active-filters__clear elementor-button elementor-size-<?php echo $button_size; ?>">
                 <span class="elementor-button-content-wrapper">
                     <span class="elementor-button-icon elementor-align-icon-<?php echo esc_attr($settings['clear_icon_align']); ?>"><?php IconsManager::renderIcon($settings['clear_icon']); ?></span>
-                    <span class="elementor-button-text"><?php echo $settings['clear_text'] ?: $t->trans('Clear all', [], 'Shop.Theme.Actions'); ?></span>
+                    <span class="elementor-button-text"><?php echo $settings['clear_text'] ?: __('Clear all', 'Shop.Theme.Actions'); ?></span>
                 </span>
             </a>
         <?php } ?>

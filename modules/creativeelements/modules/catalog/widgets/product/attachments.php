@@ -585,7 +585,7 @@ class ModulesXCatalogXWidgetsXProductXAttachments extends WidgetBase
 
     protected function render()
     {
-        $product = &\Context::getContext()->smarty->tpl_vars['product']->value;
+        $product = $GLOBALS['smarty']->tpl_vars['product']->value;
 
         if (!$product['attachments']) {
             return;

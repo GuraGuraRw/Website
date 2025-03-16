@@ -13,7 +13,7 @@ if (!defined('_PS_VERSION_')) {
 }
 
 use CE\CoreXDynamicTagsXTag as Tag;
-use CE\ModulesXDynamicTagsXModule as Module;
+use CE\ModulesXDynamicTagsXModule as TagsModule;
 
 class ModulesXCatalogXTagsXProductRating extends Tag
 {
@@ -31,12 +31,12 @@ class ModulesXCatalogXTagsXProductRating extends Tag
 
     public function getGroup()
     {
-        return Module::CATALOG_GROUP;
+        return TagsModule::CATALOG_GROUP;
     }
 
     public function getCategories()
     {
-        return [Module::TEXT_CATEGORY];
+        return [TagsModule::TEXT_CATEGORY];
     }
 
     public function getPanelTemplateSettingKey()
@@ -62,22 +62,21 @@ class ModulesXCatalogXTagsXProductRating extends Tag
 
     public function render()
     {
-        $vars = &\Context::getContext()->smarty->tpl_vars;
-        $product = &$vars['product']->value;
+        $product = $GLOBALS['smarty']->tpl_vars['product']->value;
 
         switch ($this->getSettings('type')) {
             case 'average_grade':
                 if (isset($product['productComments'])) {
                     echo $product['productComments']['averageRating'];
-                } elseif (isset($vars['ratings'])) {
-                    echo $vars['ratings']->value['avg'];
+                } elseif ($pcr = $GLOBALS['context']->controller->getContainer()->get('product_comment_repository', 2)) {
+                    echo $pcr->getAverageGrade($product['id'], \Configuration::get('PRODUCT_COMMENTS_MODERATE'));
                 }
                 break;
             case 'nb_comments':
                 if (isset($product['productComments'])) {
                     echo $product['productComments']['nbComments'];
-                } elseif (isset($vars['nbComments'])) {
-                    echo $vars['nbComments']->value;
+                } elseif ($pcr = $GLOBALS['context']->controller->getContainer()->get('product_comment_repository', 2)) {
+                    echo $pcr->getCommentsNumber($product['id'], \Configuration::get('PRODUCT_COMMENTS_MODERATE'));
                 }
                 break;
         }
@@ -85,10 +84,12 @@ class ModulesXCatalogXTagsXProductRating extends Tag
 
     protected function renderSmarty()
     {
+        echo '{$pcr = Context::getContext()->controller->getContainer()->get(product_comment_repository, 2)}';
+
         if ($this->getSettings('type') === 'average_grade') {
-            echo '{if isset($product.productComments)}{$product.productComments.averageRating}{elseif isset($ratings.avg)}{$ratings.avg}{/if}';
+            echo '{if $pcr}{$pcr->getAverageGrade($product.id, Configuration::get(PRODUCT_COMMENTS_MODERATE))}{/if}';
         } else {
-            echo '{if isset($product.productComments)}{$product.productComments.nbComments}{elseif isset($nbComments)}{$nbComments}{/if}';
+            echo '{if $pcr}{$pcr->getCommentsNumber($product.id, Configuration::get(PRODUCT_COMMENTS_MODERATE))}{/if}';
         }
     }
 }

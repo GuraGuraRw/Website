@@ -90,9 +90,8 @@ class ModulesXPremiumXWidgetsXLayerSlider extends WidgetBase
         $opts = [];
 
         try {
-            $ps = _DB_PREFIX_;
             $sliders = \Db::getInstance(_PS_USE_SQL_SLAVE_)->executeS(
-                "SELECT `id`, `name` FROM `{$ps}layerslider` WHERE `flag_hidden` = 0 AND `flag_deleted` = 0 LIMIT 100"
+                'SELECT `id`, `name` FROM ' . _DB_PREFIX_ . 'layerslider WHERE `flag_hidden` = 0 AND `flag_deleted` = 0 LIMIT 100'
             );
         } catch (\Exception $ex) {
             $sliders = [];
@@ -143,7 +142,7 @@ class ModulesXPremiumXWidgetsXLayerSlider extends WidgetBase
                         'placeholder' => __('Select...'),
                         'allowClear' => false,
                     ],
-                    'options' => is_admin() ? $this->getSliderOptions() : [],
+                    'options' => _CE_ADMIN_ ? $this->getSliderOptions() : [],
                     'classes' => 'ls-selector',
                     'separator' => 'before',
                 ]
@@ -279,13 +278,11 @@ class ModulesXPremiumXWidgetsXLayerSlider extends WidgetBase
         if (!empty($ls->active)) {
             $this->module = $ls;
 
-            $context = \Context::getContext();
-
-            empty($context->employee) || Helper::$body_scripts['ce-layerslider'] = [
+            _CE_ADMIN_ && Helper::$body_scripts['ce-layerslider'] = [
                 'hndl' => 'ce-layerslider',
                 'l10n' => [
                     'ls' => [
-                        'url' => $context->link->getAdminLink('AdminLayerSlider'),
+                        'url' => Helper::$link->getAdminLink('AdminLayerSlider'),
                         'NameYourSlider' => __('Name your new slider'),
                         'ChangesYouMadeMayNotBeSaved' => __('Changes you made may not be saved, are you sure you want to close?'),
                     ],

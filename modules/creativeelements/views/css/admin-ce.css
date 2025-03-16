@@ -34,11 +34,8 @@
 .admincecontent .btn-back-to-ps {
 	display: none;
 }
-.admincethemes:not(.lang-rtl) #head_tabs li:last-child {
-	border-left: 1px solid #dfdfdf;
-}
-.admincethemes.lang-rtl #head_tabs li:last-child {
-	border-right: 1px solid #dfdfdf;
+.admincethemes #head_tabs li:last-child {
+	border-inline-start: 1px solid #dfdfdf;
 }
 .admincethemes #head_tabs li:last-child a:not(.current) {
 	border-bottom: 3px solid transparent;
@@ -105,10 +102,14 @@ td.column-active ~ td.text-right .ce-edit i.icon-AdminParentCEContent {
 form[id^=ce_][id$=_form] .form-wrapper {
 	max-width: 100%;
 }
-.ce-theme-panel #list.active {
+.ce-theme-panel .tab-pane.active {
 	display: grid;
 	grid-auto-flow: column;
 	grid-template-rows: 1fr 1fr 1fr;
+	grid-template-columns: 1fr 1fr;
+}
+.ce-theme-panel #list.active {
+	grid-template-columns: 1fr 1fr 1fr;
 }
 @media (max-width: 1200px) {
 	.ce-theme-panel label.control-label {
@@ -117,7 +118,7 @@ form[id^=ce_][id$=_form] .form-wrapper {
 	}
 }
 @media (max-width: 900px) {
-	.ce-theme-panel #list.active {
+	.ce-theme-panel .tab-pane.active {
 		display: block;
 	}
 }

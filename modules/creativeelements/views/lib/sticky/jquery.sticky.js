@@ -240,7 +240,7 @@
 				if ( isNeedUnfollowing ) {
 					unfollowParent();
 				}
-			} else {
+			} else if (elements.$parent[ 0 ]) {
 				var parentOffset = getElementViewportOffset( elements.$parent ),
 					parentStyle = getComputedStyle( elements.$parent[ 0 ] ),
 					borderWidthToDecrease = parseFloat( parentStyle[ isTop ? 'borderBottomWidth' : 'borderTopWidth' ] ),

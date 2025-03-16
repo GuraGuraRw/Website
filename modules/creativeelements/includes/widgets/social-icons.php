@@ -21,6 +21,8 @@ if (!defined('_PS_VERSION_')) {
  */
 class WidgetSocialIcons extends WidgetBase
 {
+    const HELP_URL = 'http://docs.webshopworks.com/creative-elements/86-widgets/general-widgets/313-social-icons-widget';
+
     /**
      * Get widget name.
      *
@@ -75,6 +77,11 @@ class WidgetSocialIcons extends WidgetBase
     public function getKeywords()
     {
         return ['social', 'icon', 'link'];
+    }
+
+    protected function isDynamicContent()
+    {
+        return false;
     }
 
     protected function getSocialIconListControls()
@@ -210,7 +217,7 @@ class WidgetSocialIcons extends WidgetBase
                     'item_icon_color' => 'custom',
                 ],
                 'selectors' => [
-                    '{{WRAPPER}} {{CURRENT_ITEM}}.elementor-social-icon' => 'color: {{VALUE}};',
+                    '{{WRAPPER}} a{{CURRENT_ITEM}}.elementor-social-icon:not(#e)' => 'color: {{VALUE}};',
                 ],
             ]
         );
@@ -362,7 +369,7 @@ class WidgetSocialIcons extends WidgetBase
                     'icon_color' => 'custom',
                 ],
                 'selectors' => [
-                    '{{WRAPPER}} .elementor-social-icon' => 'color: {{VALUE}};',
+                    '{{WRAPPER}} a.elementor-social-icon:not(#e)' => 'color: {{VALUE}};',
                 ],
             ]
         );
@@ -410,15 +417,13 @@ class WidgetSocialIcons extends WidgetBase
             ]
         );
 
-        $icon_spacing = is_rtl() ? 'margin-left: {{SIZE}}{{UNIT}};' : 'margin-right: {{SIZE}}{{UNIT}};';
-
         $this->addResponsiveControl(
             'icon_spacing',
             [
                 'label' => __('Spacing'),
                 'type' => ControlsManager::SLIDER,
                 'selectors' => [
-                    '{{WRAPPER}} .elementor-social-icon:not(:last-child)' => $icon_spacing,
+                    '{{WRAPPER}} .elementor-social-icon:not(:last-child)' => 'margin-inline-end: {{SIZE}}{{UNIT}}',
                 ],
             ]
         );
@@ -477,7 +482,7 @@ class WidgetSocialIcons extends WidgetBase
                     'icon_color' => 'custom',
                 ],
                 'selectors' => [
-                    '{{WRAPPER}} .elementor-social-icon:hover' => 'color: {{VALUE}};',
+                    '{{WRAPPER}} a.elementor-social-icon:not(#e):hover' => 'color: {{VALUE}};',
                 ],
             ]
         );

@@ -20,6 +20,8 @@ class ModulesXThemeXWidgetsXNavMenu extends WidgetBase
 {
     use NavTrait;
 
+    protected $show_category_thumbs;
+
     public function getName()
     {
         return 'nav-menu';
@@ -68,13 +70,11 @@ class ModulesXThemeXWidgetsXNavMenu extends WidgetBase
     private function getAvailableHooks()
     {
         $hooks = [];
-        $db = \Db::getInstance();
-        $ps = _DB_PREFIX_;
-        $rows = $db->executeS("
-            SELECT h.name FROM {$ps}link_block AS lb
-            INNER JOIN {$ps}hook AS h ON h.id_hook = lb.id_hook
-            ORDER BY h.name
-        ");
+        $rows = \Db::getInstance()->executeS('
+            SELECT h.`name` FROM ' . _DB_PREFIX_ . 'link_block lb
+            INNER JOIN ' . _DB_PREFIX_ . 'hook h ON h.`id_hook` = lb.`id_hook`
+            ORDER BY h.`name`
+        ');
         if ($rows) {
             foreach ($rows as &$row) {
                 $hooks[$row['name']] = $row['name'];
@@ -92,27 +92,28 @@ class ModulesXThemeXWidgetsXNavMenu extends WidgetBase
             if ($maxdepth > 0) {
                 $maxdepth += $category->level_depth;
             }
-            $range = 'AND nleft >= ' . (int) $category->nleft . ' AND nright <= ' . (int) $category->nright;
+            $range = ' AND nleft >= ' . (int) $category->nleft . ' AND nright <= ' . (int) $category->nright;
         }
         $resultIds = [];
         $resultParents = [];
-        $result = \Db::getInstance(_PS_USE_SQL_SLAVE_)->executeS(
-            'SELECT c.id_parent, c.id_category, cl.name, cl.link_rewrite
-            FROM `' . _DB_PREFIX_ . 'category` c
-            INNER JOIN `' . _DB_PREFIX_ . 'category_lang` cl ON (c.`id_category` = cl.`id_category` AND cl.`id_lang` = ' . (int) $this->context->language->id . \Shop::addSqlRestrictionOnLang('cl') . ')
-            INNER JOIN `' . _DB_PREFIX_ . 'category_shop` cs ON (cs.`id_category` = c.`id_category` AND cs.`id_shop` = ' . (int) $this->context->shop->id . ')
+        $groups = \Customer::getGroupsStatic((int) $GLOBALS['customer']->id);
+        $id_lang = $GLOBALS['language']->id;
+        $id_shop = $GLOBALS['context']->shop->id;
+        $rows = \Db::getInstance(_PS_USE_SQL_SLAVE_)->executeS('
+            SELECT c.`id_parent`, c.`id_category`, cl.`name`, cl.`link_rewrite` FROM ' . _DB_PREFIX_ . 'category c
+            INNER JOIN ' . _DB_PREFIX_ . 'category_lang cl ON c.`id_category` = cl.`id_category` AND cl.`id_lang` = ' . (int) $id_lang . \Shop::addSqlRestrictionOnLang('cl') . '
+            INNER JOIN ' . _DB_PREFIX_ . 'category_shop cs ON cs.`id_category` = c.`id_category` AND cs.`id_shop` = ' . (int) $id_shop . '
             WHERE (c.`active` = 1 OR c.`id_category` = ' . (int) \Configuration::get('PS_HOME_CATEGORY') . ')
-            AND c.`id_category` != ' . (int) \Configuration::get('PS_ROOT_CATEGORY') . '
-            ' . ((int) $maxdepth != 0 ? ' AND `level_depth` <= ' . (int) $maxdepth : '') . '
-            ' . $range . '
-            AND c.id_category IN (
-                SELECT id_category
-                FROM `' . _DB_PREFIX_ . 'category_group`
-                WHERE `id_group` IN (' . pSQL(implode(', ', \Customer::getGroupsStatic((int) $this->context->customer->id))) . ')
+            AND c.`id_category` <> ' . (int) \Configuration::get('PS_ROOT_CATEGORY') .
+            ((int) $maxdepth !== 0 ? ' AND `level_depth` <= ' . (int) $maxdepth : '') .
+            $range . '
+            AND c.`id_category` IN (
+                SELECT `id_category` FROM ' . _DB_PREFIX_ . 'category_group WHERE `id_group` IN (' . implode(',', array_map('intval', $groups)) . ')
             )
             ORDER BY `level_depth` ASC, ' . ($sort ? 'cl.`name`' : 'cs.`position`') . ' ' . ($desc ? 'DESC' : 'ASC')
-        );
-        foreach ($result as &$row) {
+        ) ?: [];
+
+        foreach ($rows as &$row) {
             $resultParents[$row['id_parent']][] = &$row;
             $resultIds[$row['id_category']] = &$row;
         }
@@ -131,7 +132,7 @@ class ModulesXThemeXWidgetsXNavMenu extends WidgetBase
         }
 
         if (isset($resultIds[$id_category])) {
-            $link = $this->context->link->getCategoryLink($id_category, $resultIds[$id_category]['link_rewrite']);
+            $link = Helper::$link->getCategoryLink($id_category, $resultIds[$id_category]['link_rewrite']);
             $name = $resultIds[$id_category]['name'];
         } else {
             $link = $name = '';
@@ -148,15 +149,15 @@ class ModulesXThemeXWidgetsXNavMenu extends WidgetBase
     public function getRootCategory(array &$settings)
     {
         $root_category = (int) $settings['root_category'];
-        $id_lang = $this->context->language->id;
+        $id_lang = $GLOBALS['language']->id;
 
         if (4 === $root_category && $id_category = (int) $settings['id_category']) {
             return new \Category($id_category, $id_lang);
         }
         $this->setLastVisitedCategory();
 
-        if ($root_category && isset($this->context->cookie->last_visited_category) && $this->context->cookie->last_visited_category) {
-            $category = new \Category($this->context->cookie->last_visited_category, $id_lang);
+        if ($root_category && isset($GLOBALS['cookie']->last_visited_category) && $GLOBALS['cookie']->last_visited_category) {
+            $category = new \Category($GLOBALS['cookie']->last_visited_category, $id_lang);
 
             if (2 === $root_category && !$category->is_root_category && $category->id_parent
                 || 3 === $root_category && !$category->is_root_category && !\Category::hasChildren($category->id, $id_lang)
@@ -178,23 +179,22 @@ class ModulesXThemeXWidgetsXNavMenu extends WidgetBase
             return;
         }
         $isset = true;
+        $controller = $GLOBALS['context']->controller;
 
-        if (method_exists($this->context->controller, 'getCategory') && $category = $this->context->controller->getCategory()) {
-            $this->context->cookie->last_visited_category = $category->id;
-        } elseif (method_exists($this->context->controller, 'getProduct') && $product = $this->context->controller->getProduct()) {
-            if (!isset($this->context->cookie->last_visited_category)
-                || !\Product::idIsOnCategoryId($product->id, [['id_category' => $this->context->cookie->last_visited_category]])
-                || !\Category::inShopStatic($this->context->cookie->last_visited_category, $this->context->shop)
+        if (method_exists($controller, 'getCategory') && $category = $controller->getCategory()) {
+            $GLOBALS['cookie']->last_visited_category = $category->id;
+        } elseif (method_exists($controller, 'getProduct') && $product = $controller->getProduct()) {
+            if (!isset($GLOBALS['cookie']->last_visited_category)
+                || !\Product::idIsOnCategoryId($product->id, [['id_category' => $GLOBALS['cookie']->last_visited_category]])
+                || !\Category::inShopStatic($GLOBALS['cookie']->last_visited_category, $GLOBALS['context']->shop)
             ) {
-                $this->context->cookie->last_visited_category = (int) $product->id_category_default;
+                $GLOBALS['cookie']->last_visited_category = (int) $product->id_category_default;
             }
         }
     }
 
     protected function registerLayoutSection(array $args = [])
     {
-        $is_admin = is_admin();
-
         $this->startControlsSection(
             'section_layout',
             $args + [
@@ -207,19 +207,19 @@ class ModulesXThemeXWidgetsXNavMenu extends WidgetBase
             [
                 'label' => __('Menu'),
                 'type' => ControlsManager::SELECT,
-                'options' => $is_admin ? $this->getMenuOptions() : [],
+                'options' => _CE_ADMIN_ ? $this->getMenuOptions() : [],
                 'default' => 'mainmenu',
                 'save_default' => true,
             ]
         );
 
-        if ($is_admin && \Module::getInstanceByName('ps_mainmenu')) {
+        if (_CE_ADMIN_ && \Module::getInstanceByName('ps_mainmenu')) {
             $this->addControl(
                 'mainmenu_description',
                 [
                     'raw' => sprintf(
                         __("Go to the <a href='%s' target='_blank'>%s module</a> to manage your menu items."),
-                        $this->context->link->getAdminLink('AdminModules', true, [], ['configure' => 'ps_mainmenu']),
+                        Helper::$link->getAdminLink('AdminModules', true, [], ['configure' => 'ps_mainmenu']),
                         __('Main Menu')
                     ),
                     'type' => ControlsManager::RAW_HTML,
@@ -229,7 +229,7 @@ class ModulesXThemeXWidgetsXNavMenu extends WidgetBase
                     ],
                 ]
             );
-        } else {
+        } elseif (_CE_ADMIN_) {
             $this->addControl(
                 'mainmenu_description',
                 [
@@ -256,12 +256,12 @@ class ModulesXThemeXWidgetsXNavMenu extends WidgetBase
             ]
         );
 
-        $ps_linklist = $is_admin && \Module::isEnabled('ps_linklist');
+        $ps_linklist = _CE_ADMIN_ && \Module::isEnabled('ps_linklist');
 
         $this->addControl(
             'linklist_hook',
             [
-                'label' => __('Hook'),
+                'label' => !_CE_ADMIN_ ?: __('Hook', 'Admin.Global'),
                 'type' => ControlsManager::SELECT,
                 'default' => 'displayFooter',
                 'options' => $ps_linklist ? $this->getAvailableHooks() : [],
@@ -277,7 +277,7 @@ class ModulesXThemeXWidgetsXNavMenu extends WidgetBase
                 [
                     'raw' => sprintf(
                         __('Go to the <a href="%s" target="_blank">%s module</a> to manage your menu items.'),
-                        $this->context->link->getAdminLink('AdminModules', true, [], ['configure' => 'ps_linklist']),
+                        Helper::$link->getAdminLink('AdminModules', true, [], ['configure' => 'ps_linklist']),
                         __('Link List')
                     ),
                     'type' => ControlsManager::RAW_HTML,
@@ -287,7 +287,7 @@ class ModulesXThemeXWidgetsXNavMenu extends WidgetBase
                     ],
                 ]
             );
-        } else {
+        } elseif (_CE_ADMIN_) {
             $this->addControl(
                 'linklist_description',
                 [
@@ -478,7 +478,7 @@ class ModulesXThemeXWidgetsXNavMenu extends WidgetBase
                 'select2options' => [
                     'allowClear' => false,
                 ],
-                'default' => \Context::getContext()->shop->id_category,
+                'default' => $GLOBALS['context']->shop->id_category,
                 'condition' => [
                     'root_category' => '4',
                 ],
@@ -713,7 +713,7 @@ class ModulesXThemeXWidgetsXNavMenu extends WidgetBase
             }
             require_once _PS_MODULE_DIR_ . 'prestablog/class/categories.php';
 
-            $menu = ['children' => \CategoriesClass::getListe($this->context->language->id, true)];
+            $menu = ['children' => \CategoriesClass::getListe($GLOBALS['language']->id, true)];
         }
 
         if (empty($menu[$children])) {
@@ -779,7 +779,7 @@ class ModulesXThemeXWidgetsXNavMenu extends WidgetBase
             <li class="<?php printf(self::$li_class, $node['type'], $node['page_identifier'], $node['current'] ? ' current-menu-item' : '', $node['children'] ? ' menu-item-has-children' : ''); ?>">
                 <a class="<?php echo ($depth ? 'elementor-sub-item' : 'elementor-item') . (strpos($node['url'], '#') !== false ? ' elementor-item-anchor' : '') . ($node['current'] ? ' elementor-item-active' : ''); ?>" href="<?php echo esc_attr($node['url']); ?>"<?php $node['open_in_new_window'] && print ' target="_blank"'; ?>>
                 <?php if ($this->show_category_thumbs && 'category' === $node['type'] && \Tools::file_exists_cache(_PS_CAT_IMG_DIR_ . ($id = explode('-', $node['page_identifier'])[1]) . '-0_thumb.jpg')) { ?>
-                    <img class="cat-menu" src="<?php echo $this->context->link->getCatImageLink('', "$id-0_thumb"); ?>" alt="">
+                    <img class="cat-menu" src="<?php echo Helper::$link->getCatImageLink('', "$id-0_thumb"); ?>" alt="">
                 <?php } ?>
                     <?php echo $node['label']; ?>
                 <?php if ($this->indicator && $node['children']) { ?>
@@ -795,15 +795,15 @@ class ModulesXThemeXWidgetsXNavMenu extends WidgetBase
 
     protected function psCategoryTree(array &$nodes, $depth = 0, $ul_class = '')
     {
-        $isProductOrCategoryController = $this->context->controller instanceof \ProductController || $this->context->controller instanceof \CategoryController;
+        $isProductOrCategoryController = $GLOBALS['context']->controller instanceof \ProductController || $GLOBALS['context']->controller instanceof \CategoryController;
         ?>
         <ul <?php echo $depth ? 'class="sub-menu elementor-nav--dropdown"' : 'id="menu-1-' . $this->getId() . '" class="' . $ul_class . '"'; ?>>
         <?php foreach ($nodes as &$node) {
-            $current = $isProductOrCategoryController && $node['id'] == $this->context->cookie->last_visited_category; ?>
+            $current = $isProductOrCategoryController && $node['id'] == $GLOBALS['cookie']->last_visited_category; ?>
             <li class="<?php printf(self::$li_class, 'category', "category-{$node['id']}", $current ? ' current-menu-item' : '', $node['children'] ? ' menu-item-has-children' : ''); ?>">
                 <a class="<?php echo ($depth ? 'elementor-sub-item' : 'elementor-item') . ($current ? ' elementor-item-active' : ''); ?>" href="<?php echo esc_attr($node['link']); ?>">
                 <?php if ($this->show_category_thumbs && \Tools::file_exists_cache(_PS_CAT_IMG_DIR_ . "{$node['id']}-0_thumb.jpg")) { ?>
-                    <img class="cat-menu" src="<?php echo $this->context->link->getCatImageLink('', "{$node['id']}-0_thumb"); ?>" alt="">
+                    <img class="cat-menu" src="<?php echo Helper::$link->getCatImageLink('', "{$node['id']}-0_thumb"); ?>" alt="">
                 <?php } ?>
                     <?php echo $node['name']; ?>
                 <?php if ($this->indicator && $node['children']) { ?>
@@ -838,11 +838,11 @@ class ModulesXThemeXWidgetsXNavMenu extends WidgetBase
 
     protected function prestaBlogCategories(array &$nodes, $depth = 0, $ul_class = '')
     {
+        $vars = &$GLOBALS['smarty']->tpl_vars;
         ?>
         <ul <?php echo $depth ? 'class="sub-menu elementor-nav--dropdown"' : 'id="menu-1-' . $this->getId() . '" class="' . $ul_class . '"'; ?>>
         <?php foreach ($nodes as &$node) {
-            $current = isset($this->context->smarty->tpl_vars['news']->value->categories[$node['id']])
-                || isset($this->context->smarty->tpl_vars['prestablog_categorie_obj']) && $this->context->smarty->tpl_vars['prestablog_categorie_obj']->value->id == $node['id'];
+            $current = isset($vars['news']->value->categories[$node['id']]) || isset($vars['prestablog_categorie_obj']) && $vars['prestablog_categorie_obj']->value->id == $node['id'];
             $link = \PrestaBlog::prestablogUrl([
                 'c' => $node['id'],
                 'titre' => $node['link_rewrite'] ?: $node['title'],
@@ -863,12 +863,5 @@ class ModulesXThemeXWidgetsXNavMenu extends WidgetBase
 
     public function renderPlainContent()
     {
-    }
-
-    public function __construct($data = [], $args = [])
-    {
-        $this->context = \Context::getContext();
-
-        parent::__construct($data, $args);
     }
 }

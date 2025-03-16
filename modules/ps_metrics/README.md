@@ -60,8 +60,8 @@ The following commands need to be run in the `apps/ui/` folder.
 To build the application in production mode:
 
 ```
-npm install
-npm run build
+pnpm install
+pnpm run build
 ```
 
 The output directory is located in `apps/ui/dist/` directory.
@@ -69,7 +69,7 @@ The output directory is located in `apps/ui/dist/` directory.
 To compiles and watch for new changes (development mode) once `npm install` was done:
 
 ```
-npm run dev
+pnpm run dev
 ```
 
 ### Tests / lint

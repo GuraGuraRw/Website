@@ -50,7 +50,7 @@ class ModulesXPremiumXWidgetsXModule extends WidgetBase
 
     public function getModuleConfig($module)
     {
-        $iso = $this->context->language->iso_code;
+        $iso = $GLOBALS['language']->iso_code;
         $path = _PS_MODULE_DIR_ . "$module/config_$iso.xml";
 
         if ('en' === $iso || !file_exists($path)) {
@@ -77,13 +77,11 @@ class ModulesXPremiumXWidgetsXModule extends WidgetBase
     {
         $modules = [];
         $exclude_tabs = json_decode(\Configuration::get('elementor_exclude_modules')) ?: [];
-        $ps = _DB_PREFIX_;
-
-        if ($rows = \Db::getInstance(_PS_USE_SQL_SLAVE_)->executeS(
-            "SELECT m.`name` FROM `{$ps}module` m " .
-            \Shop::addSqlAssociation('module', 'm') .
-            "WHERE m.`active` = 1 AND m.`name` NOT IN ('creativeelements', 'creativepopup', 'layerslider', 'messengerchat')"
-        )) {
+        $rows = \Db::getInstance(_PS_USE_SQL_SLAVE_)->executeS(
+            'SELECT m.`name` FROM ' . _DB_PREFIX_ . 'module m ' . \Shop::addSqlAssociation('module', 'm') .
+            ' WHERE m.`active` = 1 AND m.`name` NOT IN ("creativeelements", "creativepopup", "layerslider", "messengerchat")'
+        );
+        if ($rows) {
             foreach ($rows as &$row) {
                 $mod = $this->getModuleConfig($row['name']);
 
@@ -114,14 +112,14 @@ class ModulesXPremiumXWidgetsXModule extends WidgetBase
                 'select2options' => [
                     'placeholder' => __('Select...'),
                 ],
-                'options' => $this->context->controller instanceof \AdminCEEditorController ? $this->getModuleOptions() : [],
+                'options' => _CE_ADMIN_ ? $this->getModuleOptions() : [],
             ]
         );
 
         $this->addControl(
             'hook',
             [
-                'label' => __('Hook'),
+                'label' => !_CE_ADMIN_ ?: __('Hook', 'Admin.Global'),
                 'type' => ControlsManager::TEXT,
                 'description' => __('Specify the required hook if needed.'),
                 'input_list' => [
@@ -155,23 +153,12 @@ class ModulesXPremiumXWidgetsXModule extends WidgetBase
         if (!\Group::isFeatureActive()) {
             return true;
         }
-        $customer = $this->context->customer;
-
-        if ($customer instanceof \Customer && $customer->isLogged()) {
-            $groups = $customer->getGroups();
-        } elseif ($customer instanceof \Customer && $customer->isLogged(true)) {
-            $groups = [\Configuration::get('PS_GUEST_GROUP')];
-        } else {
-            $groups = [\Configuration::get('PS_UNIDENTIFIED_GROUP')];
-        }
-
-        $table = _DB_PREFIX_ . 'module_group';
-        $id_shop = (int) $this->context->shop->id;
-        $id_module = (int) $module->id;
-        $id_groups = implode(', ', array_map('intval', $groups));
+        $id_shop = $GLOBALS['context']->shop->id;
+        $groups = \Customer::getGroupsStatic((int) $GLOBALS['customer']->id);
 
         return (bool) \Db::getInstance()->getValue(
-            "SELECT 1 FROM $table WHERE id_module = $id_module AND id_shop = $id_shop AND id_group IN ($id_groups)"
+            'SELECT 1 FROM ' . _DB_PREFIX_ . 'module_group ' .
+            'WHERE `id_module` = ' . (int) $module->id . ' AND `id_shop` = ' . (int) $id_shop . ' AND `id_group` IN (' . implode(', ', array_map('intval', $groups)) . ')'
         );
     }
 
@@ -195,7 +182,7 @@ class ModulesXPremiumXWidgetsXModule extends WidgetBase
                 }
 
                 if (in_array(strtolower($hook_name), self::$product_hooks)) {
-                    $vars = &$this->context->smarty->tpl_vars;
+                    $vars = &$GLOBALS['smarty']->tpl_vars;
 
                     if (isset($vars['product']->value)) {
                         $hook_args['product'] = $vars['product']->value;
@@ -213,8 +200,10 @@ class ModulesXPremiumXWidgetsXModule extends WidgetBase
                     $res = \Hook::coreCallHook($mod, "hook$hook_name", $hook_args);
                 }
             }
-        } catch (\Exception $ex) {
-            $res = _PS_MODE_DEV_ ? $ex->getMessage() : '';
+        } catch (\Exception $e) {
+            $res = _PS_MODE_DEV_ ? $e->getMessage() : '';
+        } catch (\Error $e) {
+            $res = _PS_MODE_DEV_ ? $e->getMessage() : '';
         }
 
         return $res;
@@ -237,12 +226,5 @@ class ModulesXPremiumXWidgetsXModule extends WidgetBase
 
     public function renderPlainContent()
     {
-    }
-
-    public function __construct(array $data = [], $args = null)
-    {
-        $this->context = \Context::getContext();
-
-        parent::__construct($data, $args);
     }
 }

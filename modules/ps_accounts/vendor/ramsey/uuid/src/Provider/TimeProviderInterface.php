@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of the ramsey/uuid library
  *
@@ -11,8 +12,7 @@
  * @link https://packagist.org/packages/ramsey/uuid Packagist
  * @link https://github.com/ramsey/uuid GitHub
  */
-
-namespace Ramsey\Uuid\Provider;
+namespace PrestaShop\Module\PsAccounts\Vendor\Ramsey\Uuid\Provider;
 
 /**
  * TimeProviderInterface provides functionality to get the time from a specific

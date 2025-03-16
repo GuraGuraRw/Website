@@ -104,7 +104,7 @@ class ModulesXCatalogXWidgetsXProductXMiniatureXBox extends ProductBox
     protected function render()
     {
         $settings = $this->getSettingsForDisplay();
-        $product = &$this->context->smarty->tpl_vars['product']->value;
+        $product = $GLOBALS['smarty']->tpl_vars['product']->value;
 
         echo $this->fetchMiniature($settings, $product);
     }
@@ -135,10 +135,7 @@ class ModulesXCatalogXWidgetsXProductXMiniatureXBox extends ProductBox
             'width' => "{\$image.bySize.$image_size.width}",
             'height' => "{\$image.bySize.$image_size.height}",
         ]); ?>
-        {if empty($urls.no_picture_image)}
-            {$urls.no_picture_image = call_user_func('CE\Helper::getNoImage')}
-        {/if}
-        {$cover = _q_c_($product.cover, $product.cover, $urls.no_picture_image)}
+        {$cover = ($product.cover) ? $product.cover : $urls.no_picture_image}
         <div class="elementor-product-miniature">
             <a class="elementor-product-link" href="{$product.url}">
                 <div class="elementor-image">
@@ -149,10 +146,10 @@ class ModulesXCatalogXWidgetsXProductXMiniatureXBox extends ProductBox
                     <?php if ($image_size_tablet) { ?>
                         <source media="(max-width: 991px)" srcset="{$cover.bySize.<?php echo $image_size_tablet; ?>.url}">
                     <?php } ?>
-                        <img <?php $this->printRenderAttributeString('cover'); ?> loading="lazy">
+                        <img <?php $this->printRenderAttributeString('cover'); ?>{if empty($loading_eager)} loading="lazy"{/if}>
                     </picture>
             <?php if ($settings['show_second_image']) { ?>
-                {$index = _q_c_(!empty($cover.position) && 1 < $cover.position, 0, 1)}
+                {$index = (!empty($cover.position) && 1 < $cover.position) ? 0 : 1}
                 {if !empty($product.images[$index])}
                     {$image = $product.images[$index]}
                     <picture class="elementor-second-image">
@@ -224,11 +221,7 @@ class ModulesXCatalogXWidgetsXProductXMiniatureXBox extends ProductBox
                     ]}}
                 {/if}
                 <form class="elementor-atc" action="{$atc_url}">
-                    <input type="hidden" name="qty" value="{max(1, $product[_q_c_(
-                        !empty($product.product_attribute_minimal_quantity),
-                        'product_attribute_minimal_quantity',
-                        'minimal_quantity'
-                    )])}">
+                    <input type="hidden" name="qty" value="{max(1, (!empty($product.product_attribute_minimal_quantity)) ? $product.product_attribute_minimal_quantity : $product.minimal_quantity)}">
                     <button type="submit" class="elementor-button elementor-size-<?php echo $settings['atc_size']; ?>"
                         data-button-action="add-to-cart" {if isset($product.flags.out_of_stock)}disabled{/if}>
                         <span class="elementor-button-content-wrapper">

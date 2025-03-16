@@ -19,7 +19,7 @@ if (!defined('_PS_VERSION_')) {
  *
  * @abstract
  */
-abstract class BaseUiControl extends BaseControl
+abstract class BaseUIControl extends BaseControl
 {
     /**
      * Get features.

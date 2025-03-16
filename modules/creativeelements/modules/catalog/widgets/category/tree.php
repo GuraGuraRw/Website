@@ -68,7 +68,8 @@ class ModulesXCatalogXWidgetsXCategoryXTree extends NavMenu
                 'default' => $this->getId() ? 'theme' : '',
                 'save_default' => true,
                 'separator' => 'after',
-            ]
+            ],
+            ['overwrite' => true]
         );
     }
 

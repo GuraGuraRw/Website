@@ -1,9 +1,9 @@
 # PrestaShop module library for Guzzle clients
 
 Plug modules to the Guzzle client available on a running shop.
-This library is compatible with PHP 5.6.0 and above. Please check [Version Guidance](#version-guidance) for the PHP version compatibility.
+This library is compatible with PHP 7.2.5 and above.
 
-[![Latest Stable Version](https://img.shields.io/packagist/v/prestashop/module-lib-guzzle-adapter.svg?style=flat-square)](https://packagist.org/packages/prestashop/module-lib-guzzle-adapter) [![Minimum PHP Version](https://img.shields.io/badge/php-%3E%3D%205.6.0-8892BF.svg?style=flat-square)](https://php.net/) [![Quality Control Status](https://img.shields.io/github/workflow/status/prestashopcorp/module-lib-guzzle-adapter/PHP%20tests?style=flat-square)](https://github.com/PrestaShopCorp/module-lib-guzzle-adapter/actions/workflows/php.yml)
+[![Latest Stable Version](https://img.shields.io/packagist/v/prestashop/module-lib-guzzle-adapter.svg?style=flat-square)](https://packagist.org/packages/prestashop/module-lib-guzzle-adapter) [![Minimum PHP Version](https://img.shields.io/badge/php-%3E%3D%207.2.5-8892BF.svg?style=flat-square)](https://php.net/) [![Quality Control Status](https://img.shields.io/github/workflow/status/prestashopcorp/module-lib-guzzle-adapter/PHP%20tests?style=flat-square)](https://github.com/PrestaShopCorp/module-lib-guzzle-adapter/actions/workflows/php.yml)
 
 ## Installation
 
@@ -15,12 +15,9 @@ composer require prestashop/module-lib-guzzle-adapter
 
 | Version | Status         | Packagist           -| Namespace    | Repo                | Docs                | PHP Version  |
 |---------|----------------|----------------------|--------------|---------------------|---------------------|--------------|
-| <=0.5  | Stable         | `prestashop/module-lib-guzzle-adapter` | `Prestashop\ModuleLibGuzzleAdapter` | [v0.x][lib-1-repo] | N/A                 | >=7.2.5   |
-| >=0.6     | Latest         | `prestashop/module-lib-guzzle-adapter` | `Prestashop\ModuleLibGuzzleAdapter` | [v0.x][lib-php5-repo] | N/A                 | >=5.6.0   |
-| 1.x     | Latest         | `prestashop/module-lib-guzzle-adapter` | `Prestashop\ModuleLibGuzzleAdapter` | [v1.x][lib-1-repo] | N/A                 | >=7.2.5   |
+| 0.x     | Latest         | `prestashop/module-lib-guzzle-adapter` | `Prestashop\ModuleLibGuzzleAdapter` | [v0.x][lib-1-repo] | N/A                 | >=7.2.5   |
 
 [lib-1-repo]: https://github.com/PrestaShopCorp/module-lib-guzzle-adapter/tree/main
-[lib-php5-repo]: https://github.com/PrestaShopCorp/module-lib-guzzle-adapter/tree/0.x
 
 ## Usage
 

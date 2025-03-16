@@ -9955,6 +9955,10 @@ ControlsCSSParser.addControlStyleRules = function (stylesheet, control, controls
 	}
 
 	_.each(control.selectors, function (cssProperty, selector) {
+		if (!selector) {
+			console.warn && console.warn(cssProperty);
+			return;
+		}
 		var outputCssProperty;
 
 		try {
@@ -10309,7 +10313,7 @@ var run = function () {
 var listener = function (event) {
 	run.call(event.data);
 };
-// Node.js 0.9+ & IE10+ has setImmediate, otherwise:
+// IE10+ has setImmediate, otherwise:
 if (!setTask || !clearTask) {
 	setTask = function setImmediate(fn) {
 		var args = [];
@@ -10325,37 +10329,12 @@ if (!setTask || !clearTask) {
 	clearTask = function clearImmediate(id) {
 		delete queue[id];
 	};
-	// Node.js 0.8-
-	if (__webpack_require__(59)(process) == 'process') {
-		defer = function (id) {
-			process.nextTick(ctx(run, id, 1));
-		};
-	// Sphere (JS game engine) Dispatch API
-	} else if (Dispatch && Dispatch.now) {
-		defer = function (id) {
-			Dispatch.now(ctx(run, id, 1));
-		};
 	// Browsers with MessageChannel, includes WebWorkers
-	} else if (MessageChannel) {
+	if (MessageChannel) {
 		channel = new MessageChannel();
 		port = channel.port2;
 		channel.port1.onmessage = listener;
 		defer = ctx(port.postMessage, port, 1);
-	// Browsers with postMessage, skip WebWorkers
-	// IE8 has postMessage, but it's sync & typeof its postMessage is 'object'
-	} else if (global.addEventListener && typeof postMessage == 'function' && !global.importScripts) {
-		defer = function (id) {
-			global.postMessage(id + '', '*');
-		};
-		global.addEventListener('message', listener, false);
-	// IE8-
-	} else if (ONREADYSTATECHANGE in cel('script')) {
-		defer = function (id) {
-			html.appendChild(cel('script'))[ONREADYSTATECHANGE] = function () {
-				html.removeChild(this);
-				run.call(id);
-			};
-		};
 	// Rest old browsers
 	} else {
 		defer = function (id) {
@@ -13355,7 +13334,7 @@ var run = function () {
 var listener = function (event) {
 	run.call(event.data);
 };
-// Node.js 0.9+ & IE10+ has setImmediate, otherwise:
+// IE10+ has setImmediate, otherwise:
 if (!setTask || !clearTask) {
 	setTask = function setImmediate(fn) {
 		var args = [];
@@ -13371,37 +13350,12 @@ if (!setTask || !clearTask) {
 	clearTask = function clearImmediate(id) {
 		delete queue[id];
 	};
-	// Node.js 0.8-
-	if (__webpack_require__(37)(process) == 'process') {
-		defer = function (id) {
-			process.nextTick(ctx(run, id, 1));
-		};
-	// Sphere (JS game engine) Dispatch API
-	} else if (Dispatch && Dispatch.now) {
-		defer = function (id) {
-			Dispatch.now(ctx(run, id, 1));
-		};
 	// Browsers with MessageChannel, includes WebWorkers
-	} else if (MessageChannel) {
+	if (MessageChannel) {
 		channel = new MessageChannel();
 		port = channel.port2;
 		channel.port1.onmessage = listener;
 		defer = ctx(port.postMessage, port, 1);
-	// Browsers with postMessage, skip WebWorkers
-	// IE8 has postMessage, but it's sync & typeof its postMessage is 'object'
-	} else if (global.addEventListener && typeof postMessage == 'function' && !global.importScripts) {
-		defer = function (id) {
-			global.postMessage(id + '', '*');
-		};
-		global.addEventListener('message', listener, false);
-	// IE8-
-	} else if (ONREADYSTATECHANGE in cel('script')) {
-		defer = function (id) {
-			html.appendChild(cel('script'))[ONREADYSTATECHANGE] = function () {
-				html.removeChild(this);
-				run.call(id);
-			};
-		};
 	// Rest old browsers
 	} else {
 		defer = function (id) {
@@ -15004,18 +14958,34 @@ var EditorBase = /*#__PURE__*/function (_Marionette$Applicati) {
 			var elType = model.get('elType');
 
 			if ('widget' === elType) {
-				var widgetType = model.get('widgetType');
+				var widgetType = model.get('widgetType'),
+						widget = this.widgetsCache[widgetType];
 
-				if (!this.widgetsCache[widgetType]) {
+				if (!widget) {
 					return false;
 				}
 
-				if (!this.widgetsCache[widgetType].commonMerged) {
-					jQuery.extend(this.widgetsCache[widgetType].controls, this.widgetsCache.common.controls);
-					this.widgetsCache[widgetType].commonMerged = true;
+				if (!widget.commonMerged) {
+          jQuery.extend(widget.controls, this.widgetsCache.common.controls);
+          widget.controls = elementor.hooks.applyFilters('elements/widget/controls/common', widget.controls, widgetType, widget);
+
+          // TODO: Move this code to own file.
+          if (widget.controls && widget.controls._element_cache) {
+          	widget.controls._element_cache = jQuery.extend({}, this.widgetsCache.common.controls._element_cache);
+            var elementCacheDescription = elementor.translate('element_cache_status');
+            elementCacheDescription += ' <strong>';
+            elementCacheDescription += elementor.translate(widget.is_dynamic_content ? 'Inactive' : 'Active');
+            elementCacheDescription += '</strong><br>';
+            elementCacheDescription += elementor.translate('element_cache_description');
+            // elementCacheDescription += ' <a href="https://go.elementor.com/element-caching-help/" target="_blank">' + elementor.translate('learn_more') + '</a>.';
+            widget.controls._element_cache.description = elementCacheDescription;
+          }
+          // TODO: End of code to move.
+
+          widget.commonMerged = true;
 				}
 
-				return this.widgetsCache[widgetType];
+				return widget;
 			}
 
 			if (!this.config.elements[elType]) {
@@ -15609,7 +15579,7 @@ var EditorBase = /*#__PURE__*/function (_Marionette$Applicati) {
 			}
 
 			this.$previewContents = this.$preview.contents();
-			this.$previewElementorEl = this.$previewContents.find('.elementor[data-elementor-title]');
+			this.$previewElementorEl = this.$previewContents.find('.elementor[data-elementor-title]:empty');
 			this.initFrontend();
 			this.schemes.init();
 			this.schemes.printSchemesStyle();
@@ -16082,7 +16052,12 @@ var _default = /*#__PURE__*/function (_BaseRegion) {
 				right: ''
 			});
 			elementor.$previewWrapper.css(side, this.storage.size.width);
-			this.$el.resizable('destroy');
+			try {
+				this.$el.resizable('destroy');
+			} catch (ex) {
+				// Tmp fix
+			}
+
 			resizableOptions.handles = elementorCommon.config.isRTL ? 'e' : 'w';
 
 			resizableOptions.resize = function (event, ui) {
@@ -22400,9 +22375,9 @@ var AttachPreview = /*#__PURE__*/function (_CommandInternalBaseB) {
 				$e.internal('panel/open-default', {
 					refresh: true
 				});
-			}).catch(function () {
+			}).catch(function (ex) {
 				// CE Fix: Try to change preview settings
-				if (document.config.settings.controls.preview_settings) {
+				if (!elementor.$previewContents.find('.elementor-edit-area').length && document.config.settings.controls.preview_settings) {
 					document.config.panel.has_elements = false;
 					document.config.remoteLibrary = false;
 
@@ -22410,6 +22385,7 @@ var AttachPreview = /*#__PURE__*/function (_CommandInternalBaseB) {
 				} else {
 					elementor.trigger('document:unloaded', document);
 				}
+				throw ex;
 			});
 		}
 	}, {
@@ -23106,6 +23082,8 @@ var _default = /*#__PURE__*/function (_elementorModules$edi) {
 				type: 'page',
 				callback: function callback() {
 					if ('kit' === elementor.config.initial_document.type) {
+						$e.run('navigator/close');
+
 						$(document.body).addClass('elementor-editor-kit');
 
 						elementor.$previewContents.children().addClass('elementor-editor-preview');
@@ -24331,10 +24309,6 @@ var _default = /*#__PURE__*/function (_Marionette$Behavior) {
 	}, {
 		key: "onClickBack",
 		value: function onClickBack() {
-			if ('kit' === elementor.config.initial_document.type && 'kit_settings' === elementor.panel.currentView.currentPageName) {
-				return location.href = elementor.config.document.urls.exit_to_dashboard;
-			}
-
 			$e.run('panel/global/back');
 		}
 	}]);
@@ -24356,12 +24330,9 @@ _Object$defineProperty(exports, "__esModule", {
 	value: true
 });
 
-exports.buttonClose = exports.buttonBack = void 0;
 var arrowIconClass = 'eicon-chevron-' + (elementorCommon.config.isRTL ? 'right' : 'left');
-var buttonBack = "\n<div id=\"elementor-panel-header-kit-back\" class=\"elementor-header-button\">\n\t<i class=\"elementor-icon ".concat(arrowIconClass, " tooltip-target\" aria-hidden=\"true\" data-tooltip=\"{{ Back }}\"></i>\n\t<span class=\"elementor-screen-only\">{{ Back }}</span>\n</div>\n");
-exports.buttonBack = buttonBack;
-var buttonClose = "\n<div id=\"elementor-panel-header-kit-close\" class=\"elementor-header-button\">\n\t<i class=\"elementor-icon eicon-close tooltip-target\" aria-hidden=\"true\" data-tooltip=\"{{ Close }}\"></i>\n\t<span class=\"elementor-screen-only\">{{ Close }}</span>\n</div>\n";
-exports.buttonClose = buttonClose;
+exports.buttonBack = "\n<div id=\"elementor-panel-header-kit-back\" class=\"elementor-header-button\">\n\t<i class=\"elementor-icon ".concat(arrowIconClass, " tooltip-target\" aria-hidden=\"true\" data-tooltip=\"{{ Back }}\"></i>\n\t<span class=\"elementor-screen-only\">{{ Back }}</span>\n</div>\n");
+exports.buttonClose = "\n<div id=\"elementor-panel-header-kit-close\" class=\"elementor-header-button\">\n\t<i class=\"elementor-icon eicon-close tooltip-target\" aria-hidden=\"true\" data-tooltip=\"{{ Close }}\"></i>\n\t<span class=\"elementor-screen-only\">{{ Close }}</span>\n</div>\n";
 
 /***/ }),
 /* 470 */

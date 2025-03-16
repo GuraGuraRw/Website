@@ -58,7 +58,7 @@ class AdminCEIconSetsController extends ModuleAdminController
 
         $this->bulk_actions = [
             'delete' => [
-                'text' => $this->l('Delete'),
+                'text' => $this->trans('Delete', [], 'Admin.Actions'),
                 'icon' => 'icon-trash text-danger',
                 'confirm' => $this->trans('Delete selected items?', [], 'Admin.Notifications.Info'),
             ],
@@ -133,34 +133,33 @@ class AdminCEIconSetsController extends ModuleAdminController
             ]));
         }
 
-        return $this->ajaxError('unsupported_zip_format', __('The zip file provided is not supported!'));
+        return $this->ajaxError('unsupported_zip_format', $this->l('The zip file provided is not supported!'));
     }
 
     private function uploadAndExtractZip()
     {
-        $zip_file = $_FILES['zip_upload'];
+        if (!$zip = Tools::fileAttachment('zip_upload')) {
+            return $this->ajaxError('missing_file', $this->l('Click the media icon to upload file'));
+        }
 
-        register_shutdown_function(function () use ($zip_file) {
-            unlink($zip_file['tmp_name']);
+        register_shutdown_function(function () use ($zip) {
+            Tools::deleteFile($zip['tmp_name']);
         });
 
-        if ('zip' !== strtolower(pathinfo($zip_file['name'], PATHINFO_EXTENSION)) || 'application/zip' !== mime_content_type($zip_file['tmp_name'])) {
-            return $this->ajaxError('unsupported_file', __('Only zip files are allowed'));
+        if (strcasecmp(pathinfo($zip['name'], PATHINFO_EXTENSION), 'zip') || 'application/zip' !== mime_content_type($zip['tmp_name'])) {
+            return $this->ajaxError('unsupported_file', $this->l('Only zip files are allowed'));
         }
-        $extract_to = _PS_UPLOAD_DIR_ . pathinfo($zip_file['name'], PATHINFO_FILENAME) . '/';
+        $extract_to = _PS_UPLOAD_DIR_ . pathinfo($zip['name'], PATHINFO_FILENAME) . '/';
 
-        if (!Tools::ZipExtract($zip_file['tmp_name'], $extract_to) || !$source_files = array_diff(scandir($extract_to), ['.', '..'])) {
-            return $this->ajaxError('incompatible_archive', __('Incompatible archive'));
-        }
-        // Find the right folder.
-        if (1 === count($source_files) && is_dir($extract_to . reset($source_files))) {
-            $directory = $extract_to . reset($source_files) . '/';
-        } else {
-            $directory = $extract_to;
+        if (!Tools::ZipExtract($zip['tmp_name'], $extract_to) || !$source_files = array_diff(scandir($extract_to), ['.', '..'])) {
+            return $this->ajaxError('incompatible_archive', $this->l('Incompatible archive'));
         }
 
         return [
-            'directory' => $directory,
+            // Find the right folder.
+            'directory' => 1 === count($source_files) && is_dir($directory = $extract_to . reset($source_files) . '/')
+                ? $directory
+                : $extract_to,
             'extracted_to' => $extract_to,
         ];
     }
@@ -248,7 +247,7 @@ class AdminCEIconSetsController extends ModuleAdminController
             'input' => [
                 [
                     'type' => 'text',
-                    'label' => $this->l('Name'),
+                    'label' => $this->trans('Name', [], 'Admin.Global'),
                     'name' => 'name',
                     'placeholder' => $this->l('Enter Icon Set Name'),
                     'required' => true,
@@ -283,11 +282,8 @@ class AdminCEIconSetsController extends ModuleAdminController
         return parent::renderForm();
     }
 
-    protected function l($string, $module = 'creativeelements', $addslashes = false, $htmlentities = true)
+    protected function l($string, $ctx = '', $addslashes = false, $htmlentities = true)
     {
-        $js = $addslashes || !$htmlentities;
-        $str = Translate::getModuleTranslation($module, $string, '', null, $js, _CE_LOCALE_);
-
-        return $htmlentities ? $str : stripslashes($str);
+        return Translate::getModuleTranslation($this->module, $string, $ctx, null, $addslashes, _CE_LOCALE_, false, $htmlentities);
     }
 }

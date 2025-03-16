@@ -63,9 +63,9 @@
 {function ce_preview_breadcrumb links=[]}
 	{$last = array_pop($links)}
 	{foreach $links as $link}
-		<a>{$link['title']|cleanHtml}</a><span class="navigation-pipe">&gt;</span>
+		<a>{$link.title|cleanHtml}</a><span class="navigation-pipe">&gt;</span>
 	{/foreach}
-	{$last['title']|cleanHtml}
+	{$last.title|cleanHtml}
 {/function}
 
 {capture ce_inline_script}
@@ -135,19 +135,19 @@
 						<div class="repeater-content-bottom">
 							<div class="elementor-field font_face elementor-field-file">
 								<p class="elementor-field-label">
-									<label for="font_face[__counter__][woff]file">{sprintf(ce__('%s File'), 'WOFF')}</label>
-								</p>
-								<input class="hidden" name="font_face[__counter__][woff][file]" type="file" accept=".woff,font/woff">
-								<input class="elementor-field-input" name="font_face[__counter__][woff][url]" placeholder="{ce__('The Web Open Font Format, Used by Modern Browsers')}" type="text">
-								<input class="elementor-button elementor-upload-btn" data-ext="woff" data-preview_anchor="none" data-remove_text="{ce__('Delete')}" data-upload_text="{ce__('Upload')}" id="font_face[__counter__][woff]" name="font_face[__counter__][woff]" type="button">
-							</div>
-							<div class="elementor-field font_face elementor-field-file">
-								<p class="elementor-field-label">
 									<label for="font_face[__counter__][woff2]file">{sprintf(ce__('%s File'), 'WOFF2')}</label>
 								</p>
 								<input class="hidden" name="font_face[__counter__][woff2][file]" type="file" accept=".woff2,font/woff2">
 								<input class="elementor-field-input" name="font_face[__counter__][woff2][url]" placeholder="{ce__('The Web Open Font Format 2, Used by Super Modern Browsers')}" type="text">
 								<input class="elementor-button elementor-upload-btn" data-ext="woff2" data-preview_anchor="none" data-remove_text="{ce__('Delete')}" data-upload_text="{ce__('Upload')}" id="font_face[__counter__][woff2]" name="font_face[__counter__][woff2]" type="button">
+							</div>
+							<div class="elementor-field font_face elementor-field-file">
+								<p class="elementor-field-label">
+									<label for="font_face[__counter__][woff]file">{sprintf(ce__('%s File'), 'WOFF')}</label>
+								</p>
+								<input class="hidden" name="font_face[__counter__][woff][file]" type="file" accept=".woff,font/woff">
+								<input class="elementor-field-input" name="font_face[__counter__][woff][url]" placeholder="{ce__('The Web Open Font Format, Used by Modern Browsers')}" type="text">
+								<input class="elementor-button elementor-upload-btn" data-ext="woff" data-preview_anchor="none" data-remove_text="{ce__('Delete')}" data-upload_text="{ce__('Upload')}" id="font_face[__counter__][woff]" name="font_face[__counter__][woff]" type="button">
 							</div>
 							<div class="elementor-field font_face elementor-field-file">
 								<p class="elementor-field-label">

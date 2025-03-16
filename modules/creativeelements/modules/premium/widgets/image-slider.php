@@ -36,6 +36,11 @@ class ModulesXPremiumXWidgetsXImageSlider extends WidgetBase
         return ['premium'];
     }
 
+    protected function isDynamicContent()
+    {
+        return false;
+    }
+
     protected function _registerControls()
     {
         $this->startControlsSection(
@@ -104,7 +109,6 @@ class ModulesXPremiumXWidgetsXImageSlider extends WidgetBase
                     [
                         'image' => [
                             'url' => file_exists(_PS_MODULE_DIR_ . $ample . '-1.jpg') ? "$modules/$ample-1.jpg" : $img,
-                            'id' => 0,
                         ],
                         'title' => 'SAMPLE 1',
                         'description' => $desc,
@@ -113,7 +117,6 @@ class ModulesXPremiumXWidgetsXImageSlider extends WidgetBase
                     [
                         'image' => [
                             'url' => file_exists(_PS_MODULE_DIR_ . $ample . '-2.jpg') ? "$modules/$ample-2.jpg" : $img,
-                            'id' => 0,
                         ],
                         'title' => 'SAMPLE 2',
                         'description' => $desc,
@@ -122,7 +125,6 @@ class ModulesXPremiumXWidgetsXImageSlider extends WidgetBase
                     [
                         'image' => [
                             'url' => file_exists(_PS_MODULE_DIR_ . $ample . '-3.jpg') ? "$modules/$ample-3.jpg" : $img,
-                            'id' => 0,
                         ],
                         'title' => 'SAMPLE 3',
                         'legend' => 'Excepteur Occaecat',
@@ -136,6 +138,7 @@ class ModulesXPremiumXWidgetsXImageSlider extends WidgetBase
                         'label' => __('Choose Image'),
                         'type' => ControlsManager::MEDIA,
                         'seo' => true,
+                        'exclude_seo_options' => ['title', 'loading'],
                         'default' => [
                             'url' => Utils::getPlaceholderImageSrc(),
                         ],
@@ -178,7 +181,7 @@ class ModulesXPremiumXWidgetsXImageSlider extends WidgetBase
     protected function render()
     {
         $settings = $this->getSettingsForDisplay();
-        $editSettings = Plugin::instance()->editor->isEditMode() ? $this->getData('editSettings') : null;
+        $editSettings = Plugin::$instance->editor->isEditMode() ? $this->getData('editSettings') : null;
         $activeItemIndex = isset($editSettings['activeItemIndex']) ? $editSettings['activeItemIndex'] : 0;
         $slides = [];
 
@@ -193,9 +196,16 @@ class ModulesXPremiumXWidgetsXImageSlider extends WidgetBase
                 ];
             }
         }
+        $tpl = 'modules/ps_imageslider/views/templates/hook/slider.tpl';
 
-        $context = \Context::getContext();
-        $context->smarty->assign([
+        if (file_exists(_PS_THEME_DIR_ . $tpl)) {
+            $tpl_path = _PS_THEME_DIR_ . $tpl;
+        } elseif (_PARENT_THEME_NAME_ && file_exists(_PS_PARENT_THEME_DIR_ . $tpl)) {
+            $tpl_path = _PS_PARENT_THEME_DIR_ . $tpl;
+        } else {
+            $tpl_path = _PS_ROOT_DIR_ . "/$tpl";
+        }
+        echo $GLOBALS['smarty']->fetch($tpl_path, null, null, [
             'homeslider' => [
                 'speed' => $settings['speed'],
                 'pause' => $settings['pause'] ? 'true' : 'false',
@@ -203,18 +213,6 @@ class ModulesXPremiumXWidgetsXImageSlider extends WidgetBase
                 'slides' => $slides,
             ],
         ]);
-
-        $tpl = 'modules/ps_imageslider/views/templates/hook/slider.tpl';
-
-        if (file_exists(_PS_THEME_DIR_ . $tpl)) {
-            $tpl_path = _PS_THEME_DIR_ . $tpl;
-        } elseif (($parent = $context->shop->theme->get('parent')) && file_exists(_PS_ALL_THEMES_DIR_ . "$parent/$tpl")) {
-            $tpl_path = _PS_ALL_THEMES_DIR_ . "$parent/$tpl";
-        } else {
-            $tpl_path = _PS_ROOT_DIR_ . "/$tpl";
-        }
-
-        echo $context->smarty->fetch($tpl_path);
     }
 
     public function renderPlainContent()

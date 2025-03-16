@@ -1,6 +1,6 @@
 <?php
 /**
- * Creative Elements - live PageBuilder
+ * Creative Elements - live Theme & Page Builder
  *
  * @author    WebshopWorks
  * @copyright 2019-2024 WebshopWorks.com
@@ -40,14 +40,13 @@ class ModulesXCatalogXWidgetsXProductXMiniatureXPrice extends ProductPrice
 
     protected function render()
     {
-        $context = \Context::getContext();
-        $product = &$context->smarty->tpl_vars['product']->value;
+        $product = $GLOBALS['smarty']->tpl_vars['product']->value;
 
         if (!$product['show_price']) {
             return;
         }
         $settings = $this->getSettingsForDisplay();
-        $t = $context->getTranslator(); ?>
+        ?>
         <div class="ce-product-prices">
         <?php if ($settings['regular'] && $product['has_discount']) { ?>
             <?php echo \Hook::exec('displayProductPriceBlock', ['product' => $product, 'type' => 'old_price']); ?>
@@ -59,17 +58,17 @@ class ModulesXCatalogXWidgetsXProductXMiniatureXPrice extends ProductPrice
         <?php if ($settings['discount'] && $product['has_discount']) { ?>
             <?php if ('percentage' === $product['discount_type']) { ?>
                 <span class="ce-product-badge ce-product-badge-sale ce-product-badge-sale-percentage">
-                    <?php echo $t->trans('Save %percentage%', ['%percentage%' => $product['discount_percentage_absolute']], 'Shop.Theme.Catalog'); ?>
+                    <?php _e('Save %percentage%', 'Shop.Theme.Catalog', ['%percentage%' => $product['discount_percentage_absolute']]); ?>
                 </span>
             <?php } else { ?>
                 <span class="ce-product-badge ce-product-badge-sale ce-product-badge-sale-amount">
-                    <?php echo $t->trans('Save %amount%', ['%amount%' => $product['discount_to_display']], 'Shop.Theme.Catalog'); ?>
+                    <?php _e('Save %amount%', 'Shop.Theme.Catalog', ['%amount%' => $product['discount_to_display']]); ?>
                 </span>
             <?php } ?>
         <?php } ?>
             </div>
         <?php if ($settings['unit_price'] && $product['unit_price_full']) { ?>
-            <div class="ce-product-price-unit"><?php echo $t->trans('(%unit_price%)', ['%unit_price%' => $product['unit_price_full']], 'Shop.Theme.Catalog'); ?></div>
+            <div class="ce-product-price-unit"><?php _e('(%unit_price%)', 'Shop.Theme.Catalog', ['%unit_price%' => $product['unit_price_full']]); ?></div>
         <?php } ?>
             <?php echo \Hook::exec('displayProductPriceBlock', ['product' => $product, 'type' => 'weight']); ?>
         </div>

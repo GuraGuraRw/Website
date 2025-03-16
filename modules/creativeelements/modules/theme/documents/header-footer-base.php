@@ -40,55 +40,101 @@ abstract class ModulesXThemeXDocumentsXHeaderFooterBase extends ThemeDocument
         ] + parent::getEditorPanelCategories();
     }
 
-    protected function getPermalinkUrl(\Link $link, $id_lang, $id_shop, array $args, $relative = true)
+    protected function getPermalinkUrl($id_lang, $id_shop, array $args, $relative = true)
     {
         $settings = $this->getData('settings');
-        $preview = isset($settings['preview']) ? $settings['preview'] : 'category';
+        $preview = isset($settings['preview']) ? $settings['preview'] : 'index';
 
         switch ($preview) {
+            case 'index':
+                return parent::getPermalinkUrl($id_lang, $id_shop, $args, $relative);
             case 'category':
                 $id_category = !empty($settings['id_category'])
                     ? $settings['id_category']
                     : \Configuration::get('PS_HOME_CATEGORY', null, null, $id_shop ?: null);
-                $url = $link->getCategoryLink($id_category, null, $id_lang, null, $id_shop, $relative);
+                $url = Helper::$link->getCategoryLink($id_category, null, $id_lang, null, $id_shop, $relative);
                 break;
             case 'manufacturer':
                 $id_manufacturer = !empty($settings['id_manufacturer'])
                     ? $settings['id_manufacturer']
                     : Helper::getLastUpdatedManufacturerId();
-                $url = $link->getManufacturerLink($id_manufacturer, null, $id_lang, $id_shop, $relative);
+                $url = Helper::$link->getManufacturerLink($id_manufacturer, null, $id_lang, $id_shop, $relative);
                 break;
             case 'search':
-                $url = $link->getPageLink($preview, true, $id_lang, empty($settings['search']) ? null : [
+                $url = Helper::$link->getPageLink($preview, true, $id_lang, empty($settings['search']) ? null : [
                     's' => $settings['search'],
-                ], $id_shop, $relative);
+                ], false, $id_shop, $relative);
                 break;
             case 'product':
-                $settings['id_product'] && $product = new \Product($settings['id_product'], false, $id_lang);
+                empty($settings['id_product']) || $product = new \Product($settings['id_product'], false, $id_lang);
                 empty($product->id) && $product = new \Product(Helper::getLastUpdatedProductId($id_shop) ?: null, false, $id_lang);
 
                 if (!$product->active) {
-                    isset($args['id_employee']) || $args['id_employee'] = \Context::getContext()->employee->id;
+                    isset($args['id_employee']) || $args['id_employee'] = $GLOBALS['employee']->id;
                     $args['adtoken'] = \Tools::getAdminTokenLite('AdminProducts');
                 }
-                $url = $link->getProductLink($product, null, null, null, $id_lang, $id_shop, $product->cache_default_attribute ?: 0, false, $relative);
+                $url = Helper::$link->getProductLink($product, null, null, null, $id_lang, $id_shop, $product->cache_default_attribute ?: 0, false, $relative);
+                $url = explode('#', $url)[0];
                 break;
             case 'cms':
                 $settings['id_cms'] && $cms = new \CMS($settings['id_cms'], $id_lang);
                 empty($cms->id) && $cms = new \CMS(1, $id_lang);
 
                 if (!$cms->active) {
-                    isset($args['id_employee']) || $args['id_employee'] = \Context::getContext()->employee->id;
+                    isset($args['id_employee']) || $args['id_employee'] = $GLOBALS['employee']->id;
                     $args['adtoken'] = \Tools::getAdminTokenLite('AdminCmsContent');
                 }
-                $url = $link->getCMSLink($cms, null, null, $id_lang, $id_shop, $relative);
+                $url = Helper::$link->getCMSLink($cms, null, null, $id_lang, $id_shop, $relative);
                 break;
             default:
-                $url = $link->getPageLink($preview, true, $id_lang, null, $id_shop, $relative);
+                $url = Helper::$link->getPageLink($preview, true, $id_lang, null, false, $id_shop, $relative);
                 break;
         }
 
         return add_query_arg($args, $url);
+    }
+
+    protected function getPagesGroups()
+    {
+        $pages = [
+            'index' => __('Home', 'Admin.Catalog.Feature'),
+            'contact' => __('Contact us', 'Shop.Navigation'),
+            'cms' => 'CMS',
+            'catalog' => [
+                'label' => __('Catalog', 'Admin.Navigation.Menu'),
+                'options' => [
+                    'product' => __('Product', 'Admin.Global'),
+                    'category' => __('Category', 'Admin.Global'),
+                    'manufacturer' => __('Brand', 'Admin.Global'),
+                    // 'supplier' => __('Supplier', 'Admin.Global'),
+                    'search' => __('Search', 'Shop.Navigation'),
+                    'prices-drop' => __('Prices drop', 'Shop.Navigation'),
+                    'new-products' => __('New products', 'Shop.Navigation'),
+                    'best-sales' => __('Best sellers', 'Shop.Navigation'),
+                ],
+            ],
+            'checkout' => [
+                'label' => __('Checkout', 'Shop.Theme.Actions'),
+                'options' => [
+                    'cart' => __('Cart', 'Shop.Navigation'),
+                ],
+            ],
+            'misc' => [
+                'label' => __('Miscellaneous', 'Admin.Global'),
+                'options' => [
+                    'stores' => __('Stores', 'Shop.Navigation'),
+                    'sitemap' => __('Sitemap', 'Shop.Navigation'),
+                    'pagenotfound' => __('404 error', 'Shop.Navigation'),
+                ],
+            ],
+        ];
+        if (\Configuration::get('PS_CATALOG_MODE')) {
+            unset($pages['catalog']['options']['best-sales'], $pages['cart']);
+        } elseif (!\Configuration::get('PS_DISPLAY_BEST_SELLERS')) {
+            unset($pages['catalog']['options']['best-sales']);
+        }
+
+        return $pages;
     }
 
     protected function _registerControls()
@@ -103,41 +149,23 @@ abstract class ModulesXThemeXDocumentsXHeaderFooterBase extends ThemeDocument
             ]
         );
 
-        $pages = [
-            'index' => __('Home'),
-            'listing' => [
-                'label' => __('Listing'),
-                'options' => [
-                    'category' => __('Category'),
-                    'manufacturer' => __('Brand'),
-                    // 'supplier' => __('Supplier'),
-                    'search' => __('Search'),
-                    'prices-drop' => __('Prices Drop'),
-                    'new-products' => __('New Products'),
-                    'best-sales' => __('Best Sellers'),
-                ],
-            ],
-            'product' => __('Product'),
-            'cart' => __('Shopping Cart'),
-            'contact' => __('Contact Page'),
-            'cms' => __('CMS'),
-            'pagenotfound' => __('404 Page'),
-        ];
-        if (!\Configuration::get('PS_DISPLAY_BEST_SELLERS') || \Configuration::get('PS_CATALOG_MODE')) {
-            unset($pages['listing']['options']['best-sales']);
-        }
+        $pages = _CE_ADMIN_ ? $this->getPagesGroups() : [];
+
         if (!$display_suppliers = \Configuration::get('PS_DISPLAY_SUPPLIERS')) {
-            unset($pages['listing']['options']['supplier']);
+            unset($pages['catalog']['options']['supplier']);
         }
         if (!$display_manufacturers = version_compare(_PS_VERSION_, '1.7.7', '<') ? $display_suppliers : \Configuration::get('PS_DISPLAY_MANUFACTURERS')) {
-            unset($pages['listing']['options']['manufacturer']);
+            unset($pages['catalog']['options']['manufacturer']);
         }
         $this->addControl(
             'preview',
             [
                 'label' => __('Preview'),
-                'type' => ControlsManager::SELECT,
-                'groups' => &$pages,
+                'type' => ControlsManager::SELECT2,
+                'select2options' => [
+                    'allowClear' => false,
+                ],
+                'options' => &$pages,
                 'default' => 'index',
             ]
         );
@@ -151,7 +179,8 @@ abstract class ModulesXThemeXDocumentsXHeaderFooterBase extends ThemeDocument
                 'select2options' => [
                     'allowClear' => false,
                 ],
-                'default' => \Context::getContext()->shop->id_category,
+                'default' => $GLOBALS['context']->shop->id_category,
+                'export' => false,
                 'condition' => [
                     'preview' => 'category',
                 ],
@@ -167,6 +196,7 @@ abstract class ModulesXThemeXDocumentsXHeaderFooterBase extends ThemeDocument
                 'select2options' => [
                     'placeholder' => __('Select...'),
                 ],
+                'export' => false,
                 'condition' => [
                     'preview' => 'manufacturer',
                 ],
@@ -198,6 +228,7 @@ abstract class ModulesXThemeXDocumentsXHeaderFooterBase extends ThemeDocument
                         'url' => Helper::getAjaxProductsListLink(),
                     ],
                 ],
+                'export' => false,
                 'condition' => [
                     'preview' => 'product',
                 ],
@@ -216,6 +247,7 @@ abstract class ModulesXThemeXDocumentsXHeaderFooterBase extends ThemeDocument
                         'get' => 'Cms',
                     ],
                 ],
+                'export' => false,
                 'condition' => [
                     'preview' => 'cms',
                 ],

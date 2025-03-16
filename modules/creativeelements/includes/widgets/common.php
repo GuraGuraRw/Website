@@ -119,7 +119,7 @@ class WidgetCommon extends WidgetBase
                 ],
                 'prefix_class' => 'elementor-widget%s__width-',
                 'selectors' => [
-                    '{{WRAPPER}}' => 'width: {{VALUE}}; max-width: {{VALUE}}',
+                    '{{WRAPPER}}' => 'width: {{VALUE}};',
                 ],
             ]
         );
@@ -152,7 +152,7 @@ class WidgetCommon extends WidgetBase
                 ],
                 'size_units' => ['px', '%', 'vw'],
                 'selectors' => [
-                    '{{WRAPPER}}' => 'width: {{SIZE}}{{UNIT}}; max-width: {{SIZE}}{{UNIT}}',
+                    '{{WRAPPER}}' => 'width: {{SIZE}}{{UNIT}}; max-width: max({{SIZE}}{{UNIT}}, 100%)',
                 ],
             ]
         );
@@ -179,7 +179,7 @@ class WidgetCommon extends WidgetBase
                     ],
                 ],
                 'selectors' => [
-                    '{{WRAPPER}}' => 'width: calc({{VALUE}}); max-width: calc({{VALUE}})',
+                    '{{WRAPPER}}' => 'width: calc({{VALUE}}); max-width: max(calc({{VALUE}}), 100%)',
                 ],
             ]
         );
@@ -304,6 +304,9 @@ class WidgetCommon extends WidgetBase
             [
                 'label' => __('Custom Order'),
                 'type' => ControlsManager::NUMBER,
+                'selectors' => [
+                    '{{WRAPPER}}' => 'order: {{VALUE}};',
+                ],
                 'condition' => [
                     '_position' => '',
                     '_flex_order' => 'custom',
@@ -321,9 +324,6 @@ class WidgetCommon extends WidgetBase
                             '_flex_order_mobile' => 'custom',
                         ],
                     ],
-                ],
-                'selectors' => [
-                    '{{WRAPPER}}' => 'order: {{VALUE}};',
                 ],
             ]
         );
@@ -359,6 +359,20 @@ class WidgetCommon extends WidgetBase
                 'condition' => [
                     '_position' => '',
                     '_element_width!' => '',
+                ],
+                'device_args' => [
+                    ControlsStack::RESPONSIVE_TABLET => [
+                        'condition' => [
+                            '_position' => '',
+                            '_element_width_tablet!' => '',
+                        ],
+                    ],
+                    ControlsStack::RESPONSIVE_MOBILE => [
+                        'condition' => [
+                            '_position' => '',
+                            '_element_width_mobile!' => '',
+                        ],
+                    ],
                 ],
             ]
         );
@@ -397,12 +411,11 @@ class WidgetCommon extends WidgetBase
             ]
         );
 
-        $warning = __('Custom positioning is not considered best practice for responsive web design and should not be used too frequently.');
-
-        $this->addControl(
+        _CE_ADMIN_ && $this->addControl(
             '_position_description',
             [
-                'raw' => '<strong>' . __('Please note!') . '</strong> ' . $warning,
+                'raw' => '<strong>' . __('Please note!') . '</strong> ' .
+                    __('Custom positioning is not considered best practice for responsive web design and should not be used too frequently.'),
                 'type' => ControlsManager::RAW_HTML,
                 'content_classes' => 'elementor-panel-alert elementor-panel-alert-warning',
                 'render_type' => 'ui',
@@ -484,8 +497,7 @@ class WidgetCommon extends WidgetBase
                 ],
                 'size_units' => ['px', '%', 'vw', 'vh'],
                 'selectors' => [
-                    'body:not(.lang-rtl) {{WRAPPER}}' => 'left: {{SIZE}}{{UNIT}}',
-                    'body.lang-rtl {{WRAPPER}}' => 'right: {{SIZE}}{{UNIT}}',
+                    '{{WRAPPER}}' => 'inset-inline-start: {{SIZE}}{{UNIT}}',
                 ],
                 'condition' => [
                     '_offset_orientation_h!' => 'end',
@@ -523,8 +535,7 @@ class WidgetCommon extends WidgetBase
                 ],
                 'size_units' => ['px', '%', 'vw', 'vh'],
                 'selectors' => [
-                    'body:not(.lang-rtl) {{WRAPPER}}' => 'right: {{SIZE}}{{UNIT}}',
-                    'body.lang-rtl {{WRAPPER}}' => 'left: {{SIZE}}{{UNIT}}',
+                    '{{WRAPPER}}' => 'inset-inline-end: {{SIZE}}{{UNIT}}',
                 ],
                 'condition' => [
                     '_offset_orientation_h' => 'end',
@@ -915,17 +926,35 @@ class WidgetCommon extends WidgetBase
         $this->startControlsSection(
             '_section_responsive',
             [
-                'label' => __('Responsive'),
+                'label' => __('Visibility'),
                 'tab' => ControlsManager::TAB_ADVANCED,
             ]
         );
 
-        $this->addControl(
+        _CE_ADMIN_ && $this->addControl(
             'responsive_description',
             [
-                'raw' => __('Responsive visibility will take effect only on preview or live page, and not while editing in Creative Elements.'),
+                'raw' => '<strong>' . __('Please note!') . '</strong> ' .
+                    __('These options are not considered best practice for responsive web design and should not be used too frequently.'),
                 'type' => ControlsManager::RAW_HTML,
-                'content_classes' => 'elementor-descriptor',
+                'content_classes' => 'elementor-panel-alert elementor-panel-alert-warning',
+                'conditions' => [
+                    'relation' => 'or',
+                    'terms' => [
+                        [
+                            'name' => 'hide_desktop',
+                            'value' => 'hidden-desktop',
+                        ],
+                        [
+                            'name' => 'hide_tablet',
+                            'value' => 'hidden-tablet',
+                        ],
+                        [
+                            'name' => 'hide_mobile',
+                            'value' => 'hidden-phone',
+                        ],
+                    ],
+                ],
             ]
         );
 
@@ -962,6 +991,7 @@ class WidgetCommon extends WidgetBase
                 'label_on' => __('Hide'),
                 'label_off' => __('Show'),
                 'return_value' => 'hidden-phone',
+                'description' => __('Responsive visibility will take effect only on preview or live page, and not while editing in Creative Elements.'),
             ]
         );
 

@@ -16,8 +16,8 @@ use CE\ModulesXCatalogXControlsXSelectManufacturer as SelectManufacturer;
 use CE\ModulesXCatalogXDocumentsXListingXPage as ListingPageDocument;
 use CE\ModulesXCatalogXWidgetsXListingXDescription as ListingDescription;
 use CE\ModulesXCatalogXWidgetsXListingXImage as ListingImage;
-use CE\ModulesXCatalogXWidgetsXListingXPageTitle as PageTitle;
 use CE\ModulesXCatalogXWidgetsXManufacturerXShortDescription as ShortDescription;
+use CE\ModulesXThemeXWidgetsXPageTitle as PageTitle;
 
 class ModulesXCatalogXDocumentsXListingXManufacturer extends ListingPageDocument
 {
@@ -60,14 +60,14 @@ class ModulesXCatalogXDocumentsXListingXManufacturer extends ListingPageDocument
         );
     }
 
-    protected function getPermalinkUrl(\Link $link, $id_lang, $id_shop, array $args, $relative = true)
+    protected function getPermalinkUrl($id_lang, $id_shop, array $args, $relative = true)
     {
         $settings = $this->getData('settings');
         $id_manufacturer = !empty($settings['id_manufacturer'])
             ? $settings['id_manufacturer']
             : Helper::getLastUpdatedManufacturerId();
 
-        return add_query_arg($args, $link->getManufacturerLink($id_manufacturer, null, $id_lang, $id_shop, $relative));
+        return add_query_arg($args, Helper::$link->getManufacturerLink($id_manufacturer, null, $id_lang, $id_shop, $relative));
     }
 
     protected function registerPreviewSettings()
@@ -81,7 +81,7 @@ class ModulesXCatalogXDocumentsXListingXManufacturer extends ListingPageDocument
                 'select2options' => [
                     'allowClear' => false,
                 ],
-                'extend' => [
+                'options' => [
                     '0' => __('Default'),
                 ],
                 'default' => 0,
@@ -96,7 +96,6 @@ class ModulesXCatalogXDocumentsXListingXManufacturer extends ListingPageDocument
 
         $widgets_manager->registerWidgetType(new PageTitle([], null, [
             'title' => __('Brand Name'),
-            'icon' => 'eicon-product-title',
             'categories' => ['listing-elements' => 1],
             'keywords' => ['shop', 'store', 'heading', 'title', 'name', 'brand', 'manufacturer'],
             'dynamic_tag_name' => 'manufacturer-name',

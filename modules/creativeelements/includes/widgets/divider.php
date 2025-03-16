@@ -22,6 +22,8 @@ if (!defined('_PS_VERSION_')) {
  */
 class WidgetDivider extends WidgetBase
 {
+    const HELP_URL = 'http://docs.webshopworks.com/creative-elements/85-widgets/basic-widgets/298-divider-widget';
+
     /**
      * Get widget name.
      *
@@ -92,6 +94,11 @@ class WidgetDivider extends WidgetBase
     public function getKeywords()
     {
         return ['divider', 'hr', 'line', 'border'];
+    }
+
+    protected function isDynamicContent()
+    {
+        return false;
     }
 
     private static function getAdditionalStyles()

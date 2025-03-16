@@ -13,7 +13,7 @@ if (!defined('_PS_VERSION_')) {
 }
 
 use CE\CoreXDynamicTagsXDataTag as DataTag;
-use CE\ModulesXDynamicTagsXModule as Module;
+use CE\ModulesXDynamicTagsXModule as TagsModule;
 
 class ModulesXCatalogXTagsXProductImages extends DataTag
 {
@@ -31,12 +31,12 @@ class ModulesXCatalogXTagsXProductImages extends DataTag
 
     public function getGroup()
     {
-        return Module::CATALOG_GROUP;
+        return TagsModule::CATALOG_GROUP;
     }
 
     public function getCategories()
     {
-        return [Module::GALLERY_CATEGORY];
+        return [TagsModule::GALLERY_CATEGORY];
     }
 
     public function getPanelTemplateSettingKey()
@@ -60,7 +60,7 @@ class ModulesXCatalogXTagsXProductImages extends DataTag
         $this->addControl(
             'id_product',
             [
-                'label' => __('Product'),
+                'label' => __('Product', 'Shop.Theme.Catalog'),
                 'type' => ControlsManager::SELECT2,
                 'label_block' => true,
                 'select2options' => [
@@ -123,18 +123,17 @@ class ModulesXCatalogXTagsXProductImages extends DataTag
 
     public function getValue(array $options = [])
     {
-        $context = \Context::getContext();
         $settings = $this->getSettings();
         $caption = $settings['caption'];
         $items = [];
 
-        if (!$settings['id_product'] && $context->controller instanceof \ProductController) {
-            $images = $context->smarty->tpl_vars['product']->value['images'];
+        if (!$settings['id_product'] && $GLOBALS['context']->controller instanceof \ProductController) {
+            $images = $GLOBALS['smarty']->tpl_vars['product']->value['images'];
         } else {
-            $product = new \Product($settings['id_product'], false, $context->language->id);
-            $imageRetriever = new \PrestaShop\PrestaShop\Adapter\Image\ImageRetriever($context->link);
+            $product = new \Product($settings['id_product'], false, $GLOBALS['language']->id);
+            $imageRetriever = new \PrestaShop\PrestaShop\Adapter\Image\ImageRetriever(Helper::$link);
             $settings['id_product_attribute'] = $product->cache_default_attribute;
-            $images = $imageRetriever->getProductImages($settings, $context->language);
+            $images = $imageRetriever->getProductImages($settings, $GLOBALS['language']);
         }
 
         if ($settings['start'] || $settings['limit']) {
@@ -145,7 +144,6 @@ class ModulesXCatalogXTagsXProductImages extends DataTag
             $bySize = $image['bySize'][$settings['image_size']];
             $items[] = [
                 'image' => [
-                    'id' => '',
                     'url' => $bySize['url'],
                     'alt' => $image['legend'],
                     'width' => $bySize['width'],

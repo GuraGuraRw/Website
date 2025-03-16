@@ -23,33 +23,25 @@ class ModulesXFontsManagerXIconSetsXFontello extends IconSetBase
     protected function prepare()
     {
         $this->removeFontelloStyling();
+        $this->dir_name = $this->getUniqueName();
     }
 
     public function getType()
     {
-        return __('Fontello');
-    }
-
-    public function isValid()
-    {
-        if (!file_exists($this->directory . $this->data_file)) {
-            return false; // missing data file
-        }
-
-        return true;
+        return 'Fontello';
     }
 
     private function removeFontelloStyling()
     {
         $filename = $this->directory . $this->stylesheet_file;
-        $stylesheet = call_user_func('file_get_contents', $filename);
+        $stylesheet = @call_user_func('file_get_contents', $filename);
         $stylesheet = str_replace(['margin-left: .2em;', 'margin-right: .2em;'], ['', ''], $stylesheet);
-        file_put_contents($filename, $stylesheet);
+        @call_user_func('file_put_contents', $filename, $stylesheet);
     }
 
     private function getJson()
     {
-        return json_decode(call_user_func('file_get_contents', $this->directory . $this->data_file));
+        return json_decode(@call_user_func('file_get_contents', $this->directory . $this->data_file));
     }
 
     protected function extractIconList()

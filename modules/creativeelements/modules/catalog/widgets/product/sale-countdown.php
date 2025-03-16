@@ -43,6 +43,11 @@ class ModulesXCatalogXWidgetsXProductXSaleCountdown extends Countdown
         return ['shop', 'store', 'countdown', 'timer', 'date', 'sale', 'discount', 'product'];
     }
 
+    protected function isDynamicContent()
+    {
+        return true;
+    }
+
     protected function _registerControls()
     {
         parent::_registerControls();
@@ -75,7 +80,7 @@ class ModulesXCatalogXWidgetsXProductXSaleCountdown extends Countdown
 
     protected function render()
     {
-        $product = &\Context::getContext()->smarty->tpl_vars['product']->value;
+        $product = $GLOBALS['smarty']->tpl_vars['product']->value;
 
         if (!empty($product['specific_prices']['to']) && '0000-00-00 00:00:00' !== $product['specific_prices']['to']) {
             $this->setSettings('due_date', $product['specific_prices']['to']);
@@ -86,14 +91,13 @@ class ModulesXCatalogXWidgetsXProductXSaleCountdown extends Countdown
 
     protected function renderSmarty()
     {
-        $settings = $this->getSettingsForDisplay(); ?>
+        $settings = $this->getSettingsForDisplay();
+        ?>
         {if !empty($product.specific_prices.to) && '0000-00-00 00:00:00' !== $product.specific_prices.to}
-            <div class="elementor-countdown-wrapper"
-                data-date="{strtotime($product.specific_prices.to)}"
-                data-expire-actions='<?php echo str_replace('{"', '{ "', json_encode($this->getActions($settings))); ?>'>
+            <div class="elementor-countdown-wrapper" data-date="{strtotime($product.specific_prices.to)}" data-expire-actions='{literal}<?php echo json_encode($this->getActions($settings)); ?>{/literal}'>
                 <?php echo $this->getStrftime($settings); ?>
             </div>
-        <?php if (in_array('message', $settings['expire_actions'])) { ?>
+        <?php if ($settings['expire_actions'] && in_array('message', $settings['expire_actions'])) { ?>
             <div class="elementor-countdown-expire--message"><?php echo $settings['message_after_expire']; ?></div>
         <?php } ?>
         {/if}
